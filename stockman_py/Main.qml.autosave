@@ -1,0 +1,59 @@
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Window
+
+Window {
+    visible: true;
+    title: qsTr("Stock-Man");
+    //color: "#e9e9e9";
+
+    Item {
+        anchors.fill: parent;
+        property real standardRadius: 30;
+
+        Rectangle {
+            id: containerRect;
+            anchors.fill: parent;
+            color: "#e9e9e9"
+
+            GridLayout {
+                anchors.fill: parent;
+                columns: 2;
+
+                Rectangle {
+                    id: sidebarRect
+                    anchors {
+                        left: parent.left;
+                        top: parent.top;
+                        bottom: parent.bottom;
+                    }
+                    Layout.fillHeight: true;
+                    width: 250;
+                    topLeftRadius: 0;
+                    bottomLeftRadius: 0;
+                    topRightRadius: 30;
+                    bottomRightRadius: 30;
+                    color: "#ffa500";
+
+                    TabBar {
+                        anchors.fill: parent;
+                        width: parent.width;
+                        TabButton
+                    }
+                }
+
+                Rectangle {
+                    anchors {
+                        right: parent.right;
+                        top: parent.top;
+                        bottom: parent.bottom;
+                    }
+                    Layout.fillHeight: true;
+                    width: parent.width - sidebarRect.width;
+                    color: containerRect.color;
+                }
+            }
+        }
+    }
+}
