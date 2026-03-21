@@ -18,5 +18,17 @@
     {
         "item": "bolacha",
         "quantidade": "1"
+    },
+    {
+        "item": "1",
+        "quantidade": "2"
+    },
+    {
+        "item": "teste",
+        "quantidade": "teste"
+    },
+    {
+        "item": "pao",
+        "quantidade": "t"
     }
 ]

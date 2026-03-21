@@ -7,9 +7,24 @@ novos_itens = []
 # Função de entrada de dados
 def adicionar_item(dados):
     while True:
-        item = input("Digite o item: ")
-        quant = input("Digite a quantidade: ")
+        # validar item
+        while True:
+            item = input("Digite o item: ")
+            if not item.isdigit():
+                break
+            else:
+                print("❌ Item não pode ser apenas número!")
 
+        # validar quantidade
+        while True:
+            quant = input("Digite a quantidade: ")
+            if quant.isdigit():
+                quant = int(quant)
+                break
+            else:
+                print("❌ Digite apenas números!")
+
+        # adicionar item na lista
         dados.append({
             "item": item,
             "quantidade": quant
