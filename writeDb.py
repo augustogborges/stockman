@@ -19,6 +19,17 @@ def adicionar_item(dados):
 
         if continuar != "s":
             break
+# Definição de Listar Itens
+def listar_itens(dados):
+    if not dados:
+        print("Nenhum item encontrado.")
+        return
+
+    print("\n===== LISTA DE ITENS =====")
+    
+    for i, item in enumerate(dados):
+        print(f"{i} - Item: {item['item']} | Quantidade: {item['quantidade']}")
+
 
 # Definicao de salvar dados
 def salvar_dados(dados):
@@ -43,7 +54,8 @@ dados.extend(novos_itens)
 while True:
     print("\n===== MENU =====")
     print("1 - Adicionar item")
-    print("2 - Sair")
+    print("2 - Listar Itens")
+    print("3 - Sair")
 
     opcao = input("Escolha uma opção: ")
 
@@ -52,6 +64,9 @@ while True:
         salvar_dados(dados)
 
     elif opcao == "2":
+        listar_itens(dados)
+
+    elif opcao == "3":
         break
 
     else:
