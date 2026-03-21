@@ -1,4 +1,10 @@
-{
-    "doce": "1",
-    "bolacha": "3"
-}
+[
+    {
+        "item": "bolacha",
+        "quantidade": "1"
+    },
+    {
+        "item": "bolacha",
+        "quantidade": "2"
+    }
+]
