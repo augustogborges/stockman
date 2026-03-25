@@ -1,34 +1,20 @@
 [
     {
-        "item": "bolacha",
-        "quantidade": "1"
+        "item": "resumo para a prova",
+        "valor_venda": 30,
+        "preco_custo": 5,
+        "quantidade": 10
     },
     {
-        "item": "bolacha",
-        "quantidade": "2"
+        "item": "lapis de cor",
+        "valor_venda": 30,
+        "preco_custo": 2,
+        "quantidade": 50
     },
     {
-        "item": "bolacha",
-        "quantidade": "10"
-    },
-    {
-        "item": "tenis",
-        "quantidade": "1"
-    },
-    {
-        "item": "bolacha",
-        "quantidade": "1"
-    },
-    {
-        "item": "1",
-        "quantidade": "2"
-    },
-    {
-        "item": "teste",
-        "quantidade": "teste"
-    },
-    {
-        "item": "pao",
-        "quantidade": "t"
+        "item": "vaca leiteira",
+        "valor_venda": 3000,
+        "preco_custo": 1400,
+        "quantidade": 50
     }
 ]
