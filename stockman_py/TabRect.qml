@@ -77,20 +77,20 @@ MouseArea {
             width: sidebarRect.width * 4.5 / 5
             height: 50
             radius: 30
-            scale: 1 //0.9
-            opacity:1 //0.95
+            scale: 0.9
+            opacity: 0.95
             color: container.viewIndex == root.buttonIndex ? root.foreColor : "transparent"
 
             Behavior on opacity {
                 NumberAnimation {
-                    duration: 300
+                    duration: 400
                     easing.type: Easing.InOutCubic
                 }
             }
 
             Behavior on scale {
                 NumberAnimation {
-                    duration: 300
+                    duration: 500
                     easing.type: Easing.InOutCubic
                 }
             }
@@ -105,9 +105,7 @@ MouseArea {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.buttonSymbols[root.buttonIndex]
                     font.family: "Phosphor-Bold"
-                    style: container.viewIndex == root.buttonIndex ? Text.Outline : Text.Normal
-                    styleColor: '#6c272727'
-                    font.pointSize: 15
+                    font.pointSize: 16
                     color: "#ffffff"
                 }
 
@@ -117,8 +115,8 @@ MouseArea {
                     text: root.buttonNames[root.buttonIndex]
                     font.family: "Roboto Condensed Medium"
                     style: container.viewIndex == root.buttonIndex ? Text.Outline : Text.Normal
-                    styleColor: '#6c272727'
-                    font.pointSize: 15
+                    styleColor: '#404040'
+                    font.pointSize: 16
                     color: "#ffffff"
                 }
             }

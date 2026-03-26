@@ -4,11 +4,12 @@ import QtQuick.Controls
 import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Window
+import Qt.labs.qmlmodels
 
 Window {
     id: root
     visible: true;
-    visibility: Maximized
+    visibility: Window.Maximized
     title: qsTr("Stock-Man");
     //color: "#e9e9e9";
     property color bgColor: "#0f1869"
@@ -124,13 +125,35 @@ Window {
                             }
                         }
 
-                        Repeater {
-                            model: 4
-                            
-                            delegate: TabRect {
-                                required property int index
-                                buttonIndex: index
+                        TabRect {
+                            id: dashButton
+                            buttonIndex: 0
+                            Component.onCompleted: {
+                                container.viewIndex = 0;
+                                usersButton.scale = 0.9;
+                                financeButton.scale = 0.9;
+                                itensButton.scale = 0.9;
+                                dashButton.scale = 1;
+                                usersButton.opacity = 0.95;
+                                financeButton.opacity = 0.95;
+                                itensButton.opacity = 0.95;
+                                dashButton.opacity = 1;
                             }
+                        }
+
+                        TabRect {
+                            id: itensButton
+                            buttonIndex: 1
+                        }
+
+                        TabRect {
+                            id: financeButton
+                            buttonIndex: 2
+                        }
+
+                        TabRect {
+                            id: usersButton
+                            buttonIndex: 3
                         }
                     }
                 }
@@ -158,6 +181,7 @@ Window {
                         }
 
                         Rectangle {
+                            id: secondTab
                             anchors.fill: parent
                             color: containerRect.color
 
@@ -178,15 +202,99 @@ Window {
                                 }
 
                                 Rectangle {
-                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    id: tableBox
+                                    //anchors.horizontalCenter: parent.horizontalCenter
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
                                     radius: 15
-                                    border.width: 1
+                                    border.width: 1.2
                                     border.color: '#b7484242'
                                     color: "#e0e0e0"
                                     Layout.leftMargin: 60
                                     Layout.rightMargin: 60
+
+                                    /*TableView {
+                                        anchors.fill: parent
+                                        keyNavigationEnabled: false
+                                        property real totalHorizontal: parent.width
+                                        property var columnWidths: [totalHorizontal * 0.6, totalHorizontal * 0.1, totalHorizontal * 0.1, totalHorizontal * 0.1, totalHorizontal * 0.1]
+                                        columnWidthProvider: function (column) { return columnWidths[column] }
+
+                                        columnSpacing: 1
+                                        rowSpacing: 1
+                                        clip: true
+
+                                        model: TableModel {
+                                            TableModelColumn { display: "Nome do Produto" }
+                                            TableModelColumn { display: "Quantidade" }
+                                            TableModelColumn { display: "Preço de Custo" }
+                                            TableModelColumn { display: "Preço de Venda" }
+                                            TableModelColumn { display: "Lucro" }
+
+                                            rows: [
+                                               {
+                                                    "Nome do Produto": "cat",
+                                                    "Quantidade": "10",
+                                                    "Preço de Custo": "2",
+                                                    "Preço de Venda": "2",
+                                                    "Lucro": "2"
+                                               }
+                                           ]
+                                        }
+                                        delegate: Rectangle {
+                                            implicitHeight: 50
+                                            border.width: 1
+
+                                            Text {
+                                                text: display
+                                                color: "#000000"
+                                                anchors.centerIn: parent
+                                            }
+                                        }
+
+                                    }*/
+
+                                    ColumnLayout {
+                                        anchors.fill: parent
+                                        spacing: 0
+
+                                        RowLayout {
+                                            id: firstColumns
+                                            anchors.top: parent.top
+                                            anchors.topMargin: 1
+                                            Layout.leftMargin: 1
+                                            Layout.rightMargin: 1
+                                            property var columnNames: [productObject.name, productObject.quantity, productObject.buyPrice, productObject.sellPrice, productObject.profit]
+                                            spacing: 0
+                                            uniformCellSizes: false
+
+                                            Repeater {
+                                                id: firstRowRepeat
+                                                model: 5
+
+                                                delegate: Rectangle {
+                                                    required property int index
+                                                    Layout.horizontalStretchFactor: index == 0 ? 6 : 1
+                                                    Layout.preferredWidth: index == 0 ? undefined : childrenRect.width + 30
+                                                    topLeftRadius: index == 0 ? 15 : 0
+                                                    topRightRadius:  index == 4 ? 15 : 0
+                                                    Layout.fillWidth: true
+                                                    Layout.preferredHeight: 40
+                                                    color: "#e0e0e0"
+                                                    border.width: 1
+                                                    border.color: '#b7484242'
+
+                                                    Text {
+                                                        anchors.centerIn: parent
+                                                        color: "#000000"
+                                                        font.family: "Roboto"
+                                                        font.pointSize: 13
+                                                        text: firstColumns.columnNames[parent.index]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
