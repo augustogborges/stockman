@@ -2,7 +2,7 @@ import json
 import os
 
 # Opção de adicionar itens
-def adicionar_itens (item, quantidade, valorCusto, valorFinal):
+def adicionar_itens (name, quantidade, valorCusto, valorFinal):
     database =  os.path.join("..", "data", "db.json")
 
     if os.path.exists(database):
@@ -15,9 +15,9 @@ def adicionar_itens (item, quantidade, valorCusto, valorFinal):
         dados = []
 
     novo_item = {
-        "item": item,
-        "valor_venda": valorFinal,
-        "preco_custo": valorCusto,
+        "name": name,
+        "sellPrice": valorFinal,
+        "buyPrice": valorCusto,
         "quantidade": quantidade
     }
 
@@ -41,11 +41,10 @@ def listar_itens():
         return
 
     for item in dados:
-        print(f"Item: {item['item']}")
-        print(f"Quantidade: {item['quantidade']}")
-        print(f"Custo: {item['preco_custo']}")
-        print(f"Venda: {item['valor_venda']}")
+        print(f"Nome: {item['name']}")
+        print(f"Quantidade: {item['quantity']}")
+        print(f"Custo: {item['buyPrice']}")
+        print(f"Venda: {item['sellPrice']}")
         print("-"*30)
 
-adicionar_itens("vaca leiteira", 50, 1400, 3000)
 listar_itens()

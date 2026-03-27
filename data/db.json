@@ -1,20 +1,20 @@
 [
     {
-        "item": "resumo para a prova",
-        "valor_venda": 30,
-        "preco_custo": 5,
-        "quantidade": 10
+        "name": "resumo para a prova",
+        "sellPrice": 30,
+        "buyPrice": 5,
+        "quantity": 10
     },
     {
-        "item": "lapis de cor",
-        "valor_venda": 30,
-        "preco_custo": 2,
-        "quantidade": 50
+        "name": "lapis de cor",
+        "sellPrice": 30,
+        "buyPrice": 2,
+        "quantity": 50
     },
     {
-        "item": "vaca leiteira",
-        "valor_venda": 3000,
-        "preco_custo": 1400,
-        "quantidade": 50
+        "name": "vaca leiteira",
+        "sellPrice": 3000,
+        "buyPrice": 1400,
+        "quantity": 50
     }
 ]

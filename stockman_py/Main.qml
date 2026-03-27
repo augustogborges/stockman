@@ -11,6 +11,7 @@ Window {
     visible: true;
     visibility: Window.Maximized
     title: qsTr("Stock-Man");
+    property int productAmount
     //color: "#e9e9e9";
     property color bgColor: "#0f1869"
     property color logoContainColor: Qt.darker(bgColor, 1.21)
@@ -264,7 +265,8 @@ Window {
                                             anchors.topMargin: 1
                                             Layout.leftMargin: 1
                                             Layout.rightMargin: 1
-                                            property var columnNames: [productObject.name, productObject.quantity, productObject.buyPrice, productObject.sellPrice, productObject.profit]
+                                            property var columnNames: ["Nome do Produto", "Quantidade", "Custo", "Preço Venda", count]
+                                            //property var columnNames: [productObject0.name, productObject0.quantity, productObject0.buyPrice, productObject0.sellPrice, productObject0.profit]
                                             spacing: 0
                                             uniformCellSizes: false
 
