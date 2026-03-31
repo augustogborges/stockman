@@ -6,6 +6,8 @@ import QtQuick.Layouts
 import QtQuick.Window
 import Qt.labs.qmlmodels
 
+import Stocker
+
 Window {
     id: root
     visible: true;
@@ -198,8 +200,8 @@ Window {
                                     radius: 30
                                     border.width: 1
                                     border.color: '#b7484242'
-                                    height: 65
-                                    width: 700
+                                    height: 45
+                                    width: 520
                                 }
 
                                 Rectangle {
@@ -207,96 +209,41 @@ Window {
                                     //anchors.horizontalCenter: parent.horizontalCenter
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
+                                    property real intendedWidth: mainRect.width - sidebarRect.width - 120
                                     radius: 15
                                     border.width: 1.2
                                     border.color: '#b7484242'
                                     color: "#e0e0e0"
                                     Layout.leftMargin: 60
                                     Layout.rightMargin: 60
-
-                                    /*TableView {
-                                        anchors.fill: parent
-                                        keyNavigationEnabled: false
-                                        property real totalHorizontal: parent.width
-                                        property var columnWidths: [totalHorizontal * 0.6, totalHorizontal * 0.1, totalHorizontal * 0.1, totalHorizontal * 0.1, totalHorizontal * 0.1]
-                                        columnWidthProvider: function (column) { return columnWidths[column] }
-
-                                        columnSpacing: 1
-                                        rowSpacing: 1
-                                        clip: true
-
-                                        model: TableModel {
-                                            TableModelColumn { display: "Nome do Produto" }
-                                            TableModelColumn { display: "Quantidade" }
-                                            TableModelColumn { display: "Preço de Custo" }
-                                            TableModelColumn { display: "Preço de Venda" }
-                                            TableModelColumn { display: "Lucro" }
-
-                                            rows: [
-                                               {
-                                                    "Nome do Produto": "cat",
-                                                    "Quantidade": "10",
-                                                    "Preço de Custo": "2",
-                                                    "Preço de Venda": "2",
-                                                    "Lucro": "2"
-                                               }
-                                           ]
-                                        }
-                                        delegate: Rectangle {
-                                            implicitHeight: 50
-                                            border.width: 1
-
-                                            Text {
-                                                text: display
-                                                color: "#000000"
-                                                anchors.centerIn: parent
-                                            }
-                                        }
-
-                                    }*/
-
-                                    ColumnLayout {
-                                        anchors.fill: parent
-                                        spacing: 0
-
-                                        RowLayout {
-                                            id: firstColumns
-                                            anchors.top: parent.top
-                                            anchors.topMargin: 1
-                                            Layout.leftMargin: 1
-                                            Layout.rightMargin: 1
-                                            property var columnNames: ["Nome do Produto", "Quantidade", "Custo", "Preço Venda", count]
-                                            //property var columnNames: [productObject0.name, productObject0.quantity, productObject0.buyPrice, productObject0.sellPrice, productObject0.profit]
-                                            spacing: 0
-                                            uniformCellSizes: false
-
-                                            Repeater {
-                                                id: firstRowRepeat
-                                                model: 5
-
-                                                delegate: Rectangle {
-                                                    required property int index
-                                                    Layout.horizontalStretchFactor: index == 0 ? 6 : 1
-                                                    Layout.preferredWidth: index == 0 ? undefined : childrenRect.width + 30
-                                                    topLeftRadius: index == 0 ? 15 : 0
-                                                    topRightRadius:  index == 4 ? 15 : 0
-                                                    Layout.fillWidth: true
-                                                    Layout.preferredHeight: 40
-                                                    color: "#e0e0e0"
-                                                    border.width: 1
-                                                    border.color: '#b7484242'
-
-                                                    Text {
-                                                        anchors.centerIn: parent
-                                                        color: "#000000"
-                                                        font.family: "Roboto"
-                                                        font.pointSize: 13
-                                                        text: firstColumns.columnNames[parent.index]
-                                                    }
-                                                }
-                                            }
-                                        }
+                                    Component.onCompleted: {
+                                        console.log(intendedWidth)
                                     }
+
+                                    /*ColumnLayout {
+                                        anchors.fill: parent
+                                        spacing: 0*/
+
+                                        ListView {
+                                            id: listView
+                                            anchors.fill: parent
+                                            orientation: ListView.Vertical
+                                            height: parent.height
+
+                                            StockModel {
+                                                id: stock_model
+                                            }
+
+                                            delegate: ProductLister {
+                                                id: delegate
+                                                sModel: stock_model
+                                            }
+
+                                            model: stock_model
+
+                                            ScrollBar.vertical: ScrollBar { }
+                                        }
+                                    //}
                                 }
                             }
                         }

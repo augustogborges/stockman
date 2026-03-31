@@ -1,3 +1,4 @@
 module stockman_py
 
 Main 1.0 Main.qml
+ProductLister 1.0 ProductLister.qml
