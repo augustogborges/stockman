@@ -8,6 +8,8 @@ import Stocker
 
 ItemDelegate {
     id: delegate
+    anchors.left: parent.left
+    anchors.right: parent.right
     checkable: true
     height: 40
     property var sModel
@@ -15,13 +17,17 @@ ItemDelegate {
 
     contentItem: RowLayout {
         anchors.left: parent.left
+        anchors.right: parent.right
         Layout.leftMargin: 0
         Layout.rightMargin: 0
         spacing: 0
         uniformCellSizes: false
 
         Rectangle {
-            width: tableBox.implicitWidth * 0.5
+            Layout.horizontalStretchFactor: 3
+            //width: tableBox.implicitWidth * 0.5
+            Layout.fillWidth: true
+            Layout.preferredWidth: 1
             Layout.preferredHeight: 40
             color: "#e0e0e0"
             border.width: 1
@@ -37,9 +43,10 @@ ItemDelegate {
         }
 
         Rectangle {
-            //Layout.horizontalStretchFactor: 1
-            width: tableBox.implicitWidth * 0.15
-            //Layout.fillWidth: true
+            Layout.horizontalStretchFactor: 1
+            //width: tableBox.implicitWidth * 0.15
+            Layout.preferredWidth: 1
+            Layout.fillWidth: true
             Layout.preferredHeight: 40
             color: "#e0e0e0"
             border.width: 1
@@ -55,9 +62,10 @@ ItemDelegate {
         }
 
         Rectangle {
-            //Layout.horizontalStretchFactor: 2
-            width: tableBox.implicitWidth * 0.15
-            //Layout.fillWidth: true
+            Layout.horizontalStretchFactor: 2
+            //width: tableBox.implicitWidth * 0.15
+            Layout.preferredWidth: 1
+            Layout.fillWidth: true
             Layout.preferredHeight: 40
             color: "#e0e0e0"
             border.width: 1
@@ -73,9 +81,10 @@ ItemDelegate {
         }
 
         Rectangle {
-            //Layout.horizontalStretchFactor: 2
-            width: tableBox.implicitWidth * 0.1
-            //Layout.fillWidth: true
+            Layout.horizontalStretchFactor: 2
+            Layout.preferredWidth: 1
+            //width: tableBox.implicitWidth * 0.1
+            Layout.fillWidth: true
             Layout.preferredHeight: 40
             color: "#e0e0e0"
             border.width: 1
@@ -91,9 +100,10 @@ ItemDelegate {
         }
 
         Rectangle {
-            //Layout.horizontalStretchFactor: 1
-            width: tableBox.implicitWidth * 0.1
-            //Layout.fillWidth: true
+            Layout.horizontalStretchFactor: 2
+            Layout.preferredWidth: 1
+            //width: tableBox.implicitWidth * 0.1
+            Layout.fillWidth: true
             Layout.preferredHeight: 40
             color: "#e0e0e0"
             border.width: 1
@@ -107,5 +117,11 @@ ItemDelegate {
                 text: Number(sModel.get(index).sellPrice) - Number(sModel.get(index).buyPrice)
             }
         }
+    }
+
+    background: Rectangle {
+        color: "transparent"
+        width: parent.width
+        height: parent.height
     }
 }

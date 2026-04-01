@@ -194,56 +194,233 @@ Window {
                                 anchors.bottomMargin: 25
                                 spacing: 32
 
-                                Rectangle {
+                                 RowLayout {
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    color: "#d5d5d5"
-                                    radius: 30
-                                    border.width: 1
-                                    border.color: '#b7484242'
                                     height: 45
-                                    width: 520
+
+                                    Rectangle {
+                                        id: searchContainer
+                                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                        color: "#d9d9d9"
+                                        radius: 30
+                                        border.width: 1
+                                        border.color: '#b7484242'
+                                        height: 45
+                                        width: 520
+
+                                            TextField {
+                                                anchors.fill: parent
+                                                anchors.leftMargin: 8
+                                                anchors.rightMargin: 8
+                                                anchors.topMargin: 2
+                                                anchors.bottomMargin: 2
+                                                background: Rectangle {
+                                                    color: "transparent"
+                                                    width: searchContainer.width
+                                                    height: searchContainer.height
+                                                    radius: searchContainer.radius
+                                                    opacity: 0
+                                                }
+                                                placeholderText: "🔍"
+                                                font.pointSize: 16
+                                                color: "#202020"
+                                                /*validator: {
+                                                    RegularExpressionValidator {
+                                                        regularExpression: /[0-9A-Z!?]+/
+                                                    }
+                                                }*/
+                                                selectByMouse: true
+                                                mouseSelectionMode: TextInput.SelectWords
+                                            }
+                                    }
+
+                                    Button {
+                                        id: searchSubmit
+                                        Layout.alignment: Qt.AlignVCenter
+                                        text: "Pesquisar"
+                                        implicitWidth: 84
+                                        implicitHeight: 38
+
+                                        contentItem: Text {
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            font.pointSize: 12
+                                            text: searchSubmit.text
+                                            color: searchSubmit.down ? '#b7b7b7' : "f1f1f1"
+                                        }
+                                        
+                                        background: Rectangle {
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            implicitWidth: 84
+                                            implicitHeight: 38
+                                            radius: searchContainer.radius
+                                            color: searchSubmit.down ? '#091054' : searchSubmit.hovered ? "#ad5401" : "#f37906"
+                                            border.width: 2
+                                            border.color: "#101a72"
+                                            
+                                        }
+                                        HoverHandler {
+                                            enabled: parent.visible
+                                            cursorShape: Qt.PointingHandCursor
+                                        }
+
+                                        
+                                    }
                                 }
 
                                 Rectangle {
                                     id: tableBox
-                                    //anchors.horizontalCenter: parent.horizontalCenter
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
-                                    property real intendedWidth: mainRect.width - sidebarRect.width - 120
+                                    width: 720
                                     radius: 15
-                                    border.width: 1.2
-                                    border.color: '#b7484242'
+                                    border.width: 1
+                                    border.color: '#f37906'
                                     color: "#e0e0e0"
                                     Layout.leftMargin: 60
                                     Layout.rightMargin: 60
-                                    Component.onCompleted: {
-                                        console.log(intendedWidth)
-                                    }
 
-                                    /*ColumnLayout {
+                                    ColumnLayout {
                                         anchors.fill: parent
-                                        spacing: 0*/
+                                        spacing: 0
 
-                                        ListView {
-                                            id: listView
-                                            anchors.fill: parent
-                                            orientation: ListView.Vertical
-                                            height: parent.height
+                                        Rectangle {
+                                            id: initCContainer
+                                            Layout.fillWidth: true
+                                            Layout.margins: 0
+                                            height: 40
+                                            color: "transparent"
 
-                                            StockModel {
-                                                id: stock_model
+                                            RowLayout {
+                                                id: initColumn
+                                                anchors.fill: parent
+                                                Layout.leftMargin: 0
+                                                Layout.rightMargin: 0
+                                                spacing: 0
+                                                uniformCellSizes: false
+                                                implicitHeight: childrenRect.height
+
+                                                Rectangle {
+                                                    Layout.horizontalStretchFactor: 3
+                                                    Layout.fillWidth: true
+                                                    Layout.preferredWidth: 1
+                                                    Layout.preferredHeight: 40
+                                                    color: "#101a72"
+                                                    border.width: 1
+                                                    border.color: '#f37906'
+                                                    topLeftRadius: tableBox.radius
+
+                                                    Text {
+                                                        anchors.centerIn: parent
+                                                        color: "#f1f1f1"
+                                                        font.family: "Roboto"
+                                                        font.pointSize: 13
+                                                        text: "Nome do Produto"
+                                                    }
+                                                }
+
+                                                Rectangle {
+                                                    Layout.horizontalStretchFactor: 1
+                                                    Layout.preferredWidth: 1
+                                                    Layout.fillWidth: true
+                                                    Layout.preferredHeight: 40
+                                                    color: "#101a72"
+                                                    border.width: 1
+                                                    border.color: '#f37906'
+
+                                                    Text {
+                                                        anchors.centerIn: parent
+                                                        color: "#f1f1f1"
+                                                        font.family: "Roboto"
+                                                        font.pointSize: 13
+                                                        text: "Quantidade"
+                                                    }
+                                                }
+
+                                                Rectangle {
+                                                    Layout.horizontalStretchFactor: 2
+                                                    Layout.preferredWidth: 1
+                                                    Layout.fillWidth: true
+                                                    Layout.preferredHeight: 40
+                                                    color: "#101a72"
+                                                    border.width: 1
+                                                    border.color: '#f37906'
+
+                                                    Text {
+                                                        anchors.centerIn: parent
+                                                        color: "#f1f1f1"
+                                                        font.family: "Roboto"
+                                                        font.pointSize: 13
+                                                        text: "Valor (Custo)"
+                                                    }
+                                                }
+
+                                                Rectangle {
+                                                    Layout.horizontalStretchFactor: 2
+                                                    Layout.preferredWidth: 1
+                                                    Layout.fillWidth: true
+                                                    Layout.preferredHeight: 40
+                                                    color: "#101a72"
+                                                    border.width: 1
+                                                    border.color: '#f37906'
+
+                                                    Text {
+                                                        anchors.centerIn: parent
+                                                        color: "#f1f1f1"
+                                                        font.family: "Roboto"
+                                                        font.pointSize: 13
+                                                        text: "Valor (Venda)"
+                                                    }
+                                                }
+
+                                                Rectangle {
+                                                    Layout.horizontalStretchFactor: 2
+                                                    Layout.preferredWidth: 1
+                                                    Layout.fillWidth: true
+                                                    Layout.preferredHeight: 40
+                                                    color: "#101a72"
+                                                    border.width: 1
+                                                    border.color: '#f37906'
+                                                    topRightRadius: tableBox.radius
+
+                                                    Text {
+                                                        anchors.centerIn: parent
+                                                        color: "#f1f1f1"
+                                                        font.family: "Roboto"
+                                                        font.pointSize: 13
+                                                        text: "Valor (Lucro)"
+                                                    }
+                                                }
                                             }
-
-                                            delegate: ProductLister {
-                                                id: delegate
-                                                sModel: stock_model
-                                            }
-
-                                            model: stock_model
-
-                                            ScrollBar.vertical: ScrollBar { }
                                         }
-                                    //}
+
+                                        Rectangle {
+                                            anchors.top: initCContainer.bottom
+                                            anchors.topMargin: -6
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            color: "transparent"
+                                            Layout.margins: 0
+
+                                            ListView {
+                                                id: listView
+                                                anchors.fill: parent
+                                                orientation: ListView.Vertical
+
+                                                StockModel {
+                                                    id: stock_model
+                                                }
+
+                                                delegate: ProductLister {
+                                                    id: delegate
+                                                    sModel: stock_model
+                                                }
+
+                                                model: stock_model
+
+                                                ScrollBar.vertical: ScrollBar { }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
