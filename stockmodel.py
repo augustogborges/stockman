@@ -7,6 +7,7 @@ from collections import defaultdict
 
 import os
 import json
+import re
 
 from PySide6.QtCore import (QAbstractListModel, QEnum, Qt, QModelIndex, Slot, QByteArray)
 from PySide6.QtQml import QmlElement
@@ -20,7 +21,6 @@ class StockItem(object):
         self.quantity = quantity
         self.buyPrice = buyPrice
         self.sellPrice = sellPrice
-
 
 @QmlElement
 class StockModel(QAbstractListModel):
@@ -81,11 +81,38 @@ class StockModel(QAbstractListModel):
         roles[StockModel.StockRole.SellPriceRole] = QByteArray(b"sellPrice")
         return roles
 
-    @Slot(int, result='QVariantMap')
-    def get(self, row: int):
+    @Slot(str, result='int')
+    def getEffectiveCount(self, search: str):
+        products = self.m_products
+        matches = 0
+        accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a"})
+        fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
+
+        if (search == ""):
+            return len(products)
+        else:
+            for item in products:
+                fProdName = re.sub(r"\W", "_", item.name.lower().translate(accentTranslateTable))
+                if fSearch in fProdName:
+                    matches += 1
+            return matches
+
+    @Slot(int, str, result='QVariantMap')
+    def get(self, row: int, search: str):
+        allprods = self.m_products
         product = self.m_products[row]
-        return {"name": product.name, "quantity": product.quantity,
-                "buyPrice": product.buyPrice, "sellPrice": product.sellPrice}
+        accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a"})
+        fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
+
+        if (search == ""):
+            return {"name": product.name, "quantity": product.quantity,
+                    "buyPrice": product.buyPrice, "sellPrice": product.sellPrice}
+        else:
+            for item in allprods: 
+                fProdName = re.sub(r"\W", "_", item.name.lower().translate(accentTranslateTable))
+                if (fSearch in fProdName):
+                    return {"name": item.name, "quantity": item.quantity,
+                        "buyPrice": item.buyPrice, "sellPrice": item.sellPrice}
 
     @Slot(str, int, float, float)
     def append(self, name: str, quantity: int, buyPrice: float, sellPrice: float):
@@ -103,7 +130,42 @@ class StockModel(QAbstractListModel):
             "sellPrice": sellPrice,
         }
 
-        existdata(newAdd)
+        existdata.append(newAdd)
 
         with open(database, "w", encoding="utf-8") as arquivo:
             json.dump(existdata, arquivo, indent=4, ensure_ascii=False)
+
+    @Slot(int, int, float, float)
+    def edit(self, index, newQuant, newBuy, newSell):
+        database =  os.path.join(".", "data", "db.json")
+
+        existdata = []
+
+        with open(database, "r", encoding="utf-8") as arquivo:
+            existdata = json.load(arquivo)
+
+        existdata[index]["quantity"] = newQuant
+        existdata[index]["buyPrice"] = newBuy
+        existdata[index]["sellPrice"] = newSell
+
+        with open(database, "w", encoding="utf-8") as arquivo:
+            json.dump(existdata, arquivo, indent=4, ensure_ascii=False)
+
+    @Slot(int)
+    def eliminate(self, rmIndex):
+        print("python destroys index: " + str(rmIndex))
+        database =  os.path.join(".", "data", "db.json")
+
+        currentData = []
+
+        with open(database, "r", encoding="utf-8") as arquivo:
+            currentData = json.load(arquivo)
+
+        del currentData[rmIndex]
+
+        with open(database, "w", encoding="utf-8") as arquivo:
+            json.dump(currentData, arquivo, indent=4, ensure_ascii=False)
+
+    @Slot()
+    def reloadDB(self):
+        self.m_products = self.load_products()
