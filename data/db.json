@@ -1,14 +1,14 @@
 [
     {
-        "name": "lápis de cor",
-        "sellPrice": 30,
-        "buyPrice": 2,
-        "quantity": 50
+        "name": "pão",
+        "quantity": 50,
+        "buyPrice": 2.0,
+        "sellPrice": 3.0
     },
     {
-        "name": "vaca leiteira",
-        "sellPrice": 3000,
-        "buyPrice": 1400,
-        "quantity": 50
+        "name": "alface",
+        "quantity": 50,
+        "buyPrice": 2.0,
+        "sellPrice": 3.0
     }
 ]

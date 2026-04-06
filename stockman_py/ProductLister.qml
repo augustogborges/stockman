@@ -90,7 +90,7 @@ ItemDelegate {
                         font.family: Parameters.iconFont
                         font.pointSize: 14
                         text: openOptButtons.text
-                        color: Parameters.highlightFg
+                        color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
                     }
 
                     Popup {
@@ -281,7 +281,7 @@ ItemDelegate {
                 font.family: Parameters.thinFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
-                text: sModel.get(index, searchTerm).sellPrice
+                text: sModel.get(index, searchTerm).buyPrice
             }
         }
 
@@ -301,7 +301,7 @@ ItemDelegate {
                 font.family: Parameters.thinFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
-                text: sModel.get(index, searchTerm).buyPrice
+                text: sModel.get(index, searchTerm).sellPrice
             }
         }
 

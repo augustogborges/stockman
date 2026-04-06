@@ -19,6 +19,13 @@ Window {
     property var sModel: stock_model
 
     Connections {
+        target: root
+        function onSearchChanged() {
+            listView.model = stock_model.getEffectiveCount(root.search)
+        }
+    }
+
+    Connections {
         target: newItemDialog
         function onNewAdded() {
             stock_model.reloadDB()
@@ -55,6 +62,22 @@ Window {
         anchors.fill: parent;
         property real standardRadius: 30;
         property int viewIndex: 0;
+
+        Rectangle {
+            anchors.fill: parent
+            color: '#dc0ee3'
+            visible: false
+            z: 1
+            gradient: Gradient {
+                orientation: Gradient.Vertical
+                GradientStop {position: 0.0; color: Parameters.mainHighlightBg}
+                GradientStop {position: 0.45; color: Qt.lighter(Parameters.mainHighlightBg, 1.1)}
+                GradientStop {position: 0.5; color: Qt.lighter(Parameters.mainHighlightBg, 1.2)}
+                GradientStop {position: 0.66; color: Qt.lighter(Parameters.mainHighlightBg, 1.6)}
+                GradientStop {position: 0.75; color: Qt.lighter(Parameters.mainHighlightBg, 1.3)}
+                GradientStop {position: 1.0; color: Qt.lighter(Parameters.mainHighlightBg, 1.1)}
+            }
+        }
 
         Rectangle {
             id: containerRect;
@@ -218,6 +241,7 @@ Window {
                         currentIndex: container.viewIndex
 
                         Rectangle {
+                            id: firstTab
                             anchors.fill: parent
                             color: containerRect.color
                         }
@@ -578,16 +602,17 @@ Window {
                                     }
                                 }
                             }
-
                             
                         }
 
                         Rectangle {
+                            id: thirdTab
                             anchors.fill: parent
                             color: containerRect.color
                         }
 
                         Rectangle {
+                            id: fourthTab
                             anchors.fill: parent
                             color: containerRect.color
                         }
