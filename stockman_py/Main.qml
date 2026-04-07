@@ -64,19 +64,82 @@ Window {
         property int viewIndex: 0;
 
         Rectangle {
+            id: loginContainer
             anchors.fill: parent
-            color: '#dc0ee3'
-            visible: false
+            visible: true
             z: 1
             gradient: Gradient {
                 orientation: Gradient.Vertical
                 GradientStop {position: 0.0; color: Parameters.mainHighlightBg}
-                GradientStop {position: 0.45; color: Qt.lighter(Parameters.mainHighlightBg, 1.1)}
-                GradientStop {position: 0.5; color: Qt.lighter(Parameters.mainHighlightBg, 1.2)}
-                GradientStop {position: 0.66; color: Qt.lighter(Parameters.mainHighlightBg, 1.6)}
-                GradientStop {position: 0.75; color: Qt.lighter(Parameters.mainHighlightBg, 1.3)}
-                GradientStop {position: 1.0; color: Qt.lighter(Parameters.mainHighlightBg, 1.1)}
+                GradientStop {position: 0.35; color: Qt.lighter(Parameters.mainHighlightBg, 1.2)}
+                GradientStop {position: 0.4; color: Qt.lighter(Parameters.mainHighlightBg, 1.25)}
+                GradientStop {position: 0.66; color: Qt.lighter(Parameters.mainHighlightBg, 1.15)}
+                GradientStop {position: 0.75; color: Qt.lighter(Parameters.mainHighlightBg, 1.2)}
+                GradientStop {position: 1.0; color: Qt.lighter(Parameters.mainHighlightBg, 1)}
             }
+
+            ColumnLayout {
+                anchors.fill: parent
+ 
+                Rectangle {
+                    id: logoLoginContainer
+                    Layout.alignment: Qt.AlignHCenter
+                    height: 96
+                    width: 160
+                    radius: 32
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop { position: 0.0; color: Qt.lighter(Parameters.mainHighlightBg, 1.66) }
+                        GradientStop { position: 0.6; color: Qt.darker(Parameters.highlightFg, 1.2) }
+                        GradientStop { position: 1.0; color: Qt.lighter(Parameters.highlightFg, 1.3) }
+                    }
+                }
+
+                Rectangle {
+                    id: logologinRect
+                    anchors.centerIn: logoLoginContainer
+                    width: logoLoginContainer.width - 8
+                    height: logoLoginContainer.height - 8
+                    radius: logoLoginContainer.radius
+                    gradient: Gradient {
+                        orientation: Gradient.Horizontal
+                        GradientStop {position: 0.0; color: Parameters.shadeHightlightBg}
+                        GradientStop {position: 0.45; color: Qt.lighter(Parameters.shadeHightlightBg, 1.22)}
+                        GradientStop {position: 0.5; color: Qt.lighter(Parameters.shadeHightlightBg, 1.31)}
+                        GradientStop {position: 0.66; color: Qt.lighter(Parameters.shadeHightlightBg, 1.4)}
+                        GradientStop {position: 0.75; color: Qt.lighter(Parameters.shadeHightlightBg, 1.29)}
+                        GradientStop {position: 1.0; color: Qt.lighter(Parameters.shadeHightlightBg, 1.15)}
+                    }
+
+                    RowLayout { 
+                        anchors.centerIn: parent
+                        spacing: 4;
+
+                        Text {
+                            id: logoLoginIcon
+                            Layout.alignment: Qt.AlignVCenter
+                            text: ""
+                            font.family: Parameters.iconFontBold
+                            font.pointSize: 22
+                            color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                        }
+
+                        Text {
+                            id: logoLoginText
+                            Layout.alignment: Qt.AlignVCenter
+                            text: "Stockman"
+                            font.family: Parameters.defaultFont
+                            font.underline: false
+                            font.pointSize: 18
+                            color: Qt.lighter(Parameters.mainHighlightBg, 4.2)
+                        }
+                    }
+                }
+
+                Rectangle {
+                }
+            }
+            
         }
 
         Rectangle {
