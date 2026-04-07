@@ -1,0 +1,742 @@
+[
+  {
+    "nome": "Pão Francês Unitário",
+    "busca": "pao frances unitario"
+  },
+  {
+    "nome": "Pão Francês (kg)",
+    "busca": "pao frances kg"
+  },
+  {
+    "nome": "Pão Francês Integral (kg)",
+    "busca": "pao frances integral kg"
+  },
+  {
+    "nome": "Pão de Queijo Tradicional P",
+    "busca": "pao de queijo tradicional p"
+  },
+  {
+    "nome": "Pão de Queijo Tradicional M",
+    "busca": "pao de queijo tradicional m"
+  },
+  {
+    "nome": "Pão de Queijo Tradicional G",
+    "busca": "pao de queijo tradicional g"
+  },
+  {
+    "nome": "Pão de Queijo com Requeijão",
+    "busca": "pao de queijo com requeijao"
+  },
+  {
+    "nome": "Pão de Queijo com Nutella",
+    "busca": "pao de queijo com nutella"
+  },
+  {
+    "nome": "Pão de Queijo com Doce de Leite",
+    "busca": "pao de queijo com doce de leite"
+  },
+  {
+    "nome": "Chipa Paraguaia",
+    "busca": "chipa paraguaia"
+  },
+  {
+    "nome": "Chipa Recheada",
+    "busca": "chipa recheada"
+  },
+  {
+    "nome": "Pão de Leite (Pacote)",
+    "busca": "pao de leite pacote"
+  },
+  {
+    "nome": "Pão Sovado Pequeno",
+    "busca": "pao sovado pequeno"
+  },
+  {
+    "nome": "Pão Sovado Grande",
+    "busca": "pao sovado grande"
+  },
+  {
+    "nome": "Pão de Milho Caseiro",
+    "busca": "pao de milho caseiro"
+  },
+  {
+    "nome": "Pão de Milho com Goiabada",
+    "busca": "pao de milho com goiabada"
+  },
+  {
+    "nome": "Pão Australiano",
+    "busca": "pao australiano"
+  },
+  {
+    "nome": "Pão de Hambúrguer com Gergelim",
+    "busca": "pao de hamburguer com gergelim"
+  },
+  {
+    "nome": "Pão de Hambúrguer Brioche",
+    "busca": "pao de hamburguer brioche"
+  },
+  {
+    "nome": "Pão de Hot Dog (Pacote)",
+    "busca": "pao de hot dog pacote"
+  },
+  {
+    "nome": "Baguete Simples",
+    "busca": "baguete simples"
+  },
+  {
+    "nome": "Baguete com Parmesão",
+    "busca": "baguete com parmesao"
+  },
+  {
+    "nome": "Baguete Recheada de Frango",
+    "busca": "baguete recheada de frango"
+  },
+  {
+    "nome": "Baguete Recheada de Presunto e Queijo",
+    "busca": "baguete recheada de presunto e queijo"
+  },
+  {
+    "nome": "Pão Italiano Bola",
+    "busca": "pao italiano bola"
+  },
+  {
+    "nome": "Pão Italiano Filão",
+    "busca": "pao italiano filao"
+  },
+  {
+    "nome": "Pão de Centeio fatiado",
+    "busca": "pao de centeio fatiado"
+  },
+  {
+    "nome": "Pão de Forma Wickbold Tradicional",
+    "busca": "pao de forma wickbold tradicional"
+  },
+  {
+    "nome": "Pão de Forma Wickbold Integral",
+    "busca": "pao de forma wickbold integral"
+  },
+  {
+    "nome": "Pão de Forma Pullmann",
+    "busca": "pao de forma pullmann"
+  },
+  {
+    "nome": "Bisnaguinha Seven Boys",
+    "busca": "bisnaguinha seven boys"
+  },
+  {
+    "nome": "Croissant de Chocolate",
+    "busca": "croissant de chocolate"
+  },
+  {
+    "nome": "Croissant de Frango com Catupiry",
+    "busca": "croissant de frango com catupiry"
+  },
+  {
+    "nome": "Croissant de Presunto e Queijo",
+    "busca": "croissant de presunto e queijo"
+  },
+  {
+    "nome": "Coxinha de Frango P",
+    "busca": "coxinha de frango p"
+  },
+  {
+    "nome": "Coxinha de Frango M",
+    "busca": "coxinha de frango m"
+  },
+  {
+    "nome": "Coxinha de Frango G",
+    "busca": "coxinha de frango g"
+  },
+  {
+    "nome": "Coxinha de Frango com Catupiry G",
+    "busca": "coxinha de frango com catupiry g"
+  },
+  {
+    "nome": "Coxinha de Costela",
+    "busca": "coxinha de costela"
+  },
+  {
+    "nome": "Coxinha de Jaca (Vegana)",
+    "busca": "coxinha de jaca vegana"
+  },
+  {
+    "nome": "Kibe de Carne Tradicional",
+    "busca": "kibe de carne tradicional"
+  },
+  {
+    "nome": "Kibe com Recheio de Queijo",
+    "busca": "kibe com recheio de queijo"
+  },
+  {
+    "nome": "Kibe com Recheio de Catupiry",
+    "busca": "kibe com recheio de catupiry"
+  },
+  {
+    "nome": "Esfiha de Carne Aberta",
+    "busca": "esfiha de carne aberta"
+  },
+  {
+    "nome": "Esfiha de Queijo Aberta",
+    "busca": "esfiha de queijo aberta"
+  },
+  {
+    "nome": "Esfiha de Carne Fechada",
+    "busca": "esfiha de carne fechada"
+  },
+  {
+    "nome": "Esfiha de Frango Fechada",
+    "busca": "esfiha de frango fechada"
+  },
+  {
+    "nome": "Esfiha de Calabreza Fechada",
+    "busca": "esfiha de calabreza fechada"
+  },
+  {
+    "nome": "Empada de Palmito",
+    "busca": "empada de palmito"
+  },
+  {
+    "nome": "Empada de Frango",
+    "busca": "empada de frango"
+  },
+  {
+    "nome": "Empada de Camarão",
+    "busca": "empada de camarao"
+  },
+  {
+    "nome": "Enroladinho de Salsicha",
+    "busca": "enroladinho de salsicha"
+  },
+  {
+    "nome": "Enroladinho de Presunto e Queijo",
+    "busca": "enroladinho de presunto e queijo"
+  },
+  {
+    "nome": "Pão de Batata com Requeijão",
+    "busca": "pao de batata com requeijao"
+  },
+  {
+    "nome": "Pão de Batata com Frango",
+    "busca": "pao de batata com frango"
+  },
+  {
+    "nome": "Risole de Milho com Queijo",
+    "busca": "risole de milho com queijo"
+  },
+  {
+    "nome": "Risole de Carne",
+    "busca": "risole de carne"
+  },
+  {
+    "nome": "Bolinho de Carne",
+    "busca": "bolinho de carne"
+  },
+  {
+    "nome": "Bolinho de Bacalhau Unitário",
+    "busca": "bolinho de bacalhau unitario"
+  },
+  {
+    "nome": "Folhado de Frango com Catupiry",
+    "busca": "folhado de frango com catupiry"
+  },
+  {
+    "nome": "Folhado de Chocolate",
+    "busca": "folhado de chocolate"
+  },
+  {
+    "nome": "Pastel de Forno de Carne",
+    "busca": "pastel de forno de carne"
+  },
+  {
+    "nome": "Pastel de Forno de Frango",
+    "busca": "pastel de forno de frango"
+  },
+  {
+    "nome": "Quiche de Alho Poró",
+    "busca": "quiche de alho poro"
+  },
+  {
+    "nome": "Quiche de Lorreine",
+    "busca": "quiche de lorreine"
+  },
+  {
+    "nome": "Sonho de Creme Tradicional",
+    "busca": "sonho de creme tradicional"
+  },
+  {
+    "nome": "Sonho de Doce de Leite",
+    "busca": "sonho de doce de leite"
+  },
+  {
+    "nome": "Sonho de Chocolate",
+    "busca": "sonho de chocolate"
+  },
+  {
+    "nome": "Bomba de Chocolate (Eclair)",
+    "busca": "bomba de chocolate eclair"
+  },
+  {
+    "nome": "Bomba de Morango",
+    "busca": "bomba de morango"
+  },
+  {
+    "nome": "Bomba de Doce de Leite",
+    "busca": "bomba de doce de leite"
+  },
+  {
+    "nome": "Carolina Recheada Creme (100g)",
+    "busca": "carolina recheada creme 100g"
+  },
+  {
+    "nome": "Carolina Recheada Doce de Leite",
+    "busca": "carolina recheada doce de leite"
+  },
+  {
+    "nome": "Quindim Tradicional",
+    "busca": "quindim tradicional"
+  },
+  {
+    "nome": "Pudim de Leite Condensado Inteiro",
+    "busca": "pudim de leite condensado inteiro"
+  },
+  {
+    "nome": "Pudim de Leite Condensado Fatia",
+    "busca": "pudim de leite condensado fatia"
+  },
+  {
+    "nome": "Mousse de Maracujá Pote",
+    "busca": "mousse de maracuja pote"
+  },
+  {
+    "nome": "Mousse de Chocolate Pote",
+    "busca": "mousse de chocolate pote"
+  },
+  {
+    "nome": "Bolo de Cenoura com Cobertura",
+    "busca": "bolo de cenoura com cobertura"
+  },
+  {
+    "nome": "Bolo de Fubá Simples",
+    "busca": "bolo de fuba simples"
+  },
+  {
+    "nome": "Bolo de Fubá com Goiabada",
+    "busca": "bolo de fuba com goiabada"
+  },
+  {
+    "nome": "Bolo Formigueiro",
+    "busca": "bolo formigueiro"
+  },
+  {
+    "nome": "Bolo de Laranja Caseiro",
+    "busca": "bolo de laranja caseiro"
+  },
+  {
+    "nome": "Bolo de Chocolate Vulcão",
+    "busca": "bolo de chocolate vulcao"
+  },
+  {
+    "nome": "Bolo de Milho Cremoso",
+    "busca": "bolo de milho cremoso"
+  },
+  {
+    "nome": "Bolo de Aipim com Coco",
+    "busca": "bolo de aipim com coco"
+  },
+  {
+    "nome": "Bolo de Nozes Fatia",
+    "busca": "bolo de nozes fatia"
+  },
+  {
+    "nome": "Torta Holandesa Fatia",
+    "busca": "torta holandesa fatia"
+  },
+  {
+    "nome": "Torta de Limão Individual",
+    "busca": "torta de limao individual"
+  },
+  {
+    "nome": "Torta de Morango Individual",
+    "busca": "torta de morango individual"
+  },
+  {
+    "nome": "Mil Folhas Tradicional",
+    "busca": "mil folhas tradicional"
+  },
+  {
+    "nome": "Rosca de Coco",
+    "busca": "rosca de coco"
+  },
+  {
+    "nome": "Rosca de Leite Condensado",
+    "busca": "rosca de leite condensado"
+  },
+  {
+    "nome": "Rosca de Rainha",
+    "busca": "rosca de rainha"
+  },
+  {
+    "nome": "Misto Quente no Pão Francês",
+    "busca": "misto quente no pao frances"
+  },
+  {
+    "nome": "Misto Quente no Pão de Forma",
+    "busca": "misto quente no pao de forma"
+  },
+  {
+    "nome": "Queijo Quente",
+    "busca": "queijo quente"
+  },
+  {
+    "nome": "Bauru Tradicional",
+    "busca": "bauru tradicional"
+  },
+  {
+    "nome": "Americano (Sanduíche)",
+    "busca": "americano sanduiche"
+  },
+  {
+    "nome": "Pão na Chapa",
+    "busca": "pao na chapa"
+  },
+  {
+    "nome": "Pão na Chapa com Requeijão",
+    "busca": "pao na chapa com requeijao"
+  },
+  {
+    "nome": "Omelete Simples",
+    "busca": "omelete simples"
+  },
+  {
+    "nome": "Omelete Completo",
+    "busca": "omelete completo"
+  },
+  {
+    "nome": "Presunto Sadia (kg)",
+    "busca": "presunto sadia kg"
+  },
+  {
+    "nome": "Presunto Seara (kg)",
+    "busca": "presunto seara kg"
+  },
+  {
+    "nome": "Presunto Cozido Perdigão (kg)",
+    "busca": "presunto cozido perdigao kg"
+  },
+  {
+    "nome": "Queijo Mussarela Itambé (kg)",
+    "busca": "queijo mussarela itambe kg"
+  },
+  {
+    "nome": "Queijo Mussarela Scala (kg)",
+    "busca": "queijo mussarela scala kg"
+  },
+  {
+    "nome": "Queijo Prato (kg)",
+    "busca": "queijo prato kg"
+  },
+  {
+    "nome": "Queijo Minas Frescal Unitário",
+    "busca": "queijo minas frescal unitario"
+  },
+  {
+    "nome": "Queijo Meia Cura (kg)",
+    "busca": "queijo meia cura kg"
+  },
+  {
+    "nome": "Queijo Parmesão Peça",
+    "busca": "queijo parmesao peca"
+  },
+  {
+    "nome": "Queijo Gorgonzola (100g)",
+    "busca": "queijo gorgonzola 100g"
+  },
+  {
+    "nome": "Queijo Provolone (kg)",
+    "busca": "queijo provolone kg"
+  },
+  {
+    "nome": "Mortadela Ceratti Tradicional (kg)",
+    "busca": "mortadela ceratti tradicional kg"
+  },
+  {
+    "nome": "Mortadela Perdigão (kg)",
+    "busca": "mortadela perdigao kg"
+  },
+  {
+    "nome": "Mortadela Bologna (kg)",
+    "busca": "mortadela bologna kg"
+  },
+  {
+    "nome": "Peito de Peru Sadia (kg)",
+    "busca": "peito de peru sadia kg"
+  },
+  {
+    "nome": "Salame Tipo Italiano (kg)",
+    "busca": "salame tipo italiano kg"
+  },
+  {
+    "nome": "Salame Hamburguês (kg)",
+    "busca": "salame hamburgues kg"
+  },
+  {
+    "nome": "Copa Fatiada (100g)",
+    "busca": "copa fatiada 100g"
+  },
+  {
+    "nome": "Lombo Defumado (kg)",
+    "busca": "lombo defumado kg"
+  },
+  {
+    "nome": "Manteiga Aviação com Sal 200g",
+    "busca": "manteiga aviacao com sal 200g"
+  },
+  {
+    "nome": "Manteiga Itambé 200g",
+    "busca": "manteiga itambe 200g"
+  },
+  {
+    "nome": "Margarina Qualy 500g",
+    "busca": "margarina qualy 500g"
+  },
+  {
+    "nome": "Margarina Delícia 500g",
+    "busca": "margarina delicia 500g"
+  },
+  {
+    "nome": "Requeijão Poços de Caldas 200g",
+    "busca": "requeijao pocos de caldas 200g"
+  },
+  {
+    "nome": "Requeijão Itambé 200g",
+    "busca": "requeijao itambe 200g"
+  },
+  {
+    "nome": "Requeijão Vigor 200g",
+    "busca": "requeijao vigor 200g"
+  },
+  {
+    "nome": "Cream Cheese Philadelphia",
+    "busca": "cream cheese philadelphia"
+  },
+  {
+    "nome": "Ricota Fresca",
+    "busca": "ricota fresca"
+  },
+  {
+    "nome": "Patê de Frango (Pote)",
+    "busca": "pate de frango pote"
+  },
+  {
+    "nome": "Patê de Azeitona (Pote)",
+    "busca": "pate de azeitona pote"
+  },
+  {
+    "nome": "Leite Integral Itambé 1L",
+    "busca": "leite integral itambe 1l"
+  },
+  {
+    "nome": "Leite Desnatado Itambé 1L",
+    "busca": "leite desnatado itambe 1l"
+  },
+  {
+    "nome": "Leite Semidesnatado Piracanjuba 1L",
+    "busca": "leite semidesnatado piracanjuba 1l"
+  },
+  {
+    "nome": "Leite Zero Lactose Piracanjuba 1L",
+    "busca": "leite zero lactose piracanjuba 1l"
+  },
+  {
+    "nome": "Leite Condensado Moça 395g",
+    "busca": "leite condensado moca 395g"
+  },
+  {
+    "nome": "Leite Condensado Itambé 395g",
+    "busca": "leite condensado itambe 395g"
+  },
+  {
+    "nome": "Creme de Leite Nestlé 200g",
+    "busca": "creme de leite nestle 200g"
+  },
+  {
+    "nome": "Creme de Leite Piracanjuba 200g",
+    "busca": "creme de leite piracanjuba 200g"
+  },
+  {
+    "nome": "Iogurte Natural Itambé",
+    "busca": "iogurte natural itambe"
+  },
+  {
+    "nome": "Iogurte Morango Danone 850g",
+    "busca": "iogurte morango danone 850g"
+  },
+  {
+    "nome": "Iogurte Grego Vigor Tradicional",
+    "busca": "iogurte grego vigor tradicional"
+  },
+  {
+    "nome": "Leite Fermentado Yakult (Pack 6)",
+    "busca": "leite fermentado yakult pack 6"
+  },
+  {
+    "nome": "Achocolatado Toddynho 200ml",
+    "busca": "achocolatado toddynho 200ml"
+  },
+  {
+    "nome": "Achocolatado Nescau Prontinho 200ml",
+    "busca": "achocolatado nescau prontinho 200ml"
+  },
+  {
+    "nome": "Petit Suisse Danoninho",
+    "busca": "petit suisse danoninho"
+  },
+  {
+    "nome": "Coca-Cola Lata 350ml",
+    "busca": "coca cola lata 350ml"
+  },
+  {
+    "nome": "Coca-Cola Zero Lata 350ml",
+    "busca": "coca cola zero lata 350ml"
+  },
+  {
+    "nome": "Coca-Cola 600ml",
+    "busca": "coca cola 600ml"
+  },
+  {
+    "nome": "Coca-Cola 2L",
+    "busca": "coca cola 2l"
+  },
+  {
+    "nome": "Guaraná Antarctica Lata 350ml",
+    "busca": "guarana antarctica lata 350ml"
+  },
+  {
+    "nome": "Guaraná Antarctica 2L",
+    "busca": "guarana antarctica 2l"
+  },
+  {
+    "nome": "Fanta Laranja Lata 350ml",
+    "busca": "fanta laranja lata 350ml"
+  },
+  {
+    "nome": "Fanta Uva Lata 350ml",
+    "busca": "fanta uva lata 350ml"
+  },
+  {
+    "nome": "Sprite Lata 350ml",
+    "busca": "sprite lata 350ml"
+  },
+  {
+    "nome": "H2OH! Limão 500ml",
+    "busca": "h2oh limao 500ml"
+  },
+  {
+    "nome": "Schweppes Citrus Lata",
+    "busca": "schweppes citrus lata"
+  },
+  {
+    "nome": "Água Mineral Crystal 500ml",
+    "busca": "agua mineral crystal 500ml"
+  },
+  {
+    "nome": "Água Mineral Crystal com Gás 500ml",
+    "busca": "agua mineral crystal com gas 500ml"
+  },
+  {
+    "nome": "Água Mineral Minalba 1.5L",
+    "busca": "agua mineral minalba 1 5l"
+  },
+  {
+    "nome": "Água de Coco Obrigado 200ml",
+    "busca": "agua de coco obrigado 200ml"
+  },
+  {
+    "nome": "Água de Coco Kero Coco 1L",
+    "busca": "agua de coco kero coco 1l"
+  },
+  {
+    "nome": "Suco Del Valle Uva 290ml",
+    "busca": "suco del valle uva 290ml"
+  },
+  {
+    "nome": "Suco Del Valle Pêssego 1L",
+    "busca": "suco del valle pessego 1l"
+  },
+  {
+    "nome": "Suco de Laranja Natural Garrafa 300ml",
+    "busca": "suco de laranja natural garrafa 300ml"
+  },
+  {
+    "nome": "Suco de Laranja Natural Garrafa 1L",
+    "busca": "suco de laranja natural garrafa 1l"
+  },
+  {
+    "nome": "Néctar Maguary Manga 1L",
+    "busca": "nectar maguary manga 1l"
+  },
+  {
+    "nome": "Gatorade Morango e Maracujá",
+    "busca": "gatorade morango e maracuja"
+  },
+  {
+    "nome": "Gatorade Limão",
+    "busca": "gatorade limao"
+  },
+  {
+    "nome": "Red Bull Energy Drink 250ml",
+    "busca": "red bull energy drink 250ml"
+  },
+  {
+    "nome": "Monster Energy 473ml",
+    "busca": "monster energy 473ml"
+  },
+  {
+    "nome": "Café Expresso Curto",
+    "busca": "cafe expresso curto"
+  },
+  {
+    "nome": "Café Expresso Longo",
+    "busca": "cafe expresso longo"
+  },
+  {
+    "nome": "Café Expresso com Chantilly",
+    "busca": "cafe expresso com chantilly"
+  },
+  {
+    "nome": "Café Carioca",
+    "busca": "cafe carioca"
+  },
+  {
+    "nome": "Café com Leite M",
+    "busca": "cafe com leite m"
+  },
+  {
+    "nome": "Pingado (Copo Americano)",
+    "busca": "pingado copo americano"
+  },
+  {
+    "nome": "Cappuccino Italiano G",
+    "busca": "cappuccino italiano g"
+  },
+  {
+    "nome": "Chocolate Quente Cremoso",
+    "busca": "chocolate quente cremoso"
+  },
+  {
+    "nome": "Mocaccino",
+    "busca": "mocaccino"
+  },
+  {
+    "nome": "Chá Quente (Diversos Sabores)",
+    "busca": "cha quente diversos sabores"
+  },
+  {
+    "nome": "Vitamina de Frutas 300ml",
+    "busca": "vitamina de frutas 300ml"
+  },
+  {
+    "nome": "Vitamina de Abacate 500ml",
+    "busca": "vitamina de abacate 500ml"
+  }
+]

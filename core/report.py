@@ -9,8 +9,8 @@ def calcular_resumo_estoque():
     quantidade_total = 0
 
     for item in dados:
-        quantidade = item["quantidade"]
-        valor_venda = item["valor_venda"]
+        quantity = item["quantity"]
+        buyPrice = item["buyPrice"]
         preco_custo = item["preco_custo"]
 
         faturamento_total += valor_venda * quantidade
