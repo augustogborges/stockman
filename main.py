@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QApplication, QPushButton
 from PySide6.QtCore import QObject, Property, Slot, Signal
 
 from stockmodel import StockModel
+from usermodel import UserModel
 
 if __name__ == "__main__":
     app = QGuiApplication(sys.argv)

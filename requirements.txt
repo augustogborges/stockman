@@ -1,1 +1,5 @@
 PySide6
+#ttf-phosphor-icons
+#ttf-roboto
+#ttf-iosevka-nerd
+#python-bcrypt

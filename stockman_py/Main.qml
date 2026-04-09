@@ -7,6 +7,7 @@ import QtQuick.Window
 import QtQml
 
 import Stocker
+import Authenticator
 
 Window {
     id: root
@@ -17,6 +18,7 @@ Window {
     property string search: ""
     property int productAmount
     property var sModel: stock_model
+    property bool noActiveUsers: true
 
     Connections {
         target: root
@@ -66,7 +68,7 @@ Window {
         Rectangle {
             id: loginContainer
             anchors.fill: parent
-            visible: true
+            visible: root.noActiveUsers
             z: 1
             gradient: Gradient {
                 orientation: Gradient.Vertical
@@ -220,14 +222,6 @@ Window {
                                 RowLayout { 
                                     anchors.centerIn: parent
                                     spacing: 4;
-
-                                    /*Text {
-                                        id: logoIcon
-                                        text: ""
-                                        font.family: "Roboto Mono Nerd Font"
-                                        font.pointSize: 22
-                                        color: '#b3c3ff'
-                                    }*/
 
                                     Text {
                                         id: logoIcon

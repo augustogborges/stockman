@@ -1,6 +1,3 @@
-# Copyright (C) 2024 The Qt Company Ltd.
-# SPDX-License-Identifier: LicenseRef-Qt-Commercial OR BSD-3-Clause
-
 from dataclasses import dataclass
 from enum import IntEnum
 from collections import defaultdict
@@ -153,7 +150,6 @@ class StockModel(QAbstractListModel):
 
     @Slot(int)
     def eliminate(self, rmIndex):
-        print("python destroys index: " + str(rmIndex))
         database =  os.path.join(".", "data", "db.json")
 
         currentData = []
