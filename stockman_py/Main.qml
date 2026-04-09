@@ -18,7 +18,7 @@ Window {
     property string search: ""
     property int productAmount
     property var sModel: stock_model
-    property bool noActiveUsers: true
+    property bool noActiveUsers: false
 
     Connections {
         target: root
@@ -1061,7 +1061,7 @@ Window {
 
                     GridLayout {
                         columns: 4
-                        rows: 3
+                        rows: 4
                         anchors.centerIn: parent
                         width: root.width * 0.67
                         columnSpacing: 1
@@ -1081,6 +1081,82 @@ Window {
                                 color: Parameters.mainBgColor
                                 font.family: Parameters.defaultFont
                                 font.pointSize: 18
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.horizontalStretchFactor: 3
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 40
+                            color: Parameters.shadeBgColor
+                            border.width: 1
+                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+                            
+                            Text {
+                                id: editNameText
+                                anchors.centerIn: parent
+                                color: '#000000'
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 15
+                                text: "Nome do Produto"
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.horizontalStretchFactor: 1
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 40
+                            color: Parameters.shadeBgColor
+                            border.width: 1
+                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+
+                            Text {
+                                id: editQuantText
+                                anchors.centerIn: parent
+                                color: "#000000"
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 15
+                                text: "Quantidade"
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.horizontalStretchFactor: 2
+                            Layout.preferredWidth: 1
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 40
+                            color: Parameters.shadeBgColor
+                            border.width: 1
+                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+
+                            Text {
+                                id: editCostText
+                                anchors.centerIn: parent
+                                color: "#000000"
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 15
+                                text: "Preço de Custo"
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.horizontalStretchFactor: 2
+                            Layout.preferredWidth: 1
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 40
+                            color: Parameters.shadeBgColor
+                            border.width: 1
+                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+
+                            Text {
+                                id: editSellText
+                                anchors.centerIn: parent
+                                color: "#000000"
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 15
+                                text: "Preço de Venda"
                             }
                         }
 
@@ -1414,22 +1490,13 @@ Window {
                     border.width: 1
                     border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
  
-                    TextInput {
+                    Text {
                         id: removeFQuant
                         anchors.centerIn: parent
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.pointSize: 15
                         text: stock_model.get(rmItemDialog.callRm, "").quantity
-                        validator: RegularExpressionValidator {
-                            regularExpression: /(.|\s)*\S(.|\s)*/
-                        }
-                        focus: true
- 
-                        HoverHandler {
-                            enabled: parent.visible
-                            cursorShape: Qt.IBeamCursor
-                        }
                     }
                 }
  
@@ -1442,22 +1509,13 @@ Window {
                     border.width: 1
                     border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
  
-                    TextInput {
+                    Text {
                         id: removeFCost
                         anchors.centerIn: parent
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.pointSize: 15
                         text: stock_model.get(rmItemDialog.callRm, "").buyPrice
-                        validator: RegularExpressionValidator {
-                            regularExpression: /(.|\s)*\S(.|\s)*/
-                        }
-                        focus: false
- 
-                        HoverHandler {
-                            enabled: parent.visible
-                            cursorShape: Qt.IBeamCursor
-                        }
                     }
                 }
  
@@ -1477,15 +1535,6 @@ Window {
                         font.family: Parameters.defaultFont
                         font.pointSize: 15
                         text: stock_model.get(rmItemDialog.callRm, "").sellPrice
-                        validator: RegularExpressionValidator {
-                            regularExpression: /(.|\s)*\S(.|\s)*/
-                        }
-                        focus: false
- 
-                        HoverHandler {
-                            enabled: parent.visible
-                            cursorShape: Qt.IBeamCursor
-                        }
                     }
                 }
  

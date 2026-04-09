@@ -135,6 +135,7 @@ ItemDelegate {
                                 onClicked: {
                                     editItemDialog.callRow = index
                                     editItemDialog.open()
+                                    optButtonsMenu.close()
                                 }
 
                                 HoverHandler {
