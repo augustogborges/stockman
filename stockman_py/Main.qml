@@ -34,7 +34,7 @@ Window {
             listView.model = stock_model.getEffectiveCount(root.search)
         }
     }
-    
+
     Connections {
         target: rmItemDialog
         function onItemRemoved() {
@@ -44,7 +44,7 @@ Window {
             root.sModel = stock_model
         }
     }
-    
+
     Connections {
         target: editItemDialog
         function onCompletedEdit() {
@@ -65,6 +65,18 @@ Window {
         property real standardRadius: 30;
         property int viewIndex: 0;
 
+        MultiEffect {
+            anchors.fill: loginContainer
+            source: loginContainer
+
+            blurEnabled: true
+            blur: 1.0
+            shadowEnabled: true
+            shadowColor: Parameters.pressedButtonBg
+            shadowScale: 1.0
+            shadowBlur: 0.8
+        }
+
         Rectangle {
             id: loginContainer
             anchors.fill: parent
@@ -74,18 +86,25 @@ Window {
                 orientation: Gradient.Vertical
                 GradientStop {position: 0.0; color: Parameters.mainHighlightBg}
                 GradientStop {position: 0.35; color: Qt.lighter(Parameters.mainHighlightBg, 1.2)}
-                GradientStop {position: 0.4; color: Qt.lighter(Parameters.mainHighlightBg, 1.25)}
-                GradientStop {position: 0.66; color: Qt.lighter(Parameters.mainHighlightBg, 1.15)}
-                GradientStop {position: 0.75; color: Qt.lighter(Parameters.mainHighlightBg, 1.2)}
+                GradientStop {position: 0.4; color: Qt.lighter(Parameters.mainHighlightBg, 1.3)}
+                GradientStop {position: 0.56; color: Qt.lighter(Parameters.mainHighlightBg, 1.6)}
+                GradientStop {position: 0.71; color: Qt.lighter(Parameters.mainHighlightBg, 1.4)}
                 GradientStop {position: 1.0; color: Qt.lighter(Parameters.mainHighlightBg, 1)}
             }
 
             ColumnLayout {
                 anchors.fill: parent
- 
+                spacing: 24
+
+                Item { Layout.fillHeight: true; Layout.verticalStretchFactor: 5 }
+
                 Rectangle {
                     id: logoLoginContainer
                     Layout.alignment: Qt.AlignHCenter
+                    Layout.fillHeight: true
+                    Layout.preferredHeight: 96
+                    Layout.minimumHeight: 96
+                    Layout.maximumHeight: 96
                     height: 96
                     width: 160
                     radius: 32
@@ -95,53 +114,306 @@ Window {
                         GradientStop { position: 0.6; color: Qt.darker(Parameters.highlightFg, 1.2) }
                         GradientStop { position: 1.0; color: Qt.lighter(Parameters.highlightFg, 1.3) }
                     }
-                }
 
-                Rectangle {
-                    id: logologinRect
-                    anchors.centerIn: logoLoginContainer
-                    width: logoLoginContainer.width - 8
-                    height: logoLoginContainer.height - 8
-                    radius: logoLoginContainer.radius
-                    gradient: Gradient {
-                        orientation: Gradient.Horizontal
-                        GradientStop {position: 0.0; color: Parameters.shadeHightlightBg}
-                        GradientStop {position: 0.45; color: Qt.lighter(Parameters.shadeHightlightBg, 1.22)}
-                        GradientStop {position: 0.5; color: Qt.lighter(Parameters.shadeHightlightBg, 1.31)}
-                        GradientStop {position: 0.66; color: Qt.lighter(Parameters.shadeHightlightBg, 1.4)}
-                        GradientStop {position: 0.75; color: Qt.lighter(Parameters.shadeHightlightBg, 1.29)}
-                        GradientStop {position: 1.0; color: Qt.lighter(Parameters.shadeHightlightBg, 1.15)}
-                    }
-
-                    RowLayout { 
-                        anchors.centerIn: parent
-                        spacing: 4;
-
-                        Text {
-                            id: logoLoginIcon
-                            Layout.alignment: Qt.AlignVCenter
-                            text: ""
-                            font.family: Parameters.iconFontBold
-                            font.pointSize: 22
-                            color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                    Rectangle {
+                        id: logologinRect
+                        anchors.centerIn: logoLoginContainer
+                        width: logoLoginContainer.width - 8
+                        height: logoLoginContainer.height - 8
+                        radius: logoLoginContainer.radius
+                        gradient: Gradient {
+                            orientation: Gradient.Horizontal
+                            GradientStop {position: 0.0; color: Parameters.shadeHightlightBg}
+                            GradientStop {position: 0.45; color: Qt.lighter(Parameters.shadeHightlightBg, 1.22)}
+                            GradientStop {position: 0.5; color: Qt.lighter(Parameters.shadeHightlightBg, 1.31)}
+                            GradientStop {position: 0.66; color: Qt.lighter(Parameters.shadeHightlightBg, 1.4)}
+                            GradientStop {position: 0.75; color: Qt.lighter(Parameters.shadeHightlightBg, 1.29)}
+                            GradientStop {position: 1.0; color: Qt.lighter(Parameters.shadeHightlightBg, 1.15)}
                         }
 
+                        RowLayout {
+                            anchors.centerIn: parent
+                            spacing: 4;
+
+                            Text {
+                                id: logoLoginIcon
+                                Layout.alignment: Qt.AlignVCenter
+                                text: ""
+                                font.family: Parameters.iconFontBold
+                                font.pointSize: 22
+                                color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                            }
+
+                            Text {
+                                id: logoLoginText
+                                Layout.alignment: Qt.AlignVCenter
+                                text: "Stockman"
+                                font.family: Parameters.defaultFont
+                                font.underline: false
+                                font.pointSize: 18
+                                color: Qt.lighter(Parameters.mainHighlightBg, 4.2)
+                            }
+                        }
+                    }
+                }
+
+                //Item { Layout.fillHeight: true; Layout.verticalStretchFactor: 1 }
+
+                Rectangle {
+                    color: "transparent"
+                    width: loginMainColumn.implicitWidth
+                    height: loginMainColumn.implicitHeight
+                    Layout.alignment: Qt.AlignHCenter
+
+                    ColumnLayout {
+                        id: loginMainColumn
+                        anchors.fill: parent
+                        spacing: 18
+
                         Text {
-                            id: logoLoginText
-                            Layout.alignment: Qt.AlignVCenter
-                            text: "Stockman"
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                            Layout.fillHeight: false
                             font.family: Parameters.defaultFont
-                            font.underline: false
-                            font.pointSize: 18
-                            color: Qt.lighter(Parameters.mainHighlightBg, 4.2)
+                            font.pointSize: 26
+                            text: "Faça Login"
+                            color: Parameters.mainBgColor
+                        }
+
+                        Text {
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                            font.family: Parameters.thinFont
+                            font.pointSize: 17
+                            text: "Entre para gerenciar seu estoque"
+                            color: Parameters.shadeBgColor
+                        }
+
+                        Rectangle {
+                            id: userContainer
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.fillWidth: false
+                            Layout.fillHeight: false
+                            width: 300
+                            height: 60
+                            color: "transparent"
+
+                            Text {
+                                id: userLabel
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.leftMargin: 4
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 12
+                                text: "Usuário"
+                                color: Parameters.shadeBgColor
+                            }
+
+                            TextField {
+                                id: usernameInput
+                                anchors.top: userLabel.bottom
+                                anchors.topMargin: 4
+                                anchors.left: parent.left
+
+                                background: Rectangle {
+                                    width: userContainer.width
+                                    height: 36
+                                    radius: 12
+
+                                    gradient: Gradient {
+                                        orientation: Gradient.Horizontal
+                                        GradientStop { position: 0.0; color: Parameters.mainBgColor}
+                                        GradientStop { position: 0.6; color: Parameters.shadeBgColor}
+                                        GradientStop { position: 1.0; color: Parameters.mainBgColor}
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.IBeamCursor
+                                        onClicked: usernameInput.forceActiveFocus()
+                                    }
+                                }
+
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 12
+                                color: Parameters.shadeHightlightBg
+                                selectionColor: Parameters.highlightFg
+
+                                placeholderText: "   Usuário"
+                                placeholderTextColor: Parameters.dimmedHighlightBg
+                                topPadding: 8
+                                leftPadding: 8
+                                rightPadding: 8
+                            }
+                        }
+
+                        Rectangle {
+                            id: passwdContainer
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.fillWidth: false
+                            Layout.fillHeight: false
+                            width: 300
+                            height: 60
+                            color: "transparent"
+
+                            RowLayout {
+                                id: passwdInputRow
+                                anchors.top: parent.top
+                                anchors.left: parent.left
+                                anchors.leftMargin: 4
+                                anchors.right: parent.right
+                                anchors.rightMargin: 4
+                                spacing: 6
+
+                                Text {
+                                    id: passwdLabel
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.fillWidth: false
+                                    font.family: Parameters.defaultFont
+                                    font.pointSize: 12
+                                    text: "Senha"
+                                    color: Parameters.shadeBgColor
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                Button {
+                                    id: showPasswd
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.fillWidth: false
+                                    text: passwdInput.shouldHideChars ? "" : ""
+                                    implicitWidth: 18
+                                    implicitHeight: 18
+
+                                    onClicked: {
+                                        passwdInput.shouldHideChars = !passwdInput.shouldHideChars
+                                    }
+
+                                    contentItem: Text {
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                        font.family: Parameters.iconFontBold
+                                        font.pointSize: 9
+                                        text: showPasswd.text
+                                        //color: '#f0f0f0'
+                                        color: Parameters.shadeHightlightBg
+                                    }
+
+                                    background: Rectangle {
+                                        anchors.fill: parent
+                                        implicitWidth: parent.implicitWidth
+                                        implicitHeight: parent.implicitHeight
+                                        radius: implicitHeight / 2
+                                        //color: showPasswd.down ? Parameters.pressedButtonBg : showPasswd.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
+                                        color: (showPasswd.hovered || showPasswd.down) ? Parameters.dimmedBgColor : Parameters.mainBgColor
+                                        border.width: 2
+                                        border.color: passwdInput.shouldHideChars ? Parameters.highlightFg : "#dc2332"
+                                    }
+
+                                    HoverHandler {
+                                        enabled: parent.visible
+                                        cursorShape: Qt.PointingHandCursor
+                                    }
+                                }
+                            }
+
+                            TextField {
+                                id: passwdInput
+                                anchors.top: passwdInputRow.bottom
+                                anchors.topMargin: 4
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                width: passwdContainer.width
+                                height: 36
+
+                                property bool shouldHideChars: true
+
+                                background: Rectangle {
+                                    width: parent.width
+                                    height: parent.height
+                                    radius: 12
+
+                                    gradient: Gradient {
+                                        orientation: Gradient.Horizontal
+                                        GradientStop { position: 0.0; color: Parameters.mainBgColor}
+                                        GradientStop { position: 0.6; color: Parameters.shadeBgColor}
+                                        GradientStop { position: 1.0; color: Parameters.mainBgColor}
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.IBeamCursor
+                                        onClicked: passwdInput.forceActiveFocus()
+                                    }
+                                }
+
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 12
+                                color: Parameters.shadeHightlightBg
+                                selectionColor: Parameters.highlightFg
+                                echoMode: shouldHideChars ? TextInput.Password : TextInput.Normal
+                                passwordMaskDelay: 340
+
+                                placeholderText: "   Senha"
+                                placeholderTextColor: Parameters.dimmedHighlightBg
+                                leftPadding: 8
+                                rightPadding: 8
+                            }
+                        }
+
+                        Item { height: 1 }
+
+                        Rectangle {
+                            id: loginSubmit
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.fillHeight: false
+                            width: 200
+                            height: 40
+                            radius: 15
+
+                            property var bgGradient: Gradient {
+                                orientation: Gradient.Horizontal
+                                GradientStop { position: 0.0; color: Parameters.highlightFg}
+                                GradientStop { position: 0.5; color: Qt.lighter(Parameters.shadeHightlightFg, 1.1)}
+                                GradientStop { position: 0.85; color: Parameters.highlightFg}
+                            }
+
+                            gradient: bgGradient
+
+                            color: Parameters.highlightFg
+
+                            Text {
+                                anchors.centerIn: parent
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 11
+                                text: "Entrar"
+                                color: "#ffffff"
+                                //style: Text.Outline
+                            }
+
+                            MouseArea {
+                                id: loginSubmitPointHandler
+                                anchors.fill: loginSubmit
+                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: true
+
+                                onEntered: {
+                                    loginSubmit.gradient = null
+                                    loginSubmit.color = Parameters.shadeHightlightFg
+                                }
+
+                                onExited: {
+                                    loginSubmit.color = null
+                                    loginSubmit.gradient = loginSubmit.bgGradient
+                                }
+                            }
                         }
                     }
                 }
 
-                Rectangle {
-                }
+                Item { Layout.fillHeight: true; Layout.verticalStretchFactor: 8 }
             }
-            
         }
 
         Rectangle {
