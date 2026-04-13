@@ -1,8 +1,8 @@
 [
     {
         "username": "in",
-        "passSalt": "$2b$12$JDTscNb774WLxvZ.UpCbzO",
-        "hashPasswd": "$2b$12$JDTscNb774WLxvZ.UpCbzOlDMCFdNtsCWL7hpI35QGPqdJcOIhHBW",
+        "passSalt": "$2b$12$kY5vTA6rrb5r7nwXcU2j4u",
+        "hashPasswd": "$2b$12$kY5vTA6rrb5r7nwXcU2j4u50twwJ.yHe0iP1ZYUd7K7AbDQM1FcH6",
         "level": 0
     }
 ]

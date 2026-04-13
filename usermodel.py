@@ -100,7 +100,10 @@ class UserModel(QAbstractListModel):
     @Slot(int, str, result='QVariantMap')
     def get(self, row: int, search: str):
         allusers = self.m_users
-        indUser = self.m_users[row]
+        try:
+            indUser = self.m_users[row]
+        except:
+            return {"username": "fail"}
         accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a"})
         fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
 
@@ -131,9 +134,6 @@ class UserModel(QAbstractListModel):
             "hashPasswd": hashedPass,
             "level": level
         }
-
-        if (usersData[0]["username"] == "placeholder" and usersData[0]["level"] == -1):
-            del usersData[0]
 
         usersData.append(newUser)
 

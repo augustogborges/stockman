@@ -18,7 +18,7 @@ Window {
     property string search: ""
     property int productAmount
     property var sModel: stock_model
-    property bool noExistingUsers: (user_model.get(0, "").username == "placeholder" && user_model.get(0, "").level == -1)
+    property bool noExistingUsers: user_model.get(0,"").username == "fail"
     property bool noActiveUsers: true
 
     Connections {
@@ -591,11 +591,9 @@ Window {
                             Component.onCompleted: {
                                 container.viewIndex = 0;
                                 usersButton.scale = 0.9;
-                                financeButton.scale = 0.9;
                                 itensButton.scale = 0.9;
                                 dashButton.scale = 1;
                                 usersButton.opacity = 0.95;
-                                financeButton.opacity = 0.95;
                                 itensButton.opacity = 0.95;
                                 dashButton.opacity = 1;
                             }
@@ -607,13 +605,8 @@ Window {
                         }
 
                         TabRect {
-                            id: financeButton
-                            buttonIndex: 2
-                        }
-
-                        TabRect {
                             id: usersButton
-                            buttonIndex: 3
+                            buttonIndex: 2
                         }
                     }
                 }
@@ -1002,12 +995,6 @@ Window {
 
                         Rectangle {
                             id: thirdTab
-                            anchors.fill: parent
-                            color: containerRect.color
-                        }
-
-                        Rectangle {
-                            id: fourthTab
                             anchors.fill: parent
                             color: containerRect.color
                         }

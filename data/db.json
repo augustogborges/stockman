@@ -1,13 +1,7 @@
 [
     {
         "name": "pão",
-        "quantity": 50,
-        "buyPrice": 3.0,
-        "sellPrice": 30.0
-    },
-    {
-        "name": "alface",
-        "quantity": 50,
+        "quantity": 1,
         "buyPrice": 2.0,
         "sellPrice": 3.0
     }
