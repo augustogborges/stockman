@@ -18,7 +18,8 @@ Window {
     property string search: ""
     property int productAmount
     property var sModel: stock_model
-    property bool noActiveUsers: false
+    property bool noExistingUsers: (user_model.get(0, "").username == "placeholder" && user_model.get(0, "").level == -1)
+    property bool noActiveUsers: true
 
     Connections {
         target: root
@@ -59,6 +60,10 @@ Window {
         id: stock_model
     }
 
+    UserModel {
+        id: user_model
+    }
+
     Item {
         id: container
         anchors.fill: parent;
@@ -80,7 +85,7 @@ Window {
         Rectangle {
             id: loginContainer
             anchors.fill: parent
-            visible: root.noActiveUsers
+            visible: root.noActiveUsers || root.noExistingUsers
             z: 1
             gradient: Gradient {
                 orientation: Gradient.Vertical
@@ -175,7 +180,13 @@ Window {
                             Layout.fillHeight: false
                             font.family: Parameters.defaultFont
                             font.pointSize: 26
-                            text: "Faça Login"
+                            text: {
+                                if (!root.noExistingUsers) {
+                                    return "Faça Login"
+                                } else {
+                                    return "Faça o primeiro login"
+                                }
+                            }
                             color: Parameters.mainBgColor
                         }
 
@@ -184,7 +195,13 @@ Window {
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
                             font.family: Parameters.thinFont
                             font.pointSize: 17
-                            text: "Entre para gerenciar seu estoque"
+                            text: {
+                                if (!root.noExistingUsers) {
+                                    return "Entre para gerenciar seu estoque"
+                                } else {
+                                    return "Crie uma conta para utilizar o gerenciador de estoque"
+                                }
+                            }
                             color: Parameters.shadeBgColor
                         }
 
@@ -231,6 +248,12 @@ Window {
                                         hoverEnabled: true
                                         cursorShape: Qt.IBeamCursor
                                         onClicked: usernameInput.forceActiveFocus()
+
+                                        onEntered: {
+                                            userLabel.color = Parameters.shadeBgColor
+                                            usernameInput.color = Parameters.shadeHightlightBg
+                                            usernameInput.placeholderTextColor = Parameters.dimmedHighlightBg
+                                        }
                                     }
                                 }
 
@@ -345,6 +368,12 @@ Window {
                                         hoverEnabled: true
                                         cursorShape: Qt.IBeamCursor
                                         onClicked: passwdInput.forceActiveFocus()
+
+                                        onEntered: {
+                                            passwdLabel.color = Parameters.shadeBgColor
+                                            passwdInput.color = Parameters.shadeHightlightBg
+                                            passwdInput.placeholderTextColor = Parameters.dimmedHighlightBg
+                                        }
                                     }
                                 }
 
@@ -387,7 +416,13 @@ Window {
                                 anchors.centerIn: parent
                                 font.family: Parameters.defaultFont
                                 font.pointSize: 11
-                                text: "Entrar"
+                                text: {
+                                if (!root.noExistingUsers) {
+                                    return "Entrar"
+                                } else {
+                                    return "Criar Conta"
+                                }
+                            }
                                 color: "#ffffff"
                                 //style: Text.Outline
                             }
@@ -406,6 +441,37 @@ Window {
                                 onExited: {
                                     loginSubmit.color = null
                                     loginSubmit.gradient = loginSubmit.bgGradient
+                                }
+
+                                onClicked: {
+                                    if (usernameInput.text != "" && passwdInput.text != "") {
+                                        if (root.noExistingUsers) {
+                                            user_model.newUser(usernameInput.text, passwdInput.text, 0);
+                                            root.noExistingUsers = false;
+                                            root.noActiveUsers = false
+                                        } else {
+                                            if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha correta") {
+                                                root.noActiveUsers = false;
+                                            } else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha incorreta") {
+                                                passwdLabel.color = '#e03b3b'
+                                                passwdInput.color = "#dc2332"
+                                            } else {
+                                                userLabel.color = "#e03b3b"
+                                                usernameInput.color = "#dc2332"
+                                            }
+                                        }
+                                    } else if (usernameInput.text != "" && passwdInput.text == "") {
+                                        passwdLabel.color = '#e03b3b'
+                                        passwdInput.placeholderTextColor = "#dc2332"
+                                    } else if (usernameInput.text == "" && passwdInput.text != "") {
+                                        userLabel.color = "#e03b3b"
+                                        usernameInput.placeholderTextColor = "#dc2332"
+                                    } else {
+                                        passwdLabel.color = '#e03b3b'
+                                        passwdInput.placeholderTextColor = "#dc2332"
+                                        userLabel.color = "#e03b3b"
+                                        usernameInput.placeholderTextColor = "#dc2332"
+                                    }
                                 }
                             }
                         }
@@ -1642,279 +1708,277 @@ Window {
                 }
             }
 
-    Rectangle {
-        id: rmItemDialog
-        anchors.fill: parent
-        visible: false
-        opacity: 0
-        property int callRm
- 
-        signal itemRemoved()
- 
-        Shortcut {
-            enabled: rmItemDialog.visible
-            sequence: "Escape"
-            onActivated: {
-                rmItemDialog.close()
-            }
-        }
- 
-        Behavior on opacity {
-            NumberAnimation {
-                duration: 170
-            }
-        }
- 
-        function open() {
-            rmItemDialog.visible = true
-            Qt.callLater(() => {
-                rmItemDialog.opacity = 1.0
-            })
-        }
- 
-        function close() {
-            rmItemDialog.opacity = 0
-            closeRemoveDialog.restart()
-        }
- 
-        Timer {
-            id: closeRemoveDialog
-            running: false
-            repeat: false
-            interval: 200
-            onTriggered: {
-                rmItemDialog.visible = false
-            }
-        }
- 
-        gradient: Gradient {
-            GradientStop { position: 0.0; color: "#ee000000"}
-            GradientStop { position: 0.4; color: '#ee151517'}
-            GradientStop { position: 0.6; color: '#ee262527'}
-            GradientStop { position: 0.7; color: '#ee201f21'}
-            GradientStop { position: 1.0; color: "#ee000000"}
-        }
- 
-        MultiEffect {
-            source: rmItemDialog
-            blurEnabled: true
-            blur: 0.7
-        }
- 
-        Rectangle {
-            anchors.centerIn: parent
-            width: childrenRect.width + 35
-            height: childrenRect.height + 30
-            radius: 30
-            color: Parameters.pressedButtonBg
- 
-            GridLayout {
-                columns: 4
-                rows: 3
-                anchors.centerIn: parent
-                width: root.width * 0.67
-                columnSpacing: 1
-                rowSpacing: 2
- 
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.columnSpan: 4
-                    height: 55
-                    color: Parameters.mainHighlightBg
-                    topLeftRadius: 15
-                    topRightRadius: 15
- 
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Remover Item"
-                        color: Parameters.mainBgColor
-                        font.family: Parameters.defaultFont
-                        font.pointSize: 18
+            Rectangle {
+                id: rmItemDialog
+                anchors.fill: parent
+                visible: false
+                opacity: 0
+                property int callRm
+        
+                signal itemRemoved()
+        
+                Shortcut {
+                    enabled: rmItemDialog.visible
+                    sequence: "Escape"
+                    onActivated: {
+                        rmItemDialog.close()
                     }
                 }
- 
-                Rectangle {
-                    Layout.horizontalStretchFactor: 3
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
-                    Layout.preferredHeight: 40
-                    color: Parameters.shadeBgColor
-                    border.width: 1
-                    border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
-                    
-                    Text {
-                        id: removeFName
-                        anchors.centerIn: parent
-                        color: '#e4595959'
-                        font.family: Parameters.altFont
-                        font.styleName: "Medium Oblique"
-                        font.pointSize: 15
-                        text: stock_model.get(rmItemDialog.callRm, "").name
+        
+                Behavior on opacity {
+                    NumberAnimation {
+                        duration: 170
                     }
                 }
- 
-                Rectangle {
-                    Layout.horizontalStretchFactor: 1
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: 1
-                    Layout.preferredHeight: 40
-                    color: Parameters.shadeBgColor
-                    border.width: 1
-                    border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
- 
-                    Text {
-                        id: removeFQuant
-                        anchors.centerIn: parent
-                        color: "#000000"
-                        font.family: Parameters.defaultFont
-                        font.pointSize: 15
-                        text: stock_model.get(rmItemDialog.callRm, "").quantity
+        
+                function open() {
+                    rmItemDialog.visible = true
+                    Qt.callLater(() => {
+                        rmItemDialog.opacity = 1.0
+                    })
+                }
+        
+                function close() {
+                    rmItemDialog.opacity = 0
+                    closeRemoveDialog.restart()
+                }
+        
+                Timer {
+                    id: closeRemoveDialog
+                    running: false
+                    repeat: false
+                    interval: 200
+                    onTriggered: {
+                        rmItemDialog.visible = false
                     }
                 }
- 
-                Rectangle {
-                    Layout.horizontalStretchFactor: 2
-                    Layout.preferredWidth: 1
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    color: Parameters.shadeBgColor
-                    border.width: 1
-                    border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
- 
-                    Text {
-                        id: removeFCost
-                        anchors.centerIn: parent
-                        color: "#000000"
-                        font.family: Parameters.defaultFont
-                        font.pointSize: 15
-                        text: stock_model.get(rmItemDialog.callRm, "").buyPrice
-                    }
+        
+                gradient: Gradient {
+                    GradientStop { position: 0.0; color: "#ee000000"}
+                    GradientStop { position: 0.4; color: '#ee151517'}
+                    GradientStop { position: 0.6; color: '#ee262527'}
+                    GradientStop { position: 0.7; color: '#ee201f21'}
+                    GradientStop { position: 1.0; color: "#ee000000"}
                 }
- 
-                Rectangle {
-                    Layout.horizontalStretchFactor: 2
-                    Layout.preferredWidth: 1
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    color: Parameters.shadeBgColor
-                    border.width: 1
-                    border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
- 
-                    TextInput {
-                        id: removeFSell
-                        anchors.centerIn: parent
-                        color: "#000000"
-                        font.family: Parameters.defaultFont
-                        font.pointSize: 15
-                        text: stock_model.get(rmItemDialog.callRm, "").sellPrice
-                    }
+        
+                MultiEffect {
+                    source: rmItemDialog
+                    blurEnabled: true
+                    blur: 0.7
                 }
- 
+        
                 Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 40
-                    Layout.columnSpan: 4
-                    color: Parameters.highlightFg
-                    bottomRightRadius: 15
-                    bottomLeftRadius: 15
- 
-                    RowLayout {
-                        anchors {
-                            top: parent.top
-                            bottom: parent.bottom
-                            right: parent.right
-                            topMargin: 2
-                            bottomMargin: 2
-                            rightMargin: 6
-                        }
-                        layoutDirection: Qt.RightToLeft
-                        spacing: 6
-                        
-                        Button {
-                            id: removeSubmit
-                            Layout.alignment: Qt.AlignVCenter
-                            Layout.fillWidth: false
-                            text: "OK" //"Adicionar"
-                            implicitWidth: 74
-                            implicitHeight: 34
- 
-                            onClicked: {
-                                console.log("Trying to destroy index: " + rmItemDialog.callRm)
-                                stock_model.eliminate(parseInt(rmItemDialog.callRm))
-
-                                rmItemDialog.close()
-
-                                rmItemDialog.itemRemoved()
-                            }
- 
-                            contentItem: Text {
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
+                    anchors.centerIn: parent
+                    width: childrenRect.width + 35
+                    height: childrenRect.height + 30
+                    radius: 30
+                    color: Parameters.pressedButtonBg
+        
+                    GridLayout {
+                        columns: 4
+                        rows: 3
+                        anchors.centerIn: parent
+                        width: root.width * 0.67
+                        columnSpacing: 1
+                        rowSpacing: 2
+        
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.columnSpan: 4
+                            height: 55
+                            color: Parameters.mainHighlightBg
+                            topLeftRadius: 15
+                            topRightRadius: 15
+        
+                            Text {
+                                anchors.centerIn: parent
+                                text: "Remover Item"
+                                color: Parameters.mainBgColor
                                 font.family: Parameters.defaultFont
-                                font.pointSize: 12
-                                text: removeSubmit.text
-                                color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
-                            }
-                            
-                            background: Rectangle {
-                                anchors.verticalCenter: parent.verticalCenter
-                                implicitWidth: 74
-                                implicitHeight: 34
-                                radius: searchContainer.radius
-                                color: removeSubmit.down ? Parameters.pressedButtonBg : removeSubmit.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
-                                border.width: 2
-                                border.color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
-                            }
- 
-                            HoverHandler {
-                                enabled: parent.visible
-                                cursorShape: Qt.PointingHandCursor
+                                font.pointSize: 18
                             }
                         }
- 
-                        Button {
-                            id: removeCancel
-                            Layout.alignment: Qt.AlignVCenter
-                            Layout.fillWidth: false
-                            text: "Cancelar"
-                            implicitWidth: 82
-                            implicitHeight: 34
- 
-                            onClicked: {
-                                rmItemDialog.close()
-                            }
- 
-                            contentItem: Text {
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                                font.family: Parameters.defaultFont
-                                font.pointSize: 12
-                                text: removeCancel.text
-                                color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
-                            }
+        
+                        Rectangle {
+                            Layout.horizontalStretchFactor: 3
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 40
+                            color: Parameters.shadeBgColor
+                            border.width: 1
+                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
                             
-                            background: Rectangle {
-                                anchors.verticalCenter: parent.verticalCenter
-                                implicitWidth: 82
-                                implicitHeight: 34
-                                radius: searchContainer.radius
-                                color: removeCancel.down ? Parameters.pressedButtonBg : removeCancel.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
-                                border.width: 2
-                                border.color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                            Text {
+                                id: removeFName
+                                anchors.centerIn: parent
+                                color: '#e4595959'
+                                font.family: Parameters.altFont
+                                font.styleName: "Medium Oblique"
+                                font.pointSize: 15
+                                text: stock_model.get(rmItemDialog.callRm, "").name
                             }
- 
-                            HoverHandler {
-                                enabled: parent.visible
-                                cursorShape: Qt.PointingHandCursor
+                        }
+        
+                        Rectangle {
+                            Layout.horizontalStretchFactor: 1
+                            Layout.fillWidth: true
+                            Layout.preferredWidth: 1
+                            Layout.preferredHeight: 40
+                            color: Parameters.shadeBgColor
+                            border.width: 1
+                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+        
+                            Text {
+                                id: removeFQuant
+                                anchors.centerIn: parent
+                                color: "#000000"
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 15
+                                text: stock_model.get(rmItemDialog.callRm, "").quantity
+                            }
+                        }
+        
+                        Rectangle {
+                            Layout.horizontalStretchFactor: 2
+                            Layout.preferredWidth: 1
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 40
+                            color: Parameters.shadeBgColor
+                            border.width: 1
+                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+        
+                            Text {
+                                id: removeFCost
+                                anchors.centerIn: parent
+                                color: "#000000"
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 15
+                                text: stock_model.get(rmItemDialog.callRm, "").buyPrice
+                            }
+                        }
+        
+                        Rectangle {
+                            Layout.horizontalStretchFactor: 2
+                            Layout.preferredWidth: 1
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 40
+                            color: Parameters.shadeBgColor
+                            border.width: 1
+                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+        
+                            TextInput {
+                                id: removeFSell
+                                anchors.centerIn: parent
+                                color: "#000000"
+                                font.family: Parameters.defaultFont
+                                font.pointSize: 15
+                                text: stock_model.get(rmItemDialog.callRm, "").sellPrice
+                            }
+                        }
+        
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 40
+                            Layout.columnSpan: 4
+                            color: Parameters.highlightFg
+                            bottomRightRadius: 15
+                            bottomLeftRadius: 15
+        
+                            RowLayout {
+                                anchors {
+                                    top: parent.top
+                                    bottom: parent.bottom
+                                    right: parent.right
+                                    topMargin: 2
+                                    bottomMargin: 2
+                                    rightMargin: 6
+                                }
+                                layoutDirection: Qt.RightToLeft
+                                spacing: 6
+                                
+                                Button {
+                                    id: removeSubmit
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.fillWidth: false
+                                    text: "OK" //"Adicionar"
+                                    implicitWidth: 74
+                                    implicitHeight: 34
+        
+                                    onClicked: {
+                                        console.log("Trying to destroy index: " + rmItemDialog.callRm)
+                                        stock_model.eliminate(parseInt(rmItemDialog.callRm))
+
+                                        rmItemDialog.close()
+
+                                        rmItemDialog.itemRemoved()
+                                    }
+        
+                                    contentItem: Text {
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                        font.family: Parameters.defaultFont
+                                        font.pointSize: 12
+                                        text: removeSubmit.text
+                                        color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                    }
+                                    
+                                    background: Rectangle {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        implicitWidth: 74
+                                        implicitHeight: 34
+                                        radius: searchContainer.radius
+                                        color: removeSubmit.down ? Parameters.pressedButtonBg : removeSubmit.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
+                                        border.width: 2
+                                        border.color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                    }
+        
+                                    HoverHandler {
+                                        enabled: parent.visible
+                                        cursorShape: Qt.PointingHandCursor
+                                    }
+                                }
+        
+                                Button {
+                                    id: removeCancel
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.fillWidth: false
+                                    text: "Cancelar"
+                                    implicitWidth: 82
+                                    implicitHeight: 34
+        
+                                    onClicked: {
+                                        rmItemDialog.close()
+                                    }
+        
+                                    contentItem: Text {
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                        font.family: Parameters.defaultFont
+                                        font.pointSize: 12
+                                        text: removeCancel.text
+                                        color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                    }
+                                    
+                                    background: Rectangle {
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        implicitWidth: 82
+                                        implicitHeight: 34
+                                        radius: searchContainer.radius
+                                        color: removeCancel.down ? Parameters.pressedButtonBg : removeCancel.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
+                                        border.width: 2
+                                        border.color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                    }
+        
+                                    HoverHandler {
+                                        enabled: parent.visible
+                                        cursorShape: Qt.PointingHandCursor
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-    }
-
-            // find a way to do error handling on the inputs
         }
     }
 }

@@ -1,8 +1,8 @@
 [
     {
-        "username": "pão",
-        "passSalt": "$2b$12$1XFOrBQ8kZvNvc5CYMq1c.",
-        "hashPasswd": "$2b$12$1XFOrBQ8kZvNvc5CYMq1c.2eVyF7Xbgj/TWMNGImcBTRH0Hu9nCrS",
-        "level": 1
+        "username": "in",
+        "passSalt": "$2b$12$JDTscNb774WLxvZ.UpCbzO",
+        "hashPasswd": "$2b$12$JDTscNb774WLxvZ.UpCbzOlDMCFdNtsCWL7hpI35QGPqdJcOIhHBW",
+        "level": 0
     }
 ]

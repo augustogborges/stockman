@@ -113,7 +113,7 @@ class UserModel(QAbstractListModel):
                     return {"username": indUser.username, "level": indUser.level}
 
     @Slot(str, str, int)
-    def append(self, username: str, plainPasswd: str, level: int):
+    def newUser(self, username: str, plainPasswd: str, level: int):
         userDatabase =  os.path.join(".", "data", "users.json")
 
         usersData = []
@@ -127,10 +127,13 @@ class UserModel(QAbstractListModel):
 
         newUser = {
             "username": username,
-            "salt": passSalt,
+            "passSalt": passSalt,
             "hashPasswd": hashedPass,
             "level": level
         }
+
+        if (usersData[0]["username"] == "placeholder" and usersData[0]["level"] == -1):
+            del usersData[0]
 
         usersData.append(newUser)
 
@@ -138,7 +141,7 @@ class UserModel(QAbstractListModel):
             json.dump(usersData, userFileW, indent=4, ensure_ascii=False)
 
     @Slot(int, str, str, int)
-    def edit(self, index, newName, newPlainPasswd, newLevel):
+    def editUser(self, index, newName, newPlainPasswd, newLevel):
         userDatabase =  os.path.join(".", "data", "users.json")
 
         usersData = []
@@ -156,7 +159,7 @@ class UserModel(QAbstractListModel):
             json.dump(usersData, userFileW, indent=4, ensure_ascii=False)
 
     @Slot(int)
-    def eliminate(self, rmIndex):
+    def rmUser(self, rmIndex):
         userDatabase =  os.path.join(".", "data", "users.json")
 
         usersData = []
@@ -169,19 +172,21 @@ class UserModel(QAbstractListModel):
         with open(userDatabase, "w", encoding="utf-8") as userFileW:
             json.dump(usersData, userFileW, indent=4, ensure_ascii=False)
 
-    @Slot(str, result=str)
-    def checkLogin(loginUsername: str, loginPasswd: str):
+    @Slot(str, str, result=str)
+    def checkLogin(self, loginUsername: str, loginPasswd: str):
         userDatabase =  os.path.join(".", "data", "users.json")
 
         usersData = []
 
         matchvar = False
 
+        username = loginUsername
+
         with open(userDatabase, "r", encoding="utf-8") as userFile:
             usersData = json.load(userFile)
 
         for item in usersData:
-            if (loginUsername in item["username"]):
+            if (username in item["username"]):
                 matchvar = True
                 if (checkHash(item["hashPasswd"], item["passSalt"], loginPasswd)):
                     return "senha correta"
