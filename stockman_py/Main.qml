@@ -18,8 +18,9 @@ Window {
     property string search: ""
     property int productAmount
     property var sModel: stock_model
-    property bool noExistingUsers: user_model.get(0,"").username == "fail"
-    property bool noActiveUsers: true
+    //property bool noExistingUsers: user_model.get(0,"").username == "fail"
+    //property bool noActiveUsers: true
+    property bool noActiveUsers: false
 
     Connections {
         target: root
