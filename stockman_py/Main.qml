@@ -18,7 +18,12 @@ Window {
     property string search: ""
     property int productAmount
     property var sModel: stock_model
+<<<<<<< HEAD
     property bool noExistingUsers: user_model.get(0,"").username == "fail"
+=======
+    //property bool noExistingUsers: user_model.get(0,"").username == "fail"
+    //property bool noActiveUsers: true
+>>>>>>> refs/remotes/origin/main
     property bool noActiveUsers: false
 
     Connections {
