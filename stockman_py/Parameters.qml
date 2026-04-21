@@ -3,7 +3,7 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    readonly property color mainBgColor: "#eeeeee" //"#121212"
+    readonly property color mainBgColor: "#fafafa" //"#121212"
     readonly property color shadeBgColor: Qt.tint(mainBgColor, Qt.lighter(Qt.rgba(mainHighlightBg.r, mainHighlightBg.g, mainHighlightBg.b, 0.05), 3.2)) //'#eaeff3' //"#202020"
     readonly property color dimmedBgColor: "#c0c0c0"
     readonly property color mainHighlightBg: "#0f1869" //"#dc2332"
@@ -22,4 +22,27 @@ QtObject {
     readonly property string iconFont: "Phosphor"
     readonly property string iconFontBold: "Phosphor-Bold"
     readonly property string iconFontFilled: "Phosphor-Fill"
+
+    readonly property var whiteButtonGradient: Gradient {
+        orientation: Gradient.Horizontal
+        GradientStop { color: "#dddddd"; position: 0.0}
+        GradientStop { color: "#e5e5e5"; position: 0.45}
+    }
+
+    readonly property var whiteBgGradient: Gradient {
+        GradientStop {color: "#efefef"; position: 0.0}
+        GradientStop {color: "#f0f0f0"; position: 0.5}
+        GradientStop {color: mainBgColor; position: 0.65}
+    }
+
+    readonly property var subTableGradient: Gradient {
+        GradientStop {color: "#f2f2f2"; position: 0.0}
+        GradientStop {color: "#fcfcfc"; position: 0.5}
+        GradientStop {color: "#fefefe"; position: 0.65}
+    }
+
+    readonly property var subItemGradient: Gradient {
+        GradientStop {color: "#f2f2f2"; position: 0.0}
+        GradientStop {color: "#fefefe"; position: 0.4}
+    }
 }

@@ -19,7 +19,7 @@ Window {
     property int productAmount
     property var sModel: stock_model
     property bool noExistingUsers: user_model.get(0,"").username == "fail"
-    property bool noActiveUsers: true
+    property bool noActiveUsers: false
 
     Connections {
         target: root
@@ -996,7 +996,512 @@ Window {
                         Rectangle {
                             id: thirdTab
                             anchors.fill: parent
-                            color: containerRect.color
+                            //color: containerRect.color
+                            gradient: Parameters.whiteBgGradient
+
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.topMargin: parent.height * 0.05
+                                anchors.bottomMargin: parent.height * 0.05
+                                anchors.leftMargin: parent.width * 0.05
+                                anchors.rightMargin: parent.width * 0.05
+                                spacing: parent.height * 0.025
+
+                                GridLayout {
+                                    Layout.alignment: Qt.AlignTop
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    Layout.fillHeight: false
+                                    columns: 2
+                                    rows: 2
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                        font.family: Parameters.thinFont
+                                        font.styleName: "Bold"
+                                        text: "Usuários"
+                                        font.pixelSize: 22
+                                        color: "#000000"
+                                    }
+
+                                    Rectangle {
+                                        id: newUserButton
+                                        Layout.alignment: Qt.AlignTop | Qt.AlignRight
+                                        Layout.preferredWidth: thirdTab.width / 12
+                                        Layout.preferredHeight: thirdTab.height / 30
+                                        radius: Parameters.defaultRadius
+
+                                        property var bgGradient: Gradient {
+                                            orientation: Gradient.Horizontal
+                                            GradientStop { position: 0.0; color: Parameters.highlightFg}
+                                            GradientStop { position: 0.5; color: Qt.lighter(Parameters.shadeHightlightFg, 1.35)}
+                                            GradientStop { position: 0.85; color: Parameters.highlightFg}
+                                        }
+
+                                        gradient: bgGradient
+
+                                        color: Parameters.highlightFg
+
+                                        RowLayout {
+                                            anchors.centerIn: parent
+                                            spacing: 4
+
+                                            Text {
+                                                font.family: Parameters.defaultFont
+                                                font.pointSize: 16
+                                                text: "+"
+                                                color: "#ffffff"
+                                                //style: Text.Outline
+                                            }
+
+                                            Text {
+                                                font.family: Parameters.defaultFont
+                                                font.pointSize: 11
+                                                text: "Novo Usuário"
+                                                color: "#ffffff"
+                                                //style: Text.Outline
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            id: newUserPointHandler
+                                            anchors.fill: newUserButton
+                                            cursorShape: Qt.PointingHandCursor
+                                            hoverEnabled: true
+
+                                            onEntered: {
+                                                newUserButton.gradient = null
+                                                newUserButton.color = Parameters.shadeHightlightFg
+                                            }
+
+                                            onExited: {
+                                                newUserButton.color = null
+                                                newUserButton.gradient = newUserButton.bgGradient
+                                            }
+
+                                            //onClicked: //TODo
+                                        }
+                                    }
+
+                                    Text {
+                                        Layout.columnSpan: 2
+                                        Layout.alignment: Qt.AlignLeft
+                                        font.family: Parameters.defaultFont
+                                        text: "Gerencie os acessos e permissões dos usuários do sistema."
+                                        font.pixelSize: 16
+                                        color: "#222222"
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
+                                    Layout.fillHeight: false
+
+                                    spacing: thirdTab.width / 28
+
+                                    Rectangle {
+                                        id: userRect1
+                                        Layout.alignment: Qt.AlignTop
+                                        Layout.preferredWidth: thirdTab.width * 23 / 112 - thirdTab.width * 0.025
+                                        Layout.preferredHeight: thirdTab.height / 10
+
+                                        radius: Parameters.defaultRadius / 2
+
+                                        gradient: Parameters.whiteButtonGradient
+                                        border.width: 1
+                                        border.color: "#cacaca"
+
+                                        GridLayout {
+                                            anchors.fill: parent
+                                            anchors.topMargin: parent.height * 0.1
+                                            anchors.bottomMargin: parent.height * 0.1
+                                            anchors.leftMargin: parent.width * 0.1
+                                            anchors.rightMargin: parent.width * 0.1
+                                            rows: 2
+                                            columns: 2
+
+                                            Rectangle {
+                                                Layout.rowSpan: 2
+                                                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                                                implicitHeight: userRect1.width * 0.18
+                                                implicitWidth: implicitHeight
+                                                radius: implicitHeight / 2
+                                                color: '#3d419c'
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    font.family: Parameters.iconFontFilled
+                                                    font.pixelSize: parent.implicitHeight * 0.6
+                                                    text: ""
+                                                    color: Parameters.mainBgColor
+                                                }
+                                            }
+
+                                            Text {
+                                                Layout.rowSpan: 1
+                                                font.family: Parameters.defaultFont
+                                                font.pixelSize: (userRect1.width * 0.12 + userRect1.height * 0.12) / 2
+                                                text: "Estoquistas"
+                                                color: "#000000"
+                                            }
+
+                                            Text {
+                                                Layout.rowSpan: 1
+                                                font.family: Parameters.thinFont
+                                                font.styleName: "Bold"
+                                                font.pixelSize: (userRect1.width * 0.14 + userRect1.height * 0.14) / 2
+                                                text: "1" //todo
+                                                color: "#000000"
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        id: userRect2
+                                        Layout.alignment: Qt.AlignTop
+                                        Layout.preferredWidth: thirdTab.width * 23 / 112 - thirdTab.width * 0.025
+                                        Layout.preferredHeight: thirdTab.height / 10
+
+                                        radius: Parameters.defaultRadius / 2
+
+                                        gradient: Parameters.whiteButtonGradient
+                                        border.width: 1
+                                        border.color: "#cacaca"
+
+                                        GridLayout {
+                                            anchors.fill: parent
+                                            anchors.topMargin: parent.height * 0.1
+                                            anchors.bottomMargin: parent.height * 0.1
+                                            anchors.leftMargin: parent.width * 0.1
+                                            anchors.rightMargin: parent.width * 0.1
+                                            rows: 2
+                                            columns: 2
+
+                                            Rectangle {
+                                                Layout.rowSpan: 2
+                                                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                                                implicitHeight: userRect2.width * 0.18
+                                                implicitWidth: implicitHeight
+                                                radius: implicitHeight / 2
+                                                color: '#3d419c'
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    font.family: Parameters.iconFontFilled
+                                                    font.pixelSize: parent.implicitHeight * 0.6
+                                                    text: ""
+                                                    color: Parameters.mainBgColor
+                                                }
+                                            }
+
+                                            Text {
+                                                Layout.rowSpan: 1
+                                                font.family: Parameters.defaultFont
+                                                font.pixelSize: (userRect2.width * 0.12 + userRect2.height * 0.12) / 2
+                                                text: "Estoquistas"
+                                                color: "#000000"
+                                            }
+
+                                            Text {
+                                                Layout.rowSpan: 1
+                                                font.family: Parameters.thinFont
+                                                font.styleName: "Bold"
+                                                font.pixelSize: (userRect2.width * 0.14 + userRect2.height * 0.14) / 2
+                                                text: "1" //todo
+                                                color: "#000000"
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        id: userRect3
+                                        Layout.alignment: Qt.AlignTop
+                                        Layout.preferredWidth: thirdTab.width * 23 / 112 - thirdTab.width * 0.025
+                                        Layout.preferredHeight: thirdTab.height / 10
+
+                                        radius: Parameters.defaultRadius / 2
+
+                                        gradient: Parameters.whiteButtonGradient
+                                        border.width: 1
+                                        border.color: "#cacaca"
+
+                                        GridLayout {
+                                            anchors.fill: parent
+                                            anchors.topMargin: parent.height * 0.1
+                                            anchors.bottomMargin: parent.height * 0.1
+                                            anchors.leftMargin: parent.width * 0.1
+                                            anchors.rightMargin: parent.width * 0.1
+                                            rows: 2
+                                            columns: 2
+
+                                            Rectangle {
+                                                Layout.rowSpan: 2
+                                                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                                                implicitHeight: userRect3.width * 0.18
+                                                implicitWidth: implicitHeight
+                                                radius: implicitHeight / 2
+                                                color: '#3d419c'
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    font.family: Parameters.iconFontFilled
+                                                    font.pixelSize: parent.implicitHeight * 0.6
+                                                    text: ""
+                                                    color: Parameters.mainBgColor
+                                                }
+                                            }
+
+                                            Text {
+                                                Layout.rowSpan: 1
+                                                font.family: Parameters.defaultFont
+                                                font.pixelSize: (userRect3.width * 0.12 + userRect3.height * 0.12) / 2
+                                                text: "Estoquistas"
+                                                color: "#000000"
+                                            }
+
+                                            Text {
+                                                Layout.rowSpan: 1
+                                                font.family: Parameters.thinFont
+                                                font.styleName: "Bold"
+                                                font.pixelSize: (userRect3.width * 0.14 + userRect3.height * 0.14) / 2
+                                                text: "1" //todo
+                                                color: "#000000"
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        id: userRect4
+                                        Layout.alignment: Qt.AlignTop
+                                        Layout.preferredWidth: thirdTab.width * 23 / 112 - thirdTab.width * 0.025
+                                        Layout.preferredHeight: thirdTab.height / 10
+
+                                        radius: Parameters.defaultRadius / 2
+
+                                        gradient: Parameters.whiteButtonGradient
+                                        border.width: 1
+                                        border.color: "#cacaca"
+
+                                        GridLayout {
+                                            anchors.fill: parent
+                                            anchors.topMargin: parent.height * 0.1
+                                            anchors.bottomMargin: parent.height * 0.1
+                                            anchors.leftMargin: parent.width * 0.1
+                                            anchors.rightMargin: parent.width * 0.1
+                                            rows: 2
+                                            columns: 2
+
+                                            Rectangle {
+                                                Layout.rowSpan: 2
+                                                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                                                implicitHeight: userRect4.width * 0.18
+                                                implicitWidth: implicitHeight
+                                                radius: implicitHeight / 2
+                                                color: '#3d419c'
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    font.family: Parameters.iconFontFilled
+                                                    font.pixelSize: parent.implicitHeight * 0.6
+                                                    text: ""
+                                                    color: Parameters.mainBgColor
+                                                }
+                                            }
+
+                                            Text {
+                                                Layout.rowSpan: 1
+                                                font.family: Parameters.defaultFont
+                                                font.pixelSize: (userRect4.width * 0.12 + userRect4.height * 0.12) / 2
+                                                text: "Estoquistas"
+                                                color: "#000000"
+                                            }
+
+                                            Text {
+                                                Layout.rowSpan: 1
+                                                font.family: Parameters.thinFont
+                                                font.styleName: "Bold"
+                                                font.pixelSize: (userRect4.width * 0.14 + userRect4.height * 0.14) / 2
+                                                text: "1" //todo
+                                                color: "#000000"
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Rectangle {
+                                    id: tableBg
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+
+                                    gradient: Gradient {
+                                        GradientStop {color: "#f2f2f2"; position: 0.0}
+                                        GradientStop {color: "#fefefe"; position: 0.4}
+                                    }
+
+                                    radius: Parameters.defaultRadius
+
+                                    Rectangle {
+                                        id: topTableRect
+                                        anchors {
+                                            top: parent.top
+                                            left: parent.left
+                                            right: parent.right
+                                        }
+                                        height: parent.height * 0.085
+                                        color: "transparent"
+
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.topMargin: topTableRect.height * 0.1
+                                            anchors.bottomMargin: topTableRect.height * 0.1
+                                            anchors.leftMargin: topTableRect.width * 0.025
+                                            anchors.rightMargin: topTableRect.width * 0.025
+                                            spacing: 0
+
+                                            Rectangle {
+                                                id: userSearchContainer
+                                                Layout.fillHeight: true
+                                                Layout.fillWidth: false
+                                                implicitWidth: topTableRect.width * 0.3                                     
+                                                color: "#ffffff"
+                                                radius: Parameters.defaultRadius
+
+                                                RowLayout {
+                                                    anchors.fill: parent
+                                                    anchors.topMargin: parent.height * 0.05
+                                                    anchors.bottomMargin: parent.height * 0.05
+                                                    anchors.leftMargin: parent.width * 0.05
+                                                    anchors.rightMargin: parent.width * 0.05
+                                                    spacing: parent.width * 0.03
+
+                                                    Text {
+                                                        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                                                        font.family: Parameters.iconFontBold
+                                                        font.pixelSize: userSearchContainer.height * 0.4
+                                                        text: ""
+                                                        color: "#000000"
+                                                    }
+
+                                                    TextField {
+                                                        id: userSearchField
+                                                        Layout.fillWidth: true
+                                                        Layout.fillHeight: false
+                                                        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+
+                                                        background: Rectangle {
+                                                            color: "transparent"
+                                                            Layout.preferredHeight: userSearchContainer.height * 0.75
+                                                        }
+
+                                                        placeholderText: "Buscar usuários"
+                                                        placeholderTextColor: Parameters.dimmedBgColor
+                                                        verticalAlignment: Text.AlignVCenter
+                                                        font.family: Parameters.altFont
+                                                        font.styleName: "Medium Oblique"
+                                                        font.pixelSize: userSearchContainer.height * 0.4
+                                                        color: "#202020"
+                                                        selectByMouse: true
+                                                        mouseSelectionMode: TextField.SelectWords
+                                                        //onAccepted: //todo
+
+                                                        HoverHandler {
+                                                            enabled: parent.visible
+                                                            cursorShape: Qt.IBeamCursor
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            Item {
+                                                Layout.fillWidth: false
+                                                Layout.maximumWidth: (topTableRect.width * 0.04)
+                                            }
+
+                                            Rectangle {
+                                                id: userJobFilterContainer
+                                                Layout.fillHeight: true
+                                                Layout.fillWidth: false
+                                                implicitWidth: topTableRect.width * 0.2
+                                                color: "#ffffff"
+                                                radius: Parameters.defaultRadius
+
+                                                RowLayout {
+                                                    anchors.fill: parent
+                                                    anchors.topMargin: topTableRect.height * 0.1
+                                                    anchors.bottomMargin: topTableRect.height * 0.1
+                                                    anchors.leftMargin: topTableRect.width * 0.025
+                                                    anchors.rightMargin: topTableRect.width * 0.025
+
+                                                    Text {
+                                                        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                                                        font.family: Parameters.defaultFont
+                                                        font.pixelSize: userSearchContainer.height * 0.4
+                                                        text: "Cargo"
+                                                        color: "#000000"
+                                                    }
+
+                                                    Text {
+                                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                        font.family: Parameters.iconFont
+                                                        font.pixelSize: userSearchContainer.height * 0.4
+                                                        text: ""
+                                                        color: "#000000"
+                                                    }
+                                                }
+                                            }
+
+                                            Item {
+                                                Layout.fillWidth: false
+                                                Layout.preferredWidth: (topTableRect.width * 0.26)
+                                            }
+
+                                            Rectangle {
+                                                Layout.fillHeight: true
+                                                Layout.fillWidth: false
+                                                implicitWidth: topTableRect.width * 0.15
+                                                color: "#ffffff"
+                                                radius: Parameters.defaultRadius
+
+                                                RowLayout {
+                                                    anchors.fill: parent
+                                                    anchors.topMargin: topTableRect.height * 0.1
+                                                    anchors.bottomMargin: topTableRect.height * 0.1
+                                                    anchors.leftMargin: topTableRect.width * 0.025
+                                                    anchors.rightMargin: topTableRect.width * 0.025
+
+                                                    Text {
+                                                        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                                                        font.family: Parameters.iconFont
+                                                        font.pixelSize: userSearchContainer.height * 0.4
+                                                        text: ""
+                                                        color: "#000000"
+                                                    }
+
+                                                    Text {
+                                                        Layout.alignment: Qt.AlignVCenter
+                                                        font.family: Parameters.defaultFont
+                                                        font.pixelSize: userSearchContainer.height * 0.4
+                                                        text: "Limpar filtros"
+                                                        color: "#000000"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        id: rowTitleDisplay
+                                        anchors {
+                                            left: parent.left
+                                            right: parent.right
+                                            top: topTableRect.bottom
+                                        }
+                                        height: parent.height * 0.09
+                                        color: "transparent"
+                                    }
+                                }
+                            }
                         }
                     }
                 }
