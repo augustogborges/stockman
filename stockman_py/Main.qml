@@ -654,6 +654,7 @@ Window {
                             id: firstTab
                             anchors.fill: parent
                             gradient: Parameters.whiteBgGradient
+                            property list<color> graphColors: ['#049b43', '#31d100', '#26f9dd', '#308add', '#2224aa', '#7103d8', '#8f047c', '#f9af26', '#ce6300', '#9b0404']
 
                             Rectangle {
                                 id: dashContainer
@@ -711,8 +712,6 @@ Window {
                                                 radius: Parameters.defaultRadius
 
                                                 color: Parameters.shadeBgColor
-
-                                                property list<color> graphColors: ['#049b43', '#31d100', '#26f9dd', '#308add', '#2224aa', '#7103d8', '#8f047c', '#f9af26', '#ce6300', '#9b0404']
 
                                                 RowLayout {
                                                     anchors.fill: parent
@@ -775,7 +774,7 @@ Window {
                                                                             Layout.preferredHeight: profitDistInfoContainer.height * 0.065
                                                                             Layout.preferredWidth: height
                                                                             radius: height / 2
-                                                                            color: profitDistContainer.graphColors[index]
+                                                                            color: firstTab.graphColors[index]
                                                                         }
 
                                                                         Text {
@@ -844,7 +843,7 @@ Window {
                                                                     var number = stock_model.getSortedByTotalProfit(i).percentage
                                                                     var slice = pieSeries.append(stock_model.getSortedByTotalProfit(i).percentage + "%", stock_model.getSortedByTotalProfit(i).percentage)
                                                                     slice.borderWidth = 0
-                                                                    slice.color = profitDistContainer.graphColors[i]
+                                                                    slice.color = firstTab.graphColors[i]
                                                                     slice.label = stock_model.getSortedByTotalProfit(i).percentage + "%"
                                                                     slice.labelVisible = true
                                                                     if (number >= 15) {
@@ -867,20 +866,209 @@ Window {
 
                                                 autoPaddingEnabled: true
                                                 shadowEnabled: true
-                                                shadowOpacity: 0.5
+                                                shadowOpacity: 0.8
+                                                shadowScale: 0.99
                                                 shadowVerticalOffset: 4
                                                 shadowColor: "#000000"
                                             }
                                         }
 
-                                        Rectangle {
+                                        Item {
                                             Layout.fillWidth: true
                                             Layout.fillHeight: true
                                             Layout.rowSpan: 4
                                             Layout.columnSpan: 2
-                                            radius: Parameters.defaultRadius
 
-                                            color: "black"
+                                            Rectangle {
+                                                id: stockFillContainer
+                                                anchors.fill: parent
+                                                radius: Parameters.defaultRadius
+
+                                                color: Parameters.shadeBgColor
+
+                                                ColumnLayout {
+                                                    anchors.fill: parent
+                                                    anchors.topMargin: parent.height * 0.05
+                                                    anchors.bottomMargin: parent.height * 0.05
+                                                    anchors.leftMargin: parent.width * 0.08
+                                                    anchors.rightMargin: parent.width * 0.08
+                                                    spacing: parent.height * 0.015
+
+                                                    RowLayout {
+                                                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                                        Layout.fillHeight: false
+                                                        Layout.fillWidth: true
+                                                        Layout.preferredHeight: stockFillContainer.height * 0.08
+
+                                                        Text {
+                                                            Layout.fillWidth: true
+                                                            Layout.fillHeight: false
+                                                            font.pixelSize: stockFillContainer.height * 0.05
+                                                            Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                                            text: "Composição do Estoque"
+                                                            font.family: Parameters.defaultFont
+                                                            color: "#000000"
+                                                        }
+
+                                                        Rectangle {
+                                                            id: lowQuantityDisplayContainer
+                                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                            Layout.preferredWidth: stockFillContainer.width * 0.4
+                                                            Layout.fillWidth: false
+                                                            Layout.fillHeight: true
+                                                            radius: width * 0.05
+                                                            color: '#75da2121'
+
+                                                            RowLayout {
+                                                                anchors.fill: parent
+                                                                anchors.topMargin: parent.height * 0.05
+                                                                anchors.bottomMargin: parent.height * 0.05
+                                                                anchors.leftMargin: parent.width * 0.05
+                                                                anchors.rightMargin: parent.width * 0.05
+
+                                                                Item { Layout.fillWidth: true }
+
+                                                                Text {
+                                                                    Layout.alignment: Qt.AlignVCenter
+                                                                    Layout.fillWidth: false
+                                                                    font.pixelSize: lowQuantityDisplayContainer.height * 0.6
+                                                                    text: ""
+                                                                    font.family: Parameters.iconFont
+                                                                    color: "#000000"
+                                                                }
+
+                                                                Text {
+                                                                    Layout.alignment: Qt.AlignVCenter
+                                                                    Layout.fillWidth: false
+                                                                    font.pixelSize: lowQuantityDisplayContainer.height * 0.42
+                                                                    text: stock_model.getLowQuantityTotal() + " itens precisam de reposição"
+                                                                    font.family: Parameters.thinFont
+                                                                    color: "#000000"
+                                                                }
+
+                                                                Item { Layout.fillWidth: true }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    RowLayout {
+                                                        Layout.fillWidth: true
+                                                        Layout.fillHeight: true
+                                                        spacing: stockFillContainer.width * 0.027
+
+                                                        Item {
+                                                            Layout.fillHeight: true
+                                                            Layout.fillWidth: false
+                                                            Layout.preferredWidth: stockFillContainer.width / 3.5
+
+                                                            Rectangle {
+                                                                id: stockFillGraphList
+                                                                anchors.fill: parent
+                                                                radius: Parameters.defaultRadius
+
+                                                                ListView {
+                                                                    id: stockFillList
+                                                                    anchors.fill: parent
+                                                                    anchors.leftMargin: parent.width * 0.03
+                                                                    anchors.rightMargin: parent.width * 0.03
+                                                                    anchors.topMargin: parent.height * 0.04
+                                                                    anchors.bottomMargin: parent.height * 0.04
+                                                                    orientation: ListView.Vertical
+                                                                    boundsBehavior: ListView.StopAtBounds
+
+                                                                    model: Math.min(root.productsCount, 10)
+
+                                                                    delegate: Rectangle {
+                                                                        required property int index
+                                                                        anchors.left: parent.left
+                                                                        anchors.right: parent.right
+                                                                        height: stockFillGraphList.height * 0.13
+                                                                        color: "transparent"
+                                                                    
+                                                                        RowLayout {
+                                                                            anchors.fill: parent
+
+                                                                            Rectangle {
+                                                                                id: colorBallDelegate
+                                                                                Layout.fillHeight: false
+                                                                                Layout.fillWidth: false
+                                                                                Layout.alignment: Qt.AlignVCenter
+                                                                                Layout.preferredHeight: stockFillGraphList.height * 0.057
+                                                                                Layout.preferredWidth: height
+                                                                                radius: height / 2
+                                                                                color: firstTab.graphColors[index]
+                                                                            }
+
+                                                                            Text {
+                                                                                Layout.fillWidth: true
+                                                                                Layout.fillHeight: false
+                                                                                Layout.alignment: Qt.AlignVCenter
+                                                                                font.family: Parameters.defaultFont
+                                                                                font.pixelSize: stockFillGraphList.height * 0.067
+                                                                                color: "#000000"
+                                                                                text: stock_model.getSortedByStockQuantity(index).name
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            MultiEffect {
+                                                                anchors.fill: stockFillGraphList
+                                                                source: stockFillGraphList
+
+                                                                autoPaddingEnabled: true
+                                                                shadowEnabled: true
+                                                                shadowOpacity: 0.17
+                                                                shadowScale: 0.99
+                                                                shadowVerticalOffset: 4
+                                                                shadowColor: "#000000"
+                                                            }
+                                                        }
+
+                                                        Item {
+                                                            Layout.fillHeight: true
+                                                            Layout.fillWidth: true
+
+                                                            Rectangle {
+                                                                id: stockFillGraph
+                                                                anchors.fill: parent
+                                                                radius: Parameters.defaultRadius
+                                                            }
+
+                                                            MultiEffect {
+                                                                anchors.fill: stockFillGraph
+                                                                source: stockFillGraph
+
+                                                                autoPaddingEnabled: true
+                                                                shadowEnabled: true
+                                                                shadowOpacity: 0.17
+                                                                shadowScale: 0.99
+                                                                shadowVerticalOffset: 4
+                                                                shadowColor: "#000000"
+                                                            }
+                                                        }
+                                                    }
+
+                                                    RowLayout {
+                                                        Layout.fillWidth: true
+                                                        Layout.fillHeight: false
+                                                        Layout.preferredHeight: stockFillContainer.height * 0.15
+                                                    }
+                                                }
+                                            }
+
+                                            MultiEffect {
+                                                anchors.fill: stockFillContainer
+                                                source: stockFillContainer
+
+                                                autoPaddingEnabled: true
+                                                shadowEnabled: true
+                                                shadowOpacity: 0.8
+                                                shadowScale: 0.99
+                                                shadowVerticalOffset: 4
+                                                shadowColor: "#000000"
+                                            }
                                         }
 
                                         Rectangle {
