@@ -41,40 +41,64 @@ Window {
         }
     }
 
+    function reloadUI() {
+        root.sModel = ""
+        stock_model.reloadDB()
+        productsCount =  stock_model.rowCount()
+        usersCount = user_model.rowCount()
+        listView.model = stock_model.getEffectiveCount(root.search)
+        root.sModel = stock_model
+        stockProfitList.model = ""
+        stockProfitList.model = Math.min(root.productsCount, 10)
+        stockFillList.model = ""
+        stockFillList.model = Math.min(root.productsCount, 10)
+        stockProfitChart.regenGraph()
+        stockFillChart.regenGraph()
+    }
+
     Connections {
         target: newItemDialog
         function onNewAdded() {
-            stock_model.reloadDB()
+            /*stock_model.reloadDB()
             listView.model = stock_model.getEffectiveCount(root.search)
             stockProfitList.model = ""
-            stockProfitList.model = stock_model
-            stockProfitChart.regenGraph()
+            stockProfitList.model = Math.min(root.productsCount, 10)
+            stockFillList.model = ""
+            stockFillList.model = Math.min(root.productsCount, 10)
+            stockProfitChart.regenGraph()*/
+            reloadUI()
         }
     }
 
     Connections {
         target: rmItemDialog
         function onItemRemoved() {
-            root.sModel = ""
+            /*root.sModel = ""
             stock_model.reloadDB()
             listView.model = stock_model.getEffectiveCount(root.search)
             stockProfitList.model = ""
-            stockProfitList.model = stock_model
+            stockProfitList.model = Math.min(root.productsCount, 10)
+            stockFillList.model = ""
+            stockFillList.model = Math.min(root.productsCount, 10)
             root.sModel = stock_model
-            stockProfitChart.regenGraph()
+            stockProfitChart.regenGraph()*/
+            reloadUI()
         }
     }
 
     Connections {
         target: editItemDialog
         function onCompletedEdit() {
-            root.sModel = ""
+            /*root.sModel = ""
             stock_model.reloadDB()
             listView.model = stock_model.getEffectiveCount(root.search)
             stockProfitList.model = ""
             stockProfitList.model = stock_model
+            stockFillList.model = ""
+            stockFillList.model = Math.min(root.productsCount, 10)
             root.sModel = stock_model
-            stockProfitChart.regenGraph()
+            stockProfitChart.regenGraph()*/
+            reloadUI()
         }
     }
 
@@ -779,10 +803,12 @@ Window {
 
                                                                         Text {
                                                                             Layout.fillWidth: true
+                                                                            Layout.rightMargin: 12
                                                                             Layout.fillHeight: false
                                                                             Layout.alignment: Qt.AlignVCenter
                                                                             font.family: Parameters.defaultFont
                                                                             font.pixelSize: profitDistInfoContainer.height * 0.08
+                                                                            elide: Text.ElideRight
                                                                             color: "#000000"
                                                                             text: stock_model.getSortedByTotalProfit(index).name
                                                                         }
@@ -1006,6 +1032,8 @@ Window {
                                                                                 font.family: Parameters.defaultFont
                                                                                 font.pixelSize: stockFillGraphList.height * 0.067
                                                                                 color: "#000000"
+                                                                                renderType: Text.CurveRendering
+                                                                                elide: Text.ElideRight
                                                                                 text: stock_model.getSortedByStockQuantity(index).name
                                                                             }
                                                                         }
@@ -1019,7 +1047,7 @@ Window {
 
                                                                 autoPaddingEnabled: true
                                                                 shadowEnabled: true
-                                                                shadowOpacity: 0.17
+                                                                shadowOpacity: 0.2
                                                                 shadowScale: 0.99
                                                                 shadowVerticalOffset: 4
                                                                 shadowColor: "#000000"
@@ -1034,6 +1062,46 @@ Window {
                                                                 id: stockFillGraph
                                                                 anchors.fill: parent
                                                                 radius: Parameters.defaultRadius
+
+                                                                GraphsView {
+                                                                    id: stockFillChart
+                                                                    anchors.centerIn: parent
+                                                                    antialiasing: true
+                                                                    width: parent.width * 1.25
+                                                                    height: width
+                                                                    shadowVisible: true
+                                                                    theme: GraphsTheme {
+                                                                        labelTextColor: "#000000"
+                                                                        backgroundColor: "transparent"
+                                                                        labelBackgroundVisible: true
+                                                                        labelFont: Parameters.defaultFont
+                                                                        labelBorderVisible: true
+                                                                        labelsVisible: true
+                                                                    }
+
+                                                                    PieSeries {
+                                                                        id: stockPieSeries
+                                                                    }
+
+                                                                    function regenGraph() {
+                                                                        stockPieSeries.clear();
+                                                                        for (var i = 0; i < root.productsCount; i++) {
+                                                                            var number = stock_model.getSortedByStockQuantity(i).percentage
+                                                                            var slice = pieSeries.append(stock_model.getSortedByStockQuantity(i).percentage + "%", stock_model.getSortedByStockQuantity(i).percentage)
+                                                                            slice.borderWidth = 0
+                                                                            slice.color = firstTab.graphColors[i]
+                                                                            slice.label = stock_model.getSortedByStockQuantity(i).percentage + "%"
+                                                                            slice.labelVisible = true
+                                                                            if (number >= 25) {
+                                                                                slice.labelPosition = PieSlice.LabelPosition.InsideHorizontal
+                                                                            } else {
+                                                                                slice.labelPosition = PieSlice.LabelPosition.Outside
+                                                                                slice.labelArmLengthFactor = 0.05
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    Component.onCompleted: regenGraph()
+                                                                }
                                                             }
 
                                                             MultiEffect {
