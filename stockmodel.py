@@ -111,6 +111,19 @@ class StockModel(QAbstractListModel):
                     return {"name": item.name, "quantity": item.quantity,
                         "buyPrice": item.buyPrice, "sellPrice": item.sellPrice}
 
+    @Slot(int, result='QVariantMap')
+    def getSortedByTotalProfit(self, row:int):
+        allprods = self.m_products
+        prodsSorted = sorted(allprods, key=lambda item: ((float(item.sellPrice) - float(item.buyPrice)) * int(item.quantity)), reverse=True)
+        if (row > len(allprods) - 1):
+            return {"name": "null", "profit": "null", "percentage": "null"}
+
+        totalStockProfit = 0
+        for item in prodsSorted:
+            totalStockProfit += ((float(item.sellPrice) - float(item.buyPrice)) * int(item.quantity))
+
+        return {"name": prodsSorted[row].name, "profit": ((float(prodsSorted[row].sellPrice) - float(prodsSorted[row].buyPrice)) * int(prodsSorted[row].quantity)), "percentage": round(((float(prodsSorted[row].sellPrice) - float(prodsSorted[row].buyPrice)) * int(prodsSorted[row].quantity) * 100 / totalStockProfit))}
+
     @Slot(str, int, float, float)
     def append(self, name: str, quantity: int, buyPrice: float, sellPrice: float):
         database =  os.path.join(".", "data", "db.json")

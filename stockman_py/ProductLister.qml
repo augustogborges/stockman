@@ -80,7 +80,7 @@ ItemDelegate {
 
                     background: Rectangle {
                         radius: 16
-                        color: Parameters.shadeHightlightBg
+                        color: Parameters.shadeHighlightBg
                     }
 
                     contentItem: Text {
@@ -108,7 +108,7 @@ ItemDelegate {
                             topRightRadius: 20
                             bottomRightRadius: 20
                             bottomLeftRadius: 20
-                            color: Parameters.shadeHightlightBg
+                            color: Parameters.shadeHighlightBg
                             visible: true
                             opacity: 1.0
                             scale: 0.9

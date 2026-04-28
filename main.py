@@ -13,7 +13,7 @@ from stockmodel import StockModel
 from usermodel import UserModel
 
 if __name__ == "__main__":
-    app = QGuiApplication(sys.argv)
+    app = QApplication(sys.argv)
     QApplication.setApplicationName("Stockman")
     engine = QQmlApplicationEngine()
 

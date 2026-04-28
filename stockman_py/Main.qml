@@ -5,6 +5,7 @@ import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Window
 import QtQml
+import QtGraphs
 
 import Stocker
 import Authenticator
@@ -16,15 +17,27 @@ Window {
     title: qsTr("Stockman");
     color: Parameters.mainBgColor
     property string search: ""
-    property int productAmount
+    property string userSearch: ""
+    property int productsCount: stock_model.rowCount()
+    property int usersCount: user_model.rowCount()
     property var sModel: stock_model
     property bool noExistingUsers: user_model.get(0,"").username == "fail"
     property bool noActiveUsers: false //disable login for ui testing
+    signal userAction()
 
     Connections {
         target: root
         function onSearchChanged() {
             listView.model = stock_model.getEffectiveCount(root.search)
+        }
+
+        function onUserSearchChanged() {
+            usersList.model = user_model.getEffectiveCount(root.userSearch)
+        }
+
+        function onUserAction() {
+            user_model.reloadDB()
+            root.usersCount = user_model.rowCount()
         }
     }
 
@@ -33,6 +46,9 @@ Window {
         function onNewAdded() {
             stock_model.reloadDB()
             listView.model = stock_model.getEffectiveCount(root.search)
+            stockProfitList.model = ""
+            stockProfitList.model = stock_model
+            stockProfitChart.regenGraph()
         }
     }
 
@@ -42,7 +58,10 @@ Window {
             root.sModel = ""
             stock_model.reloadDB()
             listView.model = stock_model.getEffectiveCount(root.search)
+            stockProfitList.model = ""
+            stockProfitList.model = stock_model
             root.sModel = stock_model
+            stockProfitChart.regenGraph()
         }
     }
 
@@ -52,7 +71,10 @@ Window {
             root.sModel = ""
             stock_model.reloadDB()
             listView.model = stock_model.getEffectiveCount(root.search)
+            stockProfitList.model = ""
+            stockProfitList.model = stock_model
             root.sModel = stock_model
+            stockProfitChart.regenGraph()
         }
     }
 
@@ -128,12 +150,12 @@ Window {
                         radius: logoLoginContainer.radius
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
-                            GradientStop {position: 0.0; color: Parameters.shadeHightlightBg}
-                            GradientStop {position: 0.45; color: Qt.lighter(Parameters.shadeHightlightBg, 1.22)}
-                            GradientStop {position: 0.5; color: Qt.lighter(Parameters.shadeHightlightBg, 1.31)}
-                            GradientStop {position: 0.66; color: Qt.lighter(Parameters.shadeHightlightBg, 1.4)}
-                            GradientStop {position: 0.75; color: Qt.lighter(Parameters.shadeHightlightBg, 1.29)}
-                            GradientStop {position: 1.0; color: Qt.lighter(Parameters.shadeHightlightBg, 1.15)}
+                            GradientStop {position: 0.0; color: Parameters.shadeHighlightBg}
+                            GradientStop {position: 0.45; color: Qt.lighter(Parameters.shadeHighlightBg, 1.22)}
+                            GradientStop {position: 0.5; color: Qt.lighter(Parameters.shadeHighlightBg, 1.31)}
+                            GradientStop {position: 0.66; color: Qt.lighter(Parameters.shadeHighlightBg, 1.4)}
+                            GradientStop {position: 0.75; color: Qt.lighter(Parameters.shadeHighlightBg, 1.29)}
+                            GradientStop {position: 1.0; color: Qt.lighter(Parameters.shadeHighlightBg, 1.15)}
                         }
 
                         RowLayout {
@@ -251,7 +273,7 @@ Window {
 
                                         onEntered: {
                                             userLabel.color = Parameters.shadeBgColor
-                                            usernameInput.color = Parameters.shadeHightlightBg
+                                            usernameInput.color = Parameters.shadeHighlightBg
                                             usernameInput.placeholderTextColor = Parameters.dimmedHighlightBg
                                         }
                                     }
@@ -259,7 +281,7 @@ Window {
 
                                 font.family: Parameters.defaultFont
                                 font.pointSize: 12
-                                color: Parameters.shadeHightlightBg
+                                color: Parameters.shadeHighlightBg
                                 selectionColor: Parameters.highlightFg
 
                                 placeholderText: "   Usuário"
@@ -319,7 +341,7 @@ Window {
                                         font.pointSize: 9
                                         text: showPasswd.text
                                         //color: '#f0f0f0'
-                                        color: Parameters.shadeHightlightBg
+                                        color: Parameters.shadeHighlightBg
                                     }
 
                                     background: Rectangle {
@@ -371,7 +393,7 @@ Window {
 
                                         onEntered: {
                                             passwdLabel.color = Parameters.shadeBgColor
-                                            passwdInput.color = Parameters.shadeHightlightBg
+                                            passwdInput.color = Parameters.shadeHighlightBg
                                             passwdInput.placeholderTextColor = Parameters.dimmedHighlightBg
                                         }
                                     }
@@ -379,7 +401,7 @@ Window {
 
                                 font.family: Parameters.defaultFont
                                 font.pointSize: 12
-                                color: Parameters.shadeHightlightBg
+                                color: Parameters.shadeHighlightBg
                                 selectionColor: Parameters.highlightFg
                                 echoMode: shouldHideChars ? TextInput.Password : TextInput.Normal
                                 passwordMaskDelay: 340
@@ -404,7 +426,7 @@ Window {
                             property var bgGradient: Gradient {
                                 orientation: Gradient.Horizontal
                                 GradientStop { position: 0.0; color: Parameters.highlightFg}
-                                GradientStop { position: 0.5; color: Qt.lighter(Parameters.shadeHightlightFg, 1.1)}
+                                GradientStop { position: 0.5; color: Qt.lighter(Parameters.shadeHighlightFg, 1.1)}
                                 GradientStop { position: 0.85; color: Parameters.highlightFg}
                             }
 
@@ -435,7 +457,7 @@ Window {
 
                                 onEntered: {
                                     loginSubmit.gradient = null
-                                    loginSubmit.color = Parameters.shadeHightlightFg
+                                    loginSubmit.color = Parameters.shadeHighlightFg
                                 }
 
                                 onExited: {
@@ -549,12 +571,12 @@ Window {
                                 radius: logoContainer.radius
                                 gradient: Gradient {
                                     orientation: Gradient.Horizontal
-                                    GradientStop {position: 0.0; color: Parameters.shadeHightlightBg}
-                                    GradientStop {position: 0.45; color: Qt.lighter(Parameters.shadeHightlightBg, 1.22)}
-                                    GradientStop {position: 0.5; color: Qt.lighter(Parameters.shadeHightlightBg, 1.31)}
-                                    GradientStop {position: 0.66; color: Qt.lighter(Parameters.shadeHightlightBg, 1.4)}
-                                    GradientStop {position: 0.75; color: Qt.lighter(Parameters.shadeHightlightBg, 1.29)}
-                                    GradientStop {position: 1.0; color: Qt.lighter(Parameters.shadeHightlightBg, 1.15)}
+                                    GradientStop {position: 0.0; color: Parameters.shadeHighlightBg}
+                                    GradientStop {position: 0.45; color: Qt.lighter(Parameters.shadeHighlightBg, 1.22)}
+                                    GradientStop {position: 0.5; color: Qt.lighter(Parameters.shadeHighlightBg, 1.31)}
+                                    GradientStop {position: 0.66; color: Qt.lighter(Parameters.shadeHighlightBg, 1.4)}
+                                    GradientStop {position: 0.75; color: Qt.lighter(Parameters.shadeHighlightBg, 1.29)}
+                                    GradientStop {position: 1.0; color: Qt.lighter(Parameters.shadeHighlightBg, 1.15)}
                                 }
 
                                 RowLayout { 
@@ -631,13 +653,274 @@ Window {
                         Rectangle {
                             id: firstTab
                             anchors.fill: parent
-                            color: containerRect.color
+                            gradient: Parameters.whiteBgGradient
+
+                            Rectangle {
+                                id: dashContainer
+                                anchors {
+                                    top: parent.top
+                                    left: parent.left
+                                    right: parent.right
+                                    bottom: parent.bottom
+                                    topMargin: parent.height * 0.05
+                                    bottomMargin: parent.height * 0.05
+                                    leftMargin: parent.width * 0.04
+                                    rightMargin: parent.width * 0.04
+                                }
+                                color: "transparent"
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    
+                                    Text {
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillHeight: false
+                                        text: "Dashboard"
+                                        font.family: Parameters.thinFont
+                                        font.styleName: "Bold"
+                                        font.pixelSize: dashContainer.height  * 0.04
+                                        color: "#000000"
+                                    }
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignLeft
+                                        Layout.fillHeight: false
+                                        text: "Resumo Geral  |  " + new Date().toLocaleTimeString(Qt.locale("pt_BR"), Locale.ShortFormat) + " ⋅ " + new Date().toLocaleDateString(Qt.locale("pt_BR"), Locale.ShortFormat)
+                                        font.family: Parameters.defaultFont
+                                        font.pixelSize: dashContainer.height  * 0.015
+                                        color: "#303030"
+                                    }
+
+                                    Item {height: 10}
+
+                                    GridLayout {
+                                        rows: 6
+                                        columns: 6
+                                        columnSpacing: 10
+                                        rowSpacing: 12 
+
+                                        Item {
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            Layout.rowSpan: 4
+                                            Layout.columnSpan: 4
+
+                                            Rectangle {
+                                                id: profitDistContainer
+                                                anchors.fill: parent
+                                                radius: Parameters.defaultRadius
+
+                                                color: Parameters.shadeBgColor
+
+                                                property list<color> graphColors: ['#049b43', '#31d100', '#26f9dd', '#308add', '#2224aa', '#7103d8', '#8f047c', '#f9af26', '#ce6300', '#9b0404']
+
+                                                RowLayout {
+                                                    anchors.fill: parent
+                                                    anchors.topMargin: parent.height * 0.05
+                                                    anchors.bottomMargin: parent.height * 0.05
+                                                    anchors.leftMargin: parent.width * 0.1
+                                                    anchors.rightMargin: parent.width * 0.1
+
+                                                    ColumnLayout {
+                                                        Layout.fillHeight: true
+                                                        Layout.fillWidth: false
+                                                        Layout.preferredWidth: profitDistContainer.width * 0.4
+
+                                                        Text {
+                                                            Layout.fillWidth: true
+                                                            Layout.fillHeight: false
+                                                            font.pixelSize: parent.height * 0.05
+                                                            Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                                            text: "Distribuição de Lucro Potencial no Inventário"
+                                                            font.family: Parameters.defaultFont
+                                                            color: "#000000"
+                                                        }
+
+                                                        Rectangle {
+                                                            id: profitDistInfoContainer
+                                                            Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                                            Layout.fillWidth: true
+                                                            Layout.fillHeight: true
+                                                            Layout.topMargin: parent.height * 0.04
+                                                            Layout.bottomMargin: parent.height * 0.04
+                                                            radius: Parameters.defaultRadius
+
+                                                            ListView {
+                                                                id: stockProfitList
+                                                                anchors.fill: parent
+                                                                anchors.leftMargin: parent.width * 0.04
+                                                                anchors.rightMargin: parent.width * 0.04
+                                                                anchors.topMargin: parent.height * 0.05
+                                                                anchors.bottomMargin: parent.height * 0.05
+                                                                orientation: ListView.Vertical
+                                                                boundsBehavior: ListView.StopAtBounds
+
+                                                                model: Math.min(root.productsCount, 10)
+
+                                                                delegate: Rectangle {
+                                                                    required property int index
+                                                                    anchors.left: parent.left
+                                                                    anchors.right: parent.right
+                                                                    height: profitDistInfoContainer.height * 0.15
+                                                                    color: "transparent"
+                                                                
+                                                                    RowLayout {
+                                                                        anchors.fill: parent
+
+                                                                        Rectangle {
+                                                                            id: colorBallDelegate
+                                                                            Layout.fillHeight: false
+                                                                            Layout.fillWidth: false
+                                                                            Layout.alignment: Qt.AlignVCenter
+                                                                            Layout.preferredHeight: profitDistInfoContainer.height * 0.065
+                                                                            Layout.preferredWidth: height
+                                                                            radius: height / 2
+                                                                            color: profitDistContainer.graphColors[index]
+                                                                        }
+
+                                                                        Text {
+                                                                            Layout.fillWidth: true
+                                                                            Layout.fillHeight: false
+                                                                            Layout.alignment: Qt.AlignVCenter
+                                                                            font.family: Parameters.defaultFont
+                                                                            font.pixelSize: profitDistInfoContainer.height * 0.08
+                                                                            color: "#000000"
+                                                                            text: stock_model.getSortedByTotalProfit(index).name
+                                                                        }
+
+                                                                        Text {
+                                                                            Layout.fillWidth: false
+                                                                            Layout.fillHeight: false
+                                                                            Layout.alignment: Qt.AlignVCenter
+                                                                            font.family: Parameters.defaultFont
+                                                                            font.pixelSize: profitDistInfoContainer.height * 0.073
+                                                                            color: "#000000"
+                                                                            text: {
+                                                                                const value = stock_model.getSortedByTotalProfit(index).profit
+                                                                                if (value % 1 === 0) {
+                                                                                    return "R$" + value + ",00"
+                                                                                } else {
+                                                                                    const cents = (value.toString().split(".")[1]).padEnd(2, "0")
+                                                                                    return "R$" + parseInt(value) + "," + cents
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    Rectangle {
+                                                        Layout.fillHeight: true
+                                                        Layout.fillWidth: false
+                                                        Layout.preferredWidth: height
+                                                        radius: Parameters.defaultRadius
+                                                        color: "transparent"
+
+                                                        GraphsView {
+                                                            id: stockProfitChart
+                                                            anchors.centerIn: parent
+                                                            antialiasing: true
+                                                            width: parent.width * 1.25
+                                                            height: width
+                                                            shadowVisible: true
+                                                            theme: GraphsTheme {
+                                                                labelTextColor: "#000000"
+                                                                backgroundColor: "transparent"
+                                                                labelBackgroundVisible: true
+                                                                labelFont: Parameters.defaultFont
+                                                                labelBorderVisible: true
+                                                                labelsVisible: true
+                                                            }
+
+                                                            PieSeries {
+                                                                id: pieSeries
+                                                            }
+
+                                                            function regenGraph() {
+                                                                pieSeries.clear();
+                                                                for (var i = 0; i < root.productsCount; i++) {
+                                                                    var number = stock_model.getSortedByTotalProfit(i).percentage
+                                                                    var slice = pieSeries.append(stock_model.getSortedByTotalProfit(i).percentage + "%", stock_model.getSortedByTotalProfit(i).percentage)
+                                                                    slice.borderWidth = 0
+                                                                    slice.color = profitDistContainer.graphColors[i]
+                                                                    slice.label = stock_model.getSortedByTotalProfit(i).percentage + "%"
+                                                                    slice.labelVisible = true
+                                                                    if (number >= 15) {
+                                                                        slice.labelPosition = PieSlice.LabelPosition.InsideHorizontal
+                                                                    } else {
+                                                                        slice.labelPosition = PieSlice.LabelPosition.Outside
+                                                                        slice.labelArmLengthFactor = 0.05
+                                                                    }
+                                                                }
+                                                            }
+                                                            Component.onCompleted: regenGraph()
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            MultiEffect {
+                                                anchors.fill: profitDistContainer
+                                                source: profitDistContainer
+
+                                                autoPaddingEnabled: true
+                                                shadowEnabled: true
+                                                shadowOpacity: 0.5
+                                                shadowVerticalOffset: 4
+                                                shadowColor: "#000000"
+                                            }
+                                        }
+
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            Layout.rowSpan: 4
+                                            Layout.columnSpan: 2
+                                            radius: Parameters.defaultRadius
+
+                                            color: "black"
+                                        }
+
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            Layout.rowSpan: 2
+                                            Layout.columnSpan: 2
+                                            radius: Parameters.defaultRadius
+
+                                            color: "black"
+                                        }
+
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            Layout.rowSpan: 2
+                                            Layout.columnSpan: 2
+                                            radius: Parameters.defaultRadius
+
+                                            color: "black"
+                                        }
+
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            Layout.fillHeight: true
+                                            Layout.rowSpan: 2
+                                            Layout.columnSpan: 2
+                                            radius: Parameters.defaultRadius
+
+                                            color: "black"
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         Rectangle {
                             id: secondTab
                             anchors.fill: parent
-                            color: containerRect.color
+                            gradient: Parameters.whiteBgGradient
 
                             ColumnLayout {
                                 anchors.fill: parent
@@ -845,7 +1128,7 @@ Window {
                                     width: 720
                                     radius: 15
                                     border.width: 1
-                                    border.color: Parameters.shadeHightlightBg
+                                    border.color: Parameters.shadeHighlightBg
                                     color: Parameters.mainBgColor
                                     Layout.leftMargin: 60
                                     Layout.rightMargin: 60
@@ -975,6 +1258,7 @@ Window {
                                                 id: listView
                                                 anchors.fill: parent
                                                 orientation: ListView.Vertical
+                                                boundsBehavior: ListView.StopAtBounds
 
                                                 delegate: ProductLister {
                                                     id: delegate
@@ -1034,7 +1318,7 @@ Window {
                                         property var bgGradient: Gradient {
                                             orientation: Gradient.Horizontal
                                             GradientStop { position: 0.0; color: Parameters.highlightFg}
-                                            GradientStop { position: 0.5; color: Qt.lighter(Parameters.shadeHightlightFg, 1.35)}
+                                            GradientStop { position: 0.5; color: Qt.lighter(Parameters.shadeHighlightFg, 1.35)}
                                             GradientStop { position: 0.85; color: Parameters.highlightFg}
                                         }
 
@@ -1071,7 +1355,7 @@ Window {
 
                                             onEntered: {
                                                 newUserButton.gradient = null
-                                                newUserButton.color = Parameters.shadeHightlightFg
+                                                newUserButton.color = Parameters.shadeHighlightFg
                                             }
 
                                             onExited: {
@@ -1127,13 +1411,13 @@ Window {
                                                 implicitHeight: userRect1.width * 0.18
                                                 implicitWidth: implicitHeight
                                                 radius: implicitHeight / 2
-                                                color: '#3d419c'
+                                                color: '#0e6d45'
 
                                                 Text {
                                                     anchors.centerIn: parent
                                                     font.family: Parameters.iconFontFilled
                                                     font.pixelSize: parent.implicitHeight * 0.6
-                                                    text: ""
+                                                    text: ""
                                                     color: Parameters.mainBgColor
                                                 }
                                             }
@@ -1142,7 +1426,7 @@ Window {
                                                 Layout.rowSpan: 1
                                                 font.family: Parameters.defaultFont
                                                 font.pixelSize: (userRect1.width * 0.12 + userRect1.height * 0.12) / 2
-                                                text: "Estoquistas"
+                                                text: "Total de Usuários"
                                                 color: "#000000"
                                             }
 
@@ -1151,7 +1435,7 @@ Window {
                                                 font.family: Parameters.thinFont
                                                 font.styleName: "Bold"
                                                 font.pixelSize: (userRect1.width * 0.14 + userRect1.height * 0.14) / 2
-                                                text: "1" //todo
+                                                text: root.usersCount
                                                 color: "#000000"
                                             }
                                         }
@@ -1184,13 +1468,13 @@ Window {
                                                 implicitHeight: userRect2.width * 0.18
                                                 implicitWidth: implicitHeight
                                                 radius: implicitHeight / 2
-                                                color: '#3d419c'
+                                                color: '#b93413'
 
                                                 Text {
                                                     anchors.centerIn: parent
                                                     font.family: Parameters.iconFontFilled
                                                     font.pixelSize: parent.implicitHeight * 0.6
-                                                    text: ""
+                                                    text: ""
                                                     color: Parameters.mainBgColor
                                                 }
                                             }
@@ -1199,7 +1483,7 @@ Window {
                                                 Layout.rowSpan: 1
                                                 font.family: Parameters.defaultFont
                                                 font.pixelSize: (userRect2.width * 0.12 + userRect2.height * 0.12) / 2
-                                                text: "Estoquistas"
+                                                text: "Supervisão"
                                                 color: "#000000"
                                             }
 
@@ -1256,7 +1540,7 @@ Window {
                                                 Layout.rowSpan: 1
                                                 font.family: Parameters.defaultFont
                                                 font.pixelSize: (userRect3.width * 0.12 + userRect3.height * 0.12) / 2
-                                                text: "Estoquistas"
+                                                text: "Estoque"
                                                 color: "#000000"
                                             }
 
@@ -1298,13 +1582,13 @@ Window {
                                                 implicitHeight: userRect4.width * 0.18
                                                 implicitWidth: implicitHeight
                                                 radius: implicitHeight / 2
-                                                color: '#3d419c'
+                                                color: '#f9af26'
 
                                                 Text {
                                                     anchors.centerIn: parent
                                                     font.family: Parameters.iconFontFilled
                                                     font.pixelSize: parent.implicitHeight * 0.6
-                                                    text: ""
+                                                    text: ""
                                                     color: Parameters.mainBgColor
                                                 }
                                             }
@@ -1313,7 +1597,7 @@ Window {
                                                 Layout.rowSpan: 1
                                                 font.family: Parameters.defaultFont
                                                 font.pixelSize: (userRect4.width * 0.12 + userRect4.height * 0.12) / 2
-                                                text: "Estoquistas"
+                                                text: "Financeiro"
                                                 color: "#000000"
                                             }
 
@@ -1349,7 +1633,9 @@ Window {
                                             right: parent.right
                                         }
                                         height: parent.height * 0.085
-                                        color: "transparent"
+                                        color: Parameters.shadeHighlightBg
+                                        topLeftRadius: Parameters.defaultRadius
+                                        topRightRadius: Parameters.defaultRadius
 
                                         RowLayout {
                                             anchors.fill: parent
@@ -1403,7 +1689,7 @@ Window {
                                                         color: "#202020"
                                                         selectByMouse: true
                                                         mouseSelectionMode: TextField.SelectWords
-                                                        //onAccepted: //todo
+                                                        onAccepted: root.userSearch = userSearchField.text
 
                                                         HoverHandler {
                                                             enabled: parent.visible
@@ -1491,14 +1777,304 @@ Window {
                                     }
 
                                     Rectangle {
-                                        id: rowTitleDisplay
+                                        id: titleDisplayRow
                                         anchors {
                                             left: parent.left
                                             right: parent.right
                                             top: topTableRect.bottom
                                         }
-                                        height: parent.height * 0.09
+                                        height: parent.height * 0.07
+                                        color: '#d1cfcf'
+                                        z: 2
+
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.topMargin: topTableRect.height * 0.1
+                                            anchors.bottomMargin: topTableRect.height * 0.1
+                                            anchors.leftMargin: topTableRect.width * 0.025
+                                            anchors.rightMargin: topTableRect.width * 0.025
+                                            spacing: 0
+
+                                            Rectangle {
+                                                id: userNameDisplay
+                                                Layout.fillHeight: true
+                                                Layout.fillWidth: false
+                                                implicitWidth: topTableRect.width * 0.3                                     
+                                                color: "transparent"
+                                                radius: Parameters.defaultRadius
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    anchors.horizontalCenterOffset: -topTableRect.width * 0.02
+                                                    font.family: Parameters.defaultFont
+                                                    font.pixelSize: userNameDisplay.height * 0.5
+                                                    text: "Nome do Usuário"
+                                                    color: "#000000"
+                                                }
+                                            }
+
+                                            Item {
+                                                Layout.fillWidth: false
+                                                Layout.maximumWidth: (topTableRect.width * 0.04)
+                                            }
+
+                                            Rectangle {
+                                                id: userJobDisplay
+                                                Layout.fillHeight: true
+                                                Layout.fillWidth: false
+                                                implicitWidth: topTableRect.width * 0.2
+                                                color: "transparent"
+                                                radius: Parameters.defaultRadius
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    font.family: Parameters.defaultFont
+                                                    font.pixelSize: userNameDisplay.height * 0.5
+                                                    text: "Cargo"
+                                                    color: "#000000"
+                                                }
+                                            }
+
+                                            Item {
+                                                Layout.fillWidth: false
+                                                Layout.preferredWidth: (topTableRect.width * 0.26)
+                                            }
+
+                                            Rectangle {
+                                                Layout.fillHeight: true
+                                                Layout.fillWidth: false
+                                                implicitWidth: topTableRect.width * 0.15
+                                                color: "transparent"
+                                                radius: Parameters.defaultRadius
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    font.family: Parameters.defaultFont
+                                                    font.pixelSize: userNameDisplay.height * 0.5
+                                                    text: "Ações"
+                                                    color: "#000000"
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        id: mainTable
+                                        anchors {
+                                            left: parent.left
+                                            right: parent.right
+                                            top: titleDisplayRow.bottom
+                                            bottom: parent.bottom
+                                        }
                                         color: "transparent"
+
+                                        ColumnLayout {
+                                            anchors.fill: parent
+                                            spacing: 0
+
+                                            Rectangle {
+                                                id: separator1
+                                                Layout.fillWidth: true
+                                                height: 1
+                                                radius: 1
+                                                color: "#404040"
+                                            }
+
+                                            ListView {
+                                                id: usersList
+                                                Layout.fillWidth: true
+                                                Layout.fillHeight: true
+                                                orientation: ListView.Vertical
+                                                boundsBehavior: ListView.StopAtBounds
+
+                                                model: root.usersCount
+
+                                                delegate: ItemDelegate {
+                                                    id: userDelegate
+                                                    anchors.left: parent.left
+                                                    anchors.right: parent.right
+                                                    checkable: true
+                                                    height: 46
+                                                    required property int index
+
+                                                    background: Rectangle {
+                                                        color: "transparent"
+                                                        width: parent.width
+                                                        height: parent.height
+                                                    }
+
+                                                    contentItem: Rectangle {
+                                                        height: 46
+                                                        color: "transparent"
+
+                                                        ColumnLayout {
+                                                            anchors.fill: parent
+
+                                                            RowLayout {
+                                                                spacing: 0
+                                                                uniformCellSizes: false
+
+                                                                Rectangle {
+                                                                    id: userNameDelegate
+                                                                    Layout.fillHeight: true
+                                                                    Layout.fillWidth: false
+                                                                    implicitWidth: topTableRect.width * 0.3                                     
+                                                                    //color: "#ffffff"
+                                                                    color: "transparent"
+                                                                    radius: Parameters.defaultRadius
+
+                                                                    Text {
+                                                                        anchors.centerIn: parent
+                                                                        font.family: Parameters.defaultFont
+                                                                        font.pixelSize: parent.height * 0.75
+                                                                        text: user_model.get(index, root.userSearch).username
+                                                                        color: "#000000"
+                                                                    }
+                                                                }
+
+                                                                Item {
+                                                                    Layout.fillWidth: false
+                                                                    Layout.preferredWidth: (topTableRect.width * 0.04)
+                                                                }
+
+                                                                Rectangle {
+                                                                    id: userJobDelegate
+                                                                    Layout.fillHeight: true
+                                                                    Layout.fillWidth: false
+                                                                    implicitWidth: topTableRect.width * 0.2
+                                                                    //color: "#ffffff"
+                                                                    color: "transparent"
+                                                                    radius: Parameters.defaultRadius
+
+                                                                    RowLayout {
+                                                                        anchors.fill: parent
+                                                                        spacing: 5
+
+                                                                        Item { Layout.fillWidth: true }
+
+                                                                        Text {
+                                                                            Layout.fillWidth: false
+                                                                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                                                            verticalAlignment: Text.AlignVCenter
+                                                                            font.family: Parameters.iconFontBold
+                                                                            font.pixelSize: userJobDelegate.height * 0.65
+                                                                            text: {
+                                                                                const perms = user_model.get(index, root.userSearch).level
+                                                                                if (perms == 0) {
+                                                                                    return ""
+                                                                                } else if (perms == 1) {
+                                                                                    return ""
+                                                                                } else if (perms == 2) {
+                                                                                    return ""
+                                                                                }
+                                                                            }
+                                                                            color: "#000000"
+                                                                        }
+
+                                                                        Text {
+                                                                            Layout.fillWidth: false
+                                                                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                                                            verticalAlignment: Text.AlignVCenter
+                                                                            font.family: Parameters.defaultFont
+                                                                            font.pixelSize: userJobDelegate.height * 0.66
+                                                                            text: {
+                                                                                const perms = user_model.get(index, root.userSearch).level
+                                                                                if (perms == 0) {
+                                                                                    return "Supervisão"
+                                                                                } else if (perms == 1) {
+                                                                                    return "Financeiro"
+                                                                                } else if (perms == 2) {
+                                                                                    return "Estoque"
+                                                                                }
+                                                                            }
+                                                                            color: "#000000"
+                                                                        }
+
+                                                                        Item { Layout.fillWidth: true }
+                                                                    }
+                                                                }
+
+                                                                Item {
+                                                                    Layout.fillWidth: false
+                                                                    Layout.preferredWidth: (topTableRect.width * 0.275)
+                                                                }
+
+                                                                Rectangle {
+                                                                    Layout.fillHeight: true
+                                                                    Layout.fillWidth: false
+                                                                    implicitWidth: topTableRect.width * 0.15
+                                                                    color: "transparent"
+                                                                    radius: 0
+
+                                                                    RowLayout {
+                                                                        anchors.fill: parent
+
+                                                                        Item {Layout.fillWidth: true}
+
+                                                                        Button {
+                                                                            id: editUserButton
+                                                                            text: qsTr("")
+                                                                            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+
+                                                                            contentItem: Text {
+                                                                                text: editUserButton.text
+                                                                                font.family: Parameters.iconFontBold
+                                                                                font.pixelSize: 18
+                                                                                color: editUserButton.hovered ? Parameters.mainBgColor : "#000000"
+                                                                                horizontalAlignment: Text.AlignHCenter
+                                                                                verticalAlignment: Text.AlignVCenter
+                                                                            }
+
+                                                                            background: Rectangle {
+                                                                                implicitWidth: 28
+                                                                                implicitHeight: implicitWidth
+                                                                                color: editUserButton.down ? Parameters.highlightFg : editUserButton.hovered ? Parameters.hoveredButtonBg : Parameters.mainBgColor
+                                                                                border.width: 1
+                                                                                border.color: editUserButton.hovered ? "#cccccc" : "#000000"
+                                                                                radius: implicitWidth / 2
+                                                                            }
+                                                                        }
+
+                                                                        Button {
+                                                                            id: rmUserButton
+                                                                            text: qsTr("")
+                                                                            Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+
+                                                                            contentItem: Text {
+                                                                                text: rmUserButton.text
+                                                                                font.family: Parameters.iconFontBold
+                                                                                font.pixelSize: 18
+                                                                                color: rmUserButton.hovered ? Parameters.mainBgColor : "#000000"
+                                                                                horizontalAlignment: Text.AlignHCenter
+                                                                                verticalAlignment: Text.AlignVCenter
+                                                                            }
+
+                                                                            background: Rectangle {
+                                                                                implicitWidth: 28
+                                                                                implicitHeight: implicitWidth
+                                                                                color: rmUserButton.down ? Parameters.highlightFg : rmUserButton.hovered ? Parameters.hoveredButtonBg : Parameters.mainBgColor
+                                                                                border.width: 1
+                                                                                border.color: rmUserButton.hovered ? "#cccccc" : "#000000"
+                                                                                radius: implicitWidth / 2
+                                                                            }
+                                                                        }
+
+                                                                        Item {Layout.fillWidth: true}
+                                                                    }
+                                                                }
+                                                            }
+
+                                                            Rectangle {
+                                                                Layout.fillWidth: true
+                                                                height: 1
+                                                                radius: 1
+                                                                color: "#404040"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
