@@ -1087,7 +1087,7 @@ Window {
                                                                         stockPieSeries.clear();
                                                                         for (var i = 0; i < root.productsCount; i++) {
                                                                             var number = stock_model.getSortedByStockQuantity(i).percentage
-                                                                            var slice = pieSeries.append(stock_model.getSortedByStockQuantity(i).percentage + "%", stock_model.getSortedByStockQuantity(i).percentage)
+                                                                            var slice = stockPieSeries.append(stock_model.getSortedByStockQuantity(i).percentage + "%", stock_model.getSortedByStockQuantity(i).percentage)
                                                                             slice.borderWidth = 0
                                                                             slice.color = firstTab.graphColors[i]
                                                                             slice.label = stock_model.getSortedByStockQuantity(i).percentage + "%"
