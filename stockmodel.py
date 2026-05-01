@@ -111,6 +111,61 @@ class StockModel(QAbstractListModel):
                     return {"name": item.name, "quantity": item.quantity,
                         "buyPrice": item.buyPrice, "sellPrice": item.sellPrice}
 
+    @Slot(result='int')
+    def getTotalQuant(self):
+        allprods = self.m_products
+        stockTotalQuant = 0
+        for item in allprods:
+            stockTotalQuant += int(item.quantity)
+        return stockTotalQuant
+
+    @Slot(result='QVariantMap')
+    def getMostIndividualProfit(self):
+        allprods = self.m_products
+        prodsSorted = sorted(allprods, key=lambda item: ((float(item.sellPrice) - float(item.buyPrice)) * int(item.quantity)), reverse=True)
+
+        if len(allprods) > 2:
+            profName1 = prodsSorted[0].name
+            bigProf1 = (float(prodsSorted[0].sellPrice) - float(prodsSorted[0].buyPrice)) * int(prodsSorted[0].quantity)
+
+            profName2 = prodsSorted[1].name
+            bigProf2 = (float(prodsSorted[1].sellPrice) - float(prodsSorted[1].buyPrice)) * int(prodsSorted[1].quantity)
+
+            return {"topOneName": profName1, "topOneProf": bigProf1, "topTwoName": profName2, "topTwoProf": bigProf2}
+
+    @Slot(result='QVariantMap')
+    def getLeastIndividualProfit(self):
+        allprods = self.m_products
+        prodsSorted = sorted(allprods, key=lambda item: ((float(item.sellPrice) - float(item.buyPrice)) * int(item.quantity)))
+
+        if len(allprods) > 2:
+            profName1 = prodsSorted[0].name
+            lowProf1 = (float(prodsSorted[0].sellPrice) - float(prodsSorted[0].buyPrice)) * int(prodsSorted[0].quantity)
+
+            profName2 = prodsSorted[1].name
+            lowProf2 = (float(prodsSorted[1].sellPrice) - float(prodsSorted[1].buyPrice)) * int(prodsSorted[1].quantity)
+
+            return {"topOneName": profName1, "topOneProf": lowProf1, "topTwoName": profName2, "topTwoProf": lowProf2}
+        
+
+    @Slot(result='float')
+    def getTotalStockSell(self):
+        allprods = self.m_products
+        totalStockSell = 0
+        for item in allprods:
+            totalStockSell += ((float(item.sellPrice) - float(item.buyPrice)) * int(item.quantity))
+        
+        return totalStockSell
+
+    @Slot(result='float')
+    def getTotalStockCost(self):
+        allprods = self.m_products
+        totalStockCost = 0
+        for item in allprods:
+            totalStockCost += (float(item.buyPrice) * int(item.quantity))
+        
+        return totalStockCost
+
     @Slot(int, result='QVariantMap')
     def getSortedByTotalProfit(self, row:int):
         allprods = self.m_products

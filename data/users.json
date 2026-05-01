@@ -4,5 +4,11 @@
         "passSalt": "$2b$12$kY5vTA6rrb5r7nwXcU2j4u",
         "hashPasswd": "$2b$12$kY5vTA6rrb5r7nwXcU2j4u50twwJ.yHe0iP1ZYUd7K7AbDQM1FcH6",
         "level": 0
+    },
+    {
+        "username": "alexandre",
+        "passSalt": "$2b$12$63bS8/XGRazn3MnyEJ9zpu",
+        "hashPasswd": "$2b$12$63bS8/XGRazn3MnyEJ9zpu/R4f.GkHPYZvYcIpzntHB1ZBKq2Bf4K",
+        "level": 0
     }
 ]

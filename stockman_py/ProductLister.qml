@@ -16,14 +16,6 @@ ItemDelegate {
     required property var sModel
     required property int index
     required property var searchTerm
-    //required property var searcher
-
-    /*Connections {
-        target: searcher
-        function onSearchChanged() {
-
-        }
-    }*/
 
     contentItem: RowLayout {
         anchors.left: parent.left
@@ -282,7 +274,7 @@ ItemDelegate {
                 font.family: Parameters.thinFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
-                text: sModel.get(index, searchTerm).buyPrice
+                text: "R$" + sModel.get(index, searchTerm).buyPrice.toFixed(2).toString().replace(".", ",")
             }
         }
 
@@ -302,7 +294,7 @@ ItemDelegate {
                 font.family: Parameters.thinFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
-                text: sModel.get(index, searchTerm).sellPrice
+                text: "R$" + sModel.get(index, searchTerm).sellPrice.toFixed(2).toString().replace(".", ",")
             }
         }
 
@@ -322,7 +314,7 @@ ItemDelegate {
                 font.family: Parameters.thinFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
-                text: Number(sModel.get(index, searchTerm).sellPrice) - Number(sModel.get(index, searchTerm).buyPrice)
+                text: "R$" + (Number(sModel.get(index, searchTerm).sellPrice) - Number(sModel.get(index, searchTerm).buyPrice)).toFixed(2).toString().replace(".", ",")
             }
         }
     }

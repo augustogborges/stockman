@@ -6,6 +6,7 @@ QtObject {
     readonly property color mainBgColor: "#fafafa" //"#121212"
     readonly property color shadeBgColor: Qt.tint(mainBgColor, Qt.lighter(Qt.rgba(mainHighlightBg.r, mainHighlightBg.g, mainHighlightBg.b, 0.05), 3.2)) //'#eaeff3' //"#202020"
     readonly property color dimmedBgColor: "#c0c0c0"
+    readonly property color lightBorder: '#6e6e6e'
     readonly property color mainHighlightBg: "#0f1869" //"#dc2332"
     readonly property color shadeHighlightBg: Qt.darker(mainHighlightBg, 1.21)
     readonly property color stdButtonBg: Qt.darker(mainHighlightBg, 1.15)
@@ -14,6 +15,10 @@ QtObject {
     readonly property color highlightFg: "#f37906" //"#eeeeee"
     readonly property color shadeHighlightFg: '#bd4b00'
     readonly property color dimmedHighlightBg: '#454d5e'
+    readonly property color cashGreen: '#009e2a'
+    readonly property color cashCyan: '#38a36a'
+    readonly property color lowCashRed: '#be3e3e'
+    readonly property color lowCashPink: '#c23e6c'
     readonly property int defaultRadius: 15
     readonly property string defaultFont: "Roboto Condensed Medium"
     readonly property string thinFont: "Roboto Condensed"
