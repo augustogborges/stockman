@@ -8,6 +8,7 @@ import re
 import bcrypt
 import secrets
 import base64
+import random
 
 from PySide6.QtCore import (QAbstractListModel, QEnum, Qt, QModelIndex, Slot, QByteArray)
 from PySide6.QtQml import QmlElement
@@ -15,16 +16,18 @@ from PySide6.QtQml import QmlElement
 def passwdHasher(plainPass: str):
     salt = bcrypt.gensalt()
     hashPass = bcrypt.hashpw(plainPass.encode('utf-8'), salt).decode('utf-8').replace("'", '"')
-    passSalt = salt.decode('utf-8').replace("'", '"')
-    return passSalt, hashPass
+    return hashPass
 
-def checkHash(jsonPass: str, jsonSalt: str, plainPass: str):
-    salt = jsonSalt.replace('"', "'").encode('utf-8')
+def checkHash(jsonPass: str, plainPass: str):
     passwd = jsonPass.replace('"', "'").encode('utf-8')
+    return bcrypt.checkpw(plainPass.encode('utf-8'), passwd)
 
-    dbPass = bcrypt.hashpw(plainPass.encode('utf-8'), salt)
+accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a"})
 
-    return (passwd == dbPass)
+def usernameCreator(displayName: str):
+    symbols = ["!", "@", "#", "&", "*", "-", "_"]
+    username = re.sub(r"\W", "_", displayName.lower().translate(accentTranslateTable)) + symbols[random.randint(0,6)] + str(random.randint(100,999))
+    return username
 
 QML_IMPORT_NAME = "Authenticator"
 QML_IMPORT_MAJOR_VERSION = 1
@@ -82,11 +85,10 @@ class UserModel(QAbstractListModel):
         roles[UserModel.UserRole.LevelRole] = QByteArray(b"level")
         return roles
 
-    @Slot(str, result='int')
+    @Slot(str, result=int)
     def getEffectiveCount(self, search: str):
         users = self.m_users
         matches = 0
-        accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a"})
         fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
 
         if (search == ""):
@@ -97,6 +99,21 @@ class UserModel(QAbstractListModel):
                 if fSearch in fUserName:
                     matches += 1
             return matches
+       
+    @Slot(str, int, result='QVariantMap')
+    def findUsers(self, search: str, index: int):
+        users = self.m_users
+        matches = 0
+        fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
+
+        if (search == ""):
+            return {"displayName": users[index].displayName, "username": users[index].username}
+        else:
+            for item in users:
+                fDisplayName = re.sub(r"\W", "_", item.displayName.lower().translate(accentTranslateTable))
+                if (fSearch in fDisplayName):
+                    return {"displayName": users[index].displayName, "username": users[index].username}
+       
 
     @Slot(int, str, result='QVariantMap')
     def get(self, row: int, search: str):
@@ -105,20 +122,19 @@ class UserModel(QAbstractListModel):
             indUser = self.m_users[row]
         except:
             return {"username": "fail"}
-        accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a"})
         fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
 
         if (search == ""):
             return {"username": indUser.username, "level": indUser.level}
         else:
-            for item in allusers: 
+            for item in allusers:
                 fUserName = re.sub(r"\W", "_", item.username.lower().translate(accentTranslateTable))
                 if (fSearch in fUserName):
                     return {"username": indUser.username, "level": indUser.level}
 
     @Slot(str, result=int)
     def getUserLevel(self, username: str):
-        userDatabase =  os.path.join(".", "data", "users.json")
+        userDatabase = os.path.join(".", "data", "users.json")
 
         usersData = []
 
@@ -131,24 +147,9 @@ class UserModel(QAbstractListModel):
                 return int(usersData[n]["level"])
             n += 1
 
-    @Slot(str, result=str)
-    def getTempPassForUser(self, username: str):
-        userDatabase =  os.path.join(".", "data", "users.json")
-
-        usersData = []
-
-        with open(userDatabase, "r", encoding="utf-8") as userFile:
-            usersData = json.load(userFile)
-
-        n = 0
-        while n < len(usersData):
-            if usersData[n]["username"] == username:
-                return usersData[n]["tempPasswd"]
-            n += 1
-
     @Slot(str, str)
     def newUserPasswd(self, username: str, plainPasswd: str):
-        userDatabase =  os.path.join(".", "data", "users.json")
+        userDatabase = os.path.join(".", "data", "users.json")
 
         usersData = []
 
@@ -158,12 +159,8 @@ class UserModel(QAbstractListModel):
         n = 0
         while n < len(usersData):
             if usersData[n]["username"] == username:
-                passTuple = passwdHasher(plainPasswd)
-                passSalt = passTuple[0]
-                hashedPass = passTuple[1]
+                hashedPass = passwdHasher(plainPasswd)
                 usersData[n]["isTempPasswd"] = "false"
-                usersData[n]["tempPasswd"] = ""
-                usersData[n]["passSalt"] = passSalt
                 usersData[n]["hashPasswd"] = hashedPass
 
                 with open(userDatabase, "w", encoding="utf-8") as userFileW:
@@ -171,35 +168,48 @@ class UserModel(QAbstractListModel):
             n += 1
 
     @Slot(str, str)
-    def setFirstUser(self, username: str, plainPasswd: str):
-        userDatabase =  os.path.join(".", "data", "users.json")
+    def setFirstUser(self, displayName: str, plainPasswd: str):
+        userDatabase = os.path.join(".", "data", "users.json")
 
         usersData = []
 
         with open(userDatabase, "r", encoding="utf-8") as userFile:
             usersData = json.load(userFile)
 
-        passTuple = passwdHasher(plainPasswd)
-        passSalt = passTuple[0]
-        hashedPass = passTuple[1]
+        hashedPass = passwdHasher(plainPasswd)
 
         newUser = {
-            "username": username,
-            "passSalt": passSalt,
+            "displayName": displayName,
+            "username": usernameCreator(displayName),
             "hashPasswd": hashedPass,
             "level": 0,
             "isTempPasswd": "false",
-            "tempPasswd": ""
         }
 
         usersData.append(newUser)
 
         with open(userDatabase, "w", encoding="utf-8") as userFileW:
-            json.dump(usersData, userFileW, indent=4, ensure_ascii=False)    
+            json.dump(usersData, userFileW, indent=4, ensure_ascii=False)
+   
+    @Slot(str, result='QVariantMap')
+    def genNewUser(self, displayName: str):
 
-    @Slot(str, int)
-    def newUser(self, username: str, level: int):
-        userDatabase =  os.path.join(".", "data", "users.json")
+        username = usernameCreator(displayName)
+
+        passgen = username + " " + str(random.randint(1000000,9999999))
+        passgenstrfull = base64.b32encode(passgen.encode('utf-8')).decode('utf-8').replace("'", '"')
+        randnum = random.randint(0, len(passgenstrfull) - 13)
+        passgenstr = passgenstrfull[randnum:(randnum + 12)]
+        passgenhash = passwdHasher(passgenstr)
+
+        return {"displayName": displayName, "username": username, "hashedPasswd": passgenhash, "plainPasswd": passgenstr}
+   
+        #remember to use javascript << delete $object$.plainPasswd >> in qml after using this
+        ''' assign this entire map to an object in qml (to only use the function once), then, grab the plainPasswd property to show the password in plain in the step after creating the user, then, call the appendNewUser python func with this $object$ displayname, username, hashedPasswd and the level inputfield text'''
+
+    @Slot(str, str, str, int)
+    def appendNewUser(self, displayName: str, username: str, hashedPasswd: str, level: int):
+        userDatabase = os.path.join(".", "data", "users.json")
 
         usersData = []
 
@@ -207,12 +217,11 @@ class UserModel(QAbstractListModel):
             usersData = json.load(userFile)
 
         newUser = {
+            "displayName": displayName,
             "username": username,
-            "passSalt": "",
-            "hashPasswd": "",
+            "hashPasswd": hashedPasswd,
             "level": level,
             "isTempPasswd": "true",
-            "tempPasswd": base64.b32encode(username.encode('utf-8')).decode('utf-8').replace("'", '"')
         }
 
         usersData.append(newUser)
@@ -220,27 +229,25 @@ class UserModel(QAbstractListModel):
         with open(userDatabase, "w", encoding="utf-8") as userFileW:
             json.dump(usersData, userFileW, indent=4, ensure_ascii=False)
 
-    @Slot(int, str, str, int)
-    def editUser(self, index, newName, newPlainPasswd, newLevel):
-        userDatabase =  os.path.join(".", "data", "users.json")
+    @Slot(int, bool, int)
+    def editUser(self, index: int, doCHPasswd: bool, newLevel: int):
+        userDatabase = os.path.join(".", "data", "users.json")
 
         usersData = []
 
         with open(userDatabase, "r", encoding="utf-8") as userFile:
-            usersData = json.load(userFile)
+                usersData = json.load(userFile)
 
-        hashedPass = passwdHasher(newPlainPasswd)
-
-        usersData[index]["username"] = newName
-        usersData[index]["hashPasswd"] = hashedPass
+        if doCHPasswd == True:
+            usersData[index]["isTempPasswd"] = "true"
         usersData[index]["level"] = newLevel
 
         with open(userDatabase, "w", encoding="utf-8") as userFileW:
-            json.dump(usersData, userFileW, indent=4, ensure_ascii=False)
+                json.dump(usersData, userFileW, indent=4, ensure_ascii=False)
 
     @Slot(int)
     def rmUser(self, rmIndex):
-        userDatabase =  os.path.join(".", "data", "users.json")
+        userDatabase = os.path.join(".", "data", "users.json")
 
         usersData = []
 
@@ -254,29 +261,27 @@ class UserModel(QAbstractListModel):
 
     @Slot(str, str, result=str)
     def checkLogin(self, loginUsername: str, loginPasswd: str):
-        userDatabase =  os.path.join(".", "data", "users.json")
+        userDatabase = os.path.join(".", "data", "users.json")
 
         usersData = []
 
         matchvar = False
 
-        username = loginUsername
-
         with open(userDatabase, "r", encoding="utf-8") as userFile:
             usersData = json.load(userFile)
 
         for item in usersData:
-            if (username in item["username"]):
+            if (loginUsername in item["username"]):
                 matchvar = True
 
                 if (item["isTempPasswd"] == "true"):
-                    if (base64.b32decode((loginPasswd.replace('"', "'").encode('utf-8'))).decode('utf-8') == item["username"]):
+                    if (checkHash(item["hashPasswd"], loginPasswd)):
                         return "senha temp correta"
                     else:
                         return "senha incorreta"
-                
+             
                 else:
-                    if (checkHash(item["hashPasswd"], item["passSalt"], loginPasswd)):
+                    if (checkHash(item["hashPasswd"], loginPasswd)):
                         return "senha correta"
                     else:
                         return "senha incorreta"

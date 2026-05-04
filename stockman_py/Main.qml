@@ -3358,6 +3358,7 @@ Window {
                 visible: false
                 opacity: 0
                 property string createdUser
+                property var userData
 
                 Shortcut {
                     enabled: newUserDialog.visible
@@ -3679,11 +3680,13 @@ Window {
                                         if (addUName.acceptableInput && userLevelCombo.displayText != "Cargo") {
                                             let level = userLevelCombo.displayText ==  "Supervisão" ? 0 : userLevelCombo.displayText ==  "Financeiro" ? 1 : 2
 
-                                            user_model.newUser(addUName.text, Number(level))
+                                            newUserDialog.userData = user_model.genNewUser(addUName.text)
+                                            console.log(JSON.stringify(newUserDialog.userData))
+                                            //user_model.appendNewUser(addUName.text, Number(level))
 
                                             newUserDialog.createdUser = addUName.text
 
-                                            newTempPasswdWarn.open();
+                                            //newTempPasswdWarn.open();
 
                                             //newUserDialog.close()
 
