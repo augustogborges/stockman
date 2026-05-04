@@ -15,6 +15,7 @@ MouseArea {
     Layout.fillWidth: true
     hoverEnabled: true;
     acceptedButtons: Qt.LeftButton;
+    enabled: root.visible
     onClicked: {
         switch(buttonIndex) {
             case 0:

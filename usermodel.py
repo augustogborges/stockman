@@ -7,6 +7,7 @@ import json
 import re
 import bcrypt
 import secrets
+import base64
 
 from PySide6.QtCore import (QAbstractListModel, QEnum, Qt, QModelIndex, Slot, QByteArray)
 from PySide6.QtQml import QmlElement
@@ -115,8 +116,62 @@ class UserModel(QAbstractListModel):
                 if (fSearch in fUserName):
                     return {"username": indUser.username, "level": indUser.level}
 
-    @Slot(str, str, int)
-    def newUser(self, username: str, plainPasswd: str, level: int):
+    @Slot(str, result=int)
+    def getUserLevel(self, username: str):
+        userDatabase =  os.path.join(".", "data", "users.json")
+
+        usersData = []
+
+        with open(userDatabase, "r", encoding="utf-8") as userFile:
+            usersData = json.load(userFile)
+
+        n = 0
+        while n < len(usersData):
+            if usersData[n]["username"] == username:
+                return int(usersData[n]["level"])
+            n += 1
+
+    @Slot(str, result=str)
+    def getTempPassForUser(self, username: str):
+        userDatabase =  os.path.join(".", "data", "users.json")
+
+        usersData = []
+
+        with open(userDatabase, "r", encoding="utf-8") as userFile:
+            usersData = json.load(userFile)
+
+        n = 0
+        while n < len(usersData):
+            if usersData[n]["username"] == username:
+                return usersData[n]["tempPasswd"]
+            n += 1
+
+    @Slot(str, str)
+    def newUserPasswd(self, username: str, plainPasswd: str):
+        userDatabase =  os.path.join(".", "data", "users.json")
+
+        usersData = []
+
+        with open(userDatabase, "r", encoding="utf-8") as userFile:
+            usersData = json.load(userFile)
+
+        n = 0
+        while n < len(usersData):
+            if usersData[n]["username"] == username:
+                passTuple = passwdHasher(plainPasswd)
+                passSalt = passTuple[0]
+                hashedPass = passTuple[1]
+                usersData[n]["isTempPasswd"] = "false"
+                usersData[n]["tempPasswd"] = ""
+                usersData[n]["passSalt"] = passSalt
+                usersData[n]["hashPasswd"] = hashedPass
+
+                with open(userDatabase, "w", encoding="utf-8") as userFileW:
+                    json.dump(usersData, userFileW, indent=4, ensure_ascii=False)
+            n += 1
+
+    @Slot(str, str)
+    def setFirstUser(self, username: str, plainPasswd: str):
         userDatabase =  os.path.join(".", "data", "users.json")
 
         usersData = []
@@ -132,7 +187,32 @@ class UserModel(QAbstractListModel):
             "username": username,
             "passSalt": passSalt,
             "hashPasswd": hashedPass,
-            "level": level
+            "level": 0,
+            "isTempPasswd": "false",
+            "tempPasswd": ""
+        }
+
+        usersData.append(newUser)
+
+        with open(userDatabase, "w", encoding="utf-8") as userFileW:
+            json.dump(usersData, userFileW, indent=4, ensure_ascii=False)    
+
+    @Slot(str, int)
+    def newUser(self, username: str, level: int):
+        userDatabase =  os.path.join(".", "data", "users.json")
+
+        usersData = []
+
+        with open(userDatabase, "r", encoding="utf-8") as userFile:
+            usersData = json.load(userFile)
+
+        newUser = {
+            "username": username,
+            "passSalt": "",
+            "hashPasswd": "",
+            "level": level,
+            "isTempPasswd": "true",
+            "tempPasswd": base64.b32encode(username.encode('utf-8')).decode('utf-8').replace("'", '"')
         }
 
         usersData.append(newUser)
@@ -188,10 +268,18 @@ class UserModel(QAbstractListModel):
         for item in usersData:
             if (username in item["username"]):
                 matchvar = True
-                if (checkHash(item["hashPasswd"], item["passSalt"], loginPasswd)):
-                    return "senha correta"
+
+                if (item["isTempPasswd"] == "true"):
+                    if (base64.b32decode((loginPasswd.replace('"', "'").encode('utf-8'))).decode('utf-8') == item["username"]):
+                        return "senha temp correta"
+                    else:
+                        return "senha incorreta"
+                
                 else:
-                    return "senha incorreta"
+                    if (checkHash(item["hashPasswd"], item["passSalt"], loginPasswd)):
+                        return "senha correta"
+                    else:
+                        return "senha incorreta"
 
         if (matchvar == False):
             return "usuario invalido"

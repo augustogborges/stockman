@@ -22,8 +22,35 @@ Window {
     property int usersCount: user_model.rowCount()
     property var sModel: stock_model
     property bool noExistingUsers: user_model.get(0,"").username == "fail"
-    property bool noActiveUsers: false //disable login for ui testing
-    signal userAction()
+    property bool noActiveUsers: true //disable login for ui testing
+    property var loggedUser: [];
+    signal userAction();
+    signal userLogin();
+    property int lowItemThreshold: 10;
+
+    onUserLogin: {
+        if (root.loggedUser[0] && root.loggedUser[1]) {
+            console.log(root.loggedUser[0] + " " + root.loggedUser[1])
+            if (root.loggedUser[1] == 0) {
+                dashButton.visible = true;
+                itensButton.visible = true;
+                usersButton.visible = true;
+            } else if (root.loggedUser[1] == 1) {
+                dashButton.visible = true;
+                itensButton.visible = true;
+                usersButton.visible = false;
+            } else {
+                //container.viewIndex = 1;
+                dashButton.visible = true;
+                itensButton.visible = true;
+                usersButton.visible = false;
+                fullDash.visible = false;
+                stockOnlyDash.visible = true;
+                //itensButton.scale = 1;
+                //itensButton.opacity = 1;
+            }
+        }
+    }
 
     Connections {
         target: root
@@ -52,6 +79,11 @@ Window {
         stockProfitList.model = Math.min(root.productsCount, 10)
         stockFillList.model = ""
         stockFillList.model = Math.min(root.productsCount, 10)
+        if (stockOnlyDash.visible || root.loggedUser[1] == 2) {
+            stockFillListSOD.model = ""
+            stockFillListSOD.model = root.productsCount
+            stockFillChartSOD.regenGraph()
+        }
         stockProfitChart.regenGraph()
         stockFillChart.regenGraph()
         smallestIndProfits.updateLowProfits()
@@ -469,11 +501,21 @@ Window {
                                 onClicked: {
                                     if (usernameInput.text != "" && passwdInput.text != "") {
                                         if (root.noExistingUsers) {
-                                            user_model.newUser(usernameInput.text, passwdInput.text, 0);
+                                            user_model.setFirstUser(usernameInput.text, passwdInput.text, 0);
+                                            root.loggedUser[0] = usernameInput.text;
+                                            root.loggedUser[1] = 0;
                                             root.noExistingUsers = false;
                                             root.noActiveUsers = false
                                         } else {
-                                            if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha correta") {
+                                            if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha temp correta") {
+                                                tempPassDialog.targetUsername = usernameInput.text;
+                                                tempPassDialog.targetLevel = user_model.getUserLevel(usernameInput.text);
+                                                tempPassDialog.open();
+                                            }
+                                            else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha correta") {
+                                                root.loggedUser[0] = usernameInput.text;
+                                                root.loggedUser[1] = user_model.getUserLevel(usernameInput.text);
+                                                root.userLogin();
                                                 root.noActiveUsers = false;
                                             } else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha incorreta") {
                                                 passwdLabel.color = '#e03b3b'
@@ -502,6 +544,270 @@ Window {
                 }
 
                 Item { Layout.fillHeight: true; Layout.verticalStretchFactor: 8 }
+            }
+        }
+
+        Rectangle {
+            id: tempPassDialog
+            anchors.fill: parent
+            visible: false
+            opacity: 0.0
+            property string targetUsername
+            property int targetLevel
+            z: 2
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 170
+                }
+            }
+
+            function open() {
+                console.log("5")
+                tempPassDialog.visible = true;
+                Qt.callLater(() => {
+                    tempPassDialog.opacity = 1.0;
+                })
+            }
+
+            function close() {
+                tempPassDialog.opacity = 0;
+                closetempPassDialog.restart();
+            }
+
+            Timer {
+                id: closetempPassDialog
+                running: false
+                repeat: false
+                interval: 200
+                onTriggered: {
+                    tempPassDialog.visible = false
+                }
+            }
+
+            gradient: Gradient {
+                GradientStop { position: 0.0; color: "#ee000000"}
+                GradientStop { position: 0.4; color: '#ee151517'}
+                GradientStop { position: 0.6; color: '#ee262527'}
+                GradientStop { position: 0.7; color: '#ee201f21'}
+                GradientStop { position: 1.0; color: "#ee000000"}
+            }
+
+            MultiEffect {
+                source: tempPassDialog
+                blurEnabled: true
+                blur: 0.7
+            }
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: childrenRect.width + 35
+                height: childrenRect.height + 30
+                radius: 30
+                color: Parameters.pressedButtonBg
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    width: root.width * 0.42
+                    spacing: root.height * 0.006
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 55
+                        color: Parameters.mainHighlightBg
+                        topLeftRadius: 15
+                        topRightRadius: 15
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Defina uma nova senha:"
+                            color: Parameters.mainBgColor
+                            font.family: Parameters.defaultFont
+                            font.pointSize: 18
+                        }
+                    }
+
+                    Rectangle {
+                        id: tempPassC1
+                        Layout.fillWidth: true
+                        Layout.leftMargin: root.width * 0.01
+                        Layout.rightMargin: root.width * 0.01
+                        radius: Parameters.defaultRadius
+                        Layout.preferredHeight: 40
+                        color: Parameters.shadeBgColor
+                        border.width: 1
+                        border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.IBeamCursor
+                            onClicked: {
+                                /*addUNameContainer.border.width = 1;
+                                addUNameContainer.border.color = Qt.darker(Parameters.mainHighlightBg, 2.5);
+                                addUName.placeholderTextColor = "#bbbbbb";*/
+                                tempPassTF1.forceActiveFocus()
+                            }
+                        
+                            TextField {
+                                id: tempPassTF1
+                                background: Rectangle {
+                                    color: "transparent"
+                                }
+                                anchors.fill: parent
+                                anchors.leftMargin: 4
+                                anchors.rightMargin: 4
+                                anchors.topMargin: 2
+                                anchors.bottomMargin: 2
+                                color: "#000000"
+                                font.family: Parameters.altFont
+                                font.styleName: "Bold"
+                                font.pixelSize: tempPassC1.height * 0.47
+                                placeholderText: "Nova Senha"
+                                placeholderTextColor: "#bbbbbb"
+                                validator: RegularExpressionValidator {
+                                    regularExpression: /(.|\s)*\S(.|\s)*/
+                                }
+                                focus: true
+                                onPressed: {
+                                    /*addUNameContainer.border.width = 1;
+                                    addUNameContainer.border.color = Qt.darker(Parameters.mainHighlightBg, 2.5);
+                                    addUName.placeholderTextColor = "#bbbbbb";*/
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        id: tempPassC2
+                        Layout.fillWidth: true
+                        Layout.leftMargin: root.width * 0.01
+                        Layout.rightMargin: root.width * 0.01
+                        radius: Parameters.defaultRadius
+                        Layout.preferredHeight: 40
+                        color: Parameters.shadeBgColor
+                        border.width: 1
+                        border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.IBeamCursor
+                            onClicked: {
+                                /*addUNameContainer.border.width = 1;
+                                addUNameContainer.border.color = Qt.darker(Parameters.mainHighlightBg, 2.5);
+                                addUName.placeholderTextColor = "#bbbbbb";*/
+                                tempPassTF2.forceActiveFocus()
+                            }
+                        
+                            TextField {
+                                id: tempPassTF2
+                                background: Rectangle {
+                                    color: "transparent"
+                                }
+                                anchors.fill: parent
+                                anchors.leftMargin: 4
+                                anchors.rightMargin: 4
+                                anchors.topMargin: 2
+                                anchors.bottomMargin: 2
+                                color: "#000000"
+                                font.family: Parameters.altFont
+                                font.styleName: "Bold"
+                                font.pixelSize: tempPassC2.height * 0.47
+                                placeholderText: "Confirme a Senha"
+                                placeholderTextColor: "#bbbbbb"
+                                validator: RegularExpressionValidator {
+                                    regularExpression: /(.|\s)*\S(.|\s)*/
+                                }
+                                focus: true
+                                onPressed: {
+                                    /*addUNameContainer.border.width = 1;
+                                    addUNameContainer.border.color = Qt.darker(Parameters.mainHighlightBg, 2.5);
+                                    addUName.placeholderTextColor = "#bbbbbb";*/
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 40
+                        color: Parameters.highlightFg
+                        bottomRightRadius: 15
+                        bottomLeftRadius: 15
+
+                        RowLayout {
+                            anchors {
+                                top: parent.top
+                                bottom: parent.bottom
+                                right: parent.right
+                                topMargin: 2
+                                bottomMargin: 2
+                                rightMargin: 6
+                            }
+                            layoutDirection: Qt.RightToLeft
+                            spacing: 6
+                            
+                            Button {
+                                id: tempPassSubmit
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.fillWidth: false
+                                text: "OK"
+                                implicitWidth: 74
+                                implicitHeight: 34
+
+                                onClicked: {
+                                    if (tempPassTF1.acceptableInput && tempPassTF2.acceptableInput && (tempPassTF1.text == tempPassTF2.text)) {
+
+                                        user_model.newUserPasswd(tempPassDialog.targetUsername, tempPassTF1.text)
+
+                                        tempPassDialog.close()
+                                        root.loggedUser[0] = tempPassDialog.targetUsername;
+                                        root.loggedUser[1] = tempPassDialog.targetLevel;
+                                        root.userLogin();
+                                        root.noActiveUsers = false;
+
+                                    } else {
+                                        /*if (!addUName.acceptableInput) {
+                                            addUNameContainer.border.width = 3;
+                                            addUNameContainer.border.color = Parameters.lowCashRed;
+                                            addUName.placeholderTextColor = Parameters.lowCashRed;
+                                        }
+                                        if (userLevelCombo.displayText == "Cargo") {
+                                            comboText.color = Parameters.lowCashRed;
+                                            comboBg.border.color = Parameters.lowCashRed;
+                                            comboBg.border.width = 3;
+                                        }*/
+                                    }
+                                }
+
+                                contentItem: Text {
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                    font.family: Parameters.defaultFont
+                                    font.pointSize: 12
+                                    text: addUSubmit.text
+                                    color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                }
+                                
+                                background: Rectangle {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    implicitWidth: 74
+                                    implicitHeight: 34
+                                    radius: searchContainer.radius
+                                    color: addUSubmit.down ? Parameters.pressedButtonBg : addUSubmit.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
+                                    border.width: 2
+                                    border.color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                }
+
+                                HoverHandler {
+                                    enabled: parent.visible
+                                    cursorShape: Qt.PointingHandCursor
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -695,11 +1001,395 @@ Window {
 
                                     Item {height: 10}
 
+                                    Rectangle {
+                                        id: stockOnlyDash
+                                        visible: false
+                                        anchors.fill: parent
+                                        color: "transparent"
+
+                                        Item {
+                                            anchors.fill: parent
+                                            //anchors.bottomMargin: parent.height * 0.2
+
+                                            Rectangle {
+                                                id: stockFillContainerSOD
+                                                anchors.fill: parent
+                                                radius: Parameters.defaultRadius
+
+                                                color: Parameters.shadeBgColor
+
+                                                ColumnLayout {
+                                                    anchors.fill: parent
+                                                    anchors.topMargin: parent.height * 0.05
+                                                    anchors.bottomMargin: parent.height * 0.05
+                                                    anchors.leftMargin: parent.width * 0.08
+                                                    anchors.rightMargin: parent.width * 0.08
+                                                    spacing: parent.height * 0.015
+
+                                                    RowLayout {
+                                                        Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                                        Layout.fillHeight: false
+                                                        Layout.fillWidth: true
+                                                        Layout.preferredHeight: stockFillContainerSOD.height * 0.08
+
+                                                        Text {
+                                                            Layout.fillWidth: true
+                                                            Layout.fillHeight: false
+                                                            font.pixelSize: stockFillContainerSOD.height * 0.05
+                                                            Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                                            text: "Composição do Estoque"
+                                                            font.family: Parameters.defaultFont
+                                                            color: "#000000"
+                                                        }
+
+                                                        Rectangle {
+                                                            id: lowQuantityDisplayContainerSOD
+                                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                            Layout.preferredWidth: stockFillContainerSOD.width / 4.2
+                                                            Layout.fillWidth: false
+                                                            Layout.fillHeight: true
+                                                            radius: width * 0.05
+                                                            //color: '#75da2121'
+                                                            gradient: Gradient {
+                                                                orientation: Gradient.Horizontal
+                                                                GradientStop { position: 0.0; color: Qt.lighter(Parameters.lowCashRed, 1.35) }
+                                                                GradientStop { position: 0.4; color: Qt.lighter(Parameters.lowCashRed, 1.55)}
+                                                                GradientStop { position: 0.85; color: Qt.lighter(Parameters.lowCashRed, 1.45)}
+                                                            }
+
+                                                            RowLayout {
+                                                                anchors.fill: parent
+                                                                anchors.topMargin: -parent.height * 0.03
+
+                                                                Item { Layout.fillWidth: true }
+
+                                                                Text {
+                                                                    Layout.alignment: Qt.AlignVCenter
+                                                                    Layout.fillWidth: false
+                                                                    font.pixelSize: lowQuantityDisplayContainerSOD.height * 0.5
+                                                                    minimumPixelSize: 8
+                                                                    fontSizeMode: Text.Fit
+                                                                    text: ""
+                                                                    font.family: Parameters.iconFont
+                                                                    color: "#000000"
+                                                                }
+
+                                                                Text {
+                                                                    Layout.alignment: Qt.AlignVCenter
+                                                                    Layout.fillWidth: false
+                                                                    font.pixelSize: lowQuantityDisplayContainerSOD.height * 0.35
+                                                                    minimumPixelSize: 8
+                                                                    fontSizeMode: Text.Fit
+                                                                    text: stock_model.getLowQuantityTotal(root.lowItemThreshold) + " itens precisam de reposição"
+                                                                    font.family: Parameters.thinFont
+                                                                    color: "#000000"
+                                                                }
+
+                                                                Item { Layout.fillWidth: true }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    RowLayout {
+                                                        Layout.fillWidth: true
+                                                        Layout.fillHeight: true
+                                                        spacing: stockFillContainerSOD.width * 0.027
+
+                                                        Item {
+                                                            Layout.fillHeight: true
+                                                            Layout.fillWidth: false
+                                                            Layout.preferredHeight: width
+                                                            Layout.preferredWidth: stockFillContainerSOD.width / 4.2
+
+                                                            Rectangle {
+                                                                id: stockFillGraphListSOD
+                                                                anchors.fill: parent
+                                                                radius: Parameters.defaultRadius
+                                                                color: "white"
+                                                                border.width: 1
+                                                                border.color: Parameters.lightBorder
+                                                                clip: true
+
+                                                                ListView {
+                                                                    id: stockFillListSOD
+                                                                    anchors.fill: parent
+                                                                    anchors.leftMargin: parent.width * 0.03
+                                                                    anchors.rightMargin: parent.width * 0.03
+                                                                    anchors.topMargin: parent.height * 0.02
+                                                                    anchors.bottomMargin: parent.height * 0.02
+                                                                    orientation: ListView.Vertical
+                                                                    boundsBehavior: ListView.StopAtBounds
+
+                                                                    model: root.productsCount
+
+                                                                    delegate: Rectangle {
+                                                                        required property int index
+                                                                        anchors.left: parent.left
+                                                                        anchors.right: parent.right
+                                                                        height: stockFillGraphListSOD.height * 0.13
+                                                                        color: "transparent"
+                                                                    
+                                                                        RowLayout {
+                                                                            anchors.fill: parent
+
+                                                                            Rectangle {
+                                                                                id: colorBallDelegateSOD
+                                                                                Layout.fillHeight: false
+                                                                                Layout.fillWidth: false
+                                                                                Layout.alignment: Qt.AlignVCenter
+                                                                                Layout.preferredHeight: stockFillGraphListSOD.height * 0.035
+                                                                                Layout.preferredWidth: height
+                                                                                radius: height / 2
+                                                                                color: firstTab.graphColors[index]
+                                                                            }
+
+                                                                            Text {
+                                                                                Layout.fillWidth: true
+                                                                                Layout.fillHeight: false
+                                                                                Layout.alignment: Qt.AlignVCenter
+                                                                                font.family: Parameters.defaultFont
+                                                                                font.pixelSize: stockFillGraphListSOD.height * 0.05
+                                                                                fontSizeMode: Text.Fit
+                                                                                minimumPixelSize: 10
+                                                                                color: "#000000"
+                                                                                renderType: Text.CurveRendering
+                                                                                elide: Text.ElideRight
+                                                                                text: stock_model.getSortedByStockQuantity(index, root.lowItemThreshold).name
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+
+                                                        Item {
+                                                            Layout.fillHeight: true
+                                                            Layout.fillWidth: false
+                                                            Layout.preferredWidth: stockFillContainerSOD.width / 3
+
+                                                            Rectangle {
+                                                                id: stockFillGraphSOD
+                                                                anchors.fill: parent
+                                                                radius: Parameters.defaultRadius
+                                                                border.width: 1
+                                                                border.color: Parameters.lightBorder
+
+                                                                GraphsView {
+                                                                    id: stockFillChartSOD
+                                                                    anchors.centerIn: parent
+                                                                    antialiasing: true
+                                                                    width: parent.width * 1.15
+                                                                    height: width
+                                                                    shadowVisible: true
+                                                                    theme: GraphsTheme {
+                                                                        labelTextColor: "#000000"
+                                                                        backgroundColor: "transparent"
+                                                                        labelBackgroundVisible: true
+                                                                        labelFont: Parameters.defaultFont
+                                                                        labelBorderVisible: true
+                                                                        labelsVisible: true
+                                                                    }
+
+                                                                    PieSeries {
+                                                                        id: stockPieSeriesSOD
+                                                                    }
+
+                                                                    function regenGraph() {
+                                                                        stockPieSeriesSOD.clear();
+                                                                        for (var i = 0; i < root.productsCount; i++) {
+                                                                            var number = stock_model.getSortedByStockQuantity(i, root.lowItemThreshold).percentage
+                                                                            var slice = stockPieSeriesSOD.append(stock_model.getSortedByStockQuantity(i, root.lowItemThreshold).percentage + "%", stock_model.getSortedByStockQuantity(i, root.lowItemThreshold).percentage)
+                                                                            slice.borderWidth = 0
+                                                                            slice.color = firstTab.graphColors[i]
+                                                                            slice.label = stock_model.getSortedByStockQuantity(i, root.lowItemThreshold).percentage + "%"
+                                                                            slice.labelVisible = true
+                                                                            if (number >= 10) {
+                                                                                slice.labelPosition = PieSlice.LabelPosition.InsideHorizontal
+                                                                            } else {
+                                                                                slice.labelPosition = PieSlice.LabelPosition.Outside
+                                                                                slice.labelArmLengthFactor = 0.07
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    Component.onCompleted: regenGraph()
+                                                                }
+                                                            }
+                                                        }
+
+                                                        Item {
+                                                            Layout.fillHeight: true
+                                                            Layout.fillWidth: false
+                                                            Layout.preferredHeight: width
+                                                            Layout.preferredWidth: stockFillContainerSOD.width / 4.2
+
+                                                            Rectangle {
+                                                                id: stockLowListSOD
+                                                                anchors.fill: parent
+                                                                radius: Parameters.defaultRadius
+                                                                border.width: 3
+                                                                border.color: Parameters.lowCashRed
+                                                                clip: true
+                                                                gradient: Gradient {
+                                                                    GradientStop { position: 0.0; color: Qt.lighter(Parameters.lowCashRed, 1.85) }
+                                                                    GradientStop { position: 0.55; color: Qt.lighter(Parameters.lowCashRed, 2.1) }
+                                                                    GradientStop { position: 1.0; color: Qt.lighter(Parameters.lowCashRed, 2.3) }
+                                                                }
+
+                                                                ListView {
+                                                                    id: lowListSOD
+                                                                    anchors.fill: parent
+                                                                    anchors.leftMargin: parent.width * 0.03
+                                                                    anchors.rightMargin: parent.width * 0.03
+                                                                    anchors.topMargin: parent.height * 0.02
+                                                                    anchors.bottomMargin: parent.height * 0.02
+                                                                    orientation: ListView.Vertical
+                                                                    boundsBehavior: ListView.StopAtBounds
+
+                                                                    model: stock_model.getLowQuantityTotal(root.lowItemThreshold)
+
+                                                                    delegate: Rectangle {
+                                                                        required property int index
+                                                                        anchors.left: parent.left
+                                                                        anchors.right: parent.right
+                                                                        height: stockLowListSOD.height * 0.13
+                                                                        color: "transparent"
+                                                                    
+                                                                        RowLayout {
+                                                                            anchors.fill: parent
+
+                                                                            Rectangle {
+                                                                                id: colorBallDelegateSOD
+                                                                                Layout.fillHeight: false
+                                                                                Layout.fillWidth: false
+                                                                                Layout.alignment: Qt.AlignVCenter
+                                                                                Layout.preferredHeight: stockLowListSOD.height * 0.013
+                                                                                Layout.preferredWidth: height
+                                                                                radius: height / 2
+                                                                                color: "#202020"
+                                                                            }
+
+                                                                            Text {
+                                                                                Layout.fillWidth: true
+                                                                                Layout.fillHeight: false
+                                                                                Layout.alignment: Qt.AlignVCenter
+                                                                                font.family: Parameters.defaultFont
+                                                                                font.pixelSize: stockLowListSOD.height * 0.042
+                                                                                fontSizeMode: Text.Fit
+                                                                                minimumPixelSize: 10
+                                                                                color: "#000000"
+                                                                                renderType: Text.CurveRendering
+                                                                                elide: Text.ElideRight
+                                                                                text: stock_model.getLowQuantityItems(index, root.lowItemThreshold).name
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    RowLayout {
+                                                        Layout.fillWidth: true
+                                                        Layout.fillHeight: false
+                                                        Layout.preferredHeight: stockFillContainerSOD.height * 0.15
+
+                                                        Rectangle {
+                                                            Layout.alignment: Qt.AlignVCenter
+                                                            Layout.fillHeight: false
+                                                            Layout.preferredHeight: stockFillContainerSOD.height * 0.12
+                                                            Layout.fillWidth: false
+                                                            Layout.preferredWidth: height
+                                                            radius: height / 2
+                                                            color: '#0ac0e4'
+
+                                                            Text {
+                                                                anchors.centerIn: parent
+                                                                font.family: Parameters.iconFont
+                                                                font.pixelSize: stockFillContainerSOD.height * 0.08
+                                                                text: ""
+                                                                color: "#000000"
+                                                            }
+                                                        }
+
+                                                        ColumnLayout {
+                                                            Layout.fillHeight: true
+                                                            Layout.fillWidth: true
+
+                                                            Text {
+                                                                Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                                                font.family: Parameters.thinFont
+                                                                font.pixelSize: stockFillContainerSOD.height * 0.036
+                                                                text: "Total de produtos:"
+                                                                color: "#000000"
+                                                            }
+
+                                                            Text {
+                                                                Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                                                font.family: Parameters.defaultFont
+                                                                font.pixelSize: stockFillContainerSOD.height * 0.05
+                                                                text: stock_model.getTotalQuant()
+                                                                color: "#000000"
+                                                            }
+                                                        }
+
+                                                        Item { Layout.preferredWidth: 6 }
+
+                                                        Rectangle {
+                                                            Layout.preferredWidth: 1
+                                                            Layout.fillHeight: true
+                                                            Layout.topMargin: 1
+                                                            Layout.bottomMargin: 1
+                                                            radius: 1
+                                                            color: "#454545"
+                                                        }
+
+                                                        Item { Layout.preferredWidth: 6 }
+
+                                                        ColumnLayout {
+                                                            Layout.fillHeight: true
+                                                            Layout.fillWidth: true
+
+                                                            Text {
+                                                                Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                                                font.family: Parameters.thinFont
+                                                                font.pixelSize: stockFillContainerSOD.height * 0.036
+                                                                text: "Tipos de produtos:"
+                                                                color: "#000000"
+                                                            }
+
+                                                            Text {
+                                                                Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                                                font.family: Parameters.defaultFont
+                                                                font.pixelSize: stockFillContainerSOD.height * 0.05
+                                                                text: root.productsCount
+                                                                color: "#000000"
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            MultiEffect {
+                                                anchors.fill: stockFillContainerSOD
+                                                source: stockFillContainerSOD
+
+                                                autoPaddingEnabled: true
+                                                shadowEnabled: true
+                                                shadowOpacity: 0.8
+                                                shadowScale: 0.99
+                                                shadowVerticalOffset: 4
+                                                shadowColor: "#000000"
+                                            }
+                                        }
+                                    }
+
                                     GridLayout {
+                                        id: fullDash
                                         rows: 6
                                         columns: 6
                                         columnSpacing: 10
-                                        rowSpacing: 12 
+                                        rowSpacing: 12
+                                        visible: true
 
                                         Item {
                                             Layout.fillWidth: true
@@ -945,7 +1635,7 @@ Window {
                                                                     Layout.alignment: Qt.AlignVCenter
                                                                     Layout.fillWidth: false
                                                                     font.pixelSize: lowQuantityDisplayContainer.height * 0.45
-                                                                    text: stock_model.getLowQuantityTotal() + " itens precisam de reposição"
+                                                                    text: stock_model.getLowQuantityTotal(root.lowItemThreshold) + " itens precisam de reposição"
                                                                     font.family: Parameters.thinFont
                                                                     color: "#000000"
                                                                 }
@@ -1016,7 +1706,7 @@ Window {
                                                                                 color: "#000000"
                                                                                 renderType: Text.CurveRendering
                                                                                 elide: Text.ElideRight
-                                                                                text: stock_model.getSortedByStockQuantity(index).name
+                                                                                text: stock_model.getSortedByStockQuantity(index, root.lowItemThreshold).name
                                                                             }
                                                                         }
                                                                     }
@@ -1058,11 +1748,11 @@ Window {
                                                                     function regenGraph() {
                                                                         stockPieSeries.clear();
                                                                         for (var i = 0; i < root.productsCount; i++) {
-                                                                            var number = stock_model.getSortedByStockQuantity(i).percentage
-                                                                            var slice = stockPieSeries.append(stock_model.getSortedByStockQuantity(i).percentage + "%", stock_model.getSortedByStockQuantity(i).percentage)
+                                                                            var number = stock_model.getSortedByStockQuantity(i, root.lowItemThreshold).percentage
+                                                                            var slice = stockPieSeries.append(stock_model.getSortedByStockQuantity(i, root.lowItemThreshold).percentage + "%", stock_model.getSortedByStockQuantity(i, root.lowItemThreshold).percentage)
                                                                             slice.borderWidth = 0
                                                                             slice.color = firstTab.graphColors[i]
-                                                                            slice.label = stock_model.getSortedByStockQuantity(i).percentage + "%"
+                                                                            slice.label = stock_model.getSortedByStockQuantity(i, root.lowItemThreshold).percentage + "%"
                                                                             slice.labelVisible = true
                                                                             if (number >= 10) {
                                                                                 slice.labelPosition = PieSlice.LabelPosition.InsideHorizontal
@@ -1110,6 +1800,40 @@ Window {
                                                                 font.family: Parameters.thinFont
                                                                 font.pixelSize: stockFillContainer.height * 0.036
                                                                 text: "Total de produtos:"
+                                                                color: "#000000"
+                                                            }
+
+                                                            Text {
+                                                                Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                                                font.family: Parameters.defaultFont
+                                                                font.pixelSize: stockFillContainer.height * 0.05
+                                                                text: stock_model.getTotalQuant()
+                                                                color: "#000000"
+                                                            }
+                                                        }
+
+                                                        Item { Layout.preferredWidth: 3 }
+
+                                                        Rectangle {
+                                                            Layout.preferredWidth: 1
+                                                            Layout.fillHeight: true
+                                                            Layout.topMargin: 1
+                                                            Layout.bottomMargin: 1
+                                                            radius: 1
+                                                            color: "#454545"
+                                                        }
+
+                                                        Item { Layout.preferredWidth: 2 }
+
+                                                        ColumnLayout {
+                                                            Layout.fillHeight: true
+                                                            Layout.fillWidth: true
+
+                                                            Text {
+                                                                Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                                                font.family: Parameters.thinFont
+                                                                font.pixelSize: stockFillContainer.height * 0.036
+                                                                text: "Tipos de produtos:"
                                                                 color: "#000000"
                                                             }
 
@@ -1895,7 +2619,10 @@ Window {
                                                 newUserButton.gradient = newUserButton.bgGradient
                                             }
 
-                                            onClicked: newUserDialog.open()
+                                            onClicked: {
+                                                userLevelCombo.displayText = "Cargo"
+                                                newUserDialog.open()
+                                            }
                                         }
                                     }
 
@@ -2630,6 +3357,7 @@ Window {
                 anchors.fill: parent
                 visible: false
                 opacity: 0
+                property string createdUser
 
                 Shortcut {
                     enabled: newUserDialog.visible
@@ -2716,6 +3444,7 @@ Window {
                             spacing: root.width * 0.001
 
                             Rectangle {
+                                id: addUNameContainer
                                 Layout.fillWidth: true
                                 Layout.preferredWidth: root.width * 0.3
                                 Layout.horizontalStretchFactor: 3
@@ -2729,7 +3458,12 @@ Window {
                                     anchors.fill: parent
                                     hoverEnabled: true
                                     cursorShape: Qt.IBeamCursor
-                                    onClicked: addUName.forceActiveFocus()
+                                    onClicked: {
+                                        addUNameContainer.border.width = 1;
+                                        addUNameContainer.border.color = Qt.darker(Parameters.mainHighlightBg, 2.5);
+                                        addUName.placeholderTextColor = "#bbbbbb";
+                                        addUName.forceActiveFocus()
+                                    }
                                 
                                     TextField {
                                         id: addUName
@@ -2746,10 +3480,16 @@ Window {
                                         font.styleName: "Bold"
                                         font.pixelSize: userLevelCombo.height * 0.47
                                         placeholderText: "Nome do Usuário"
+                                        placeholderTextColor: "#bbbbbb"
                                         validator: RegularExpressionValidator {
                                             regularExpression: /(.|\s)*\S(.|\s)*/
                                         }
                                         focus: true
+                                        onPressed: {
+                                            addUNameContainer.border.width = 1;
+                                            addUNameContainer.border.color = Qt.darker(Parameters.mainHighlightBg, 2.5);
+                                            addUName.placeholderTextColor = "#bbbbbb";
+                                        }
                                     }
                                 }
                             }
@@ -2822,6 +3562,7 @@ Window {
                                 }
 
                                 contentItem: Text {
+                                    id: comboText
                                     leftPadding: 4
                                     rightPadding: userLevelCombo.indicator.width + userLevelCombo.spacing
 
@@ -2834,6 +3575,7 @@ Window {
                                 }
 
                                 background: Rectangle {
+                                    id: comboBg
                                     Layout.fillWidth: true
                                     Layout.preferredWidth: root.width * 0.12
                                     Layout.horizontalStretchFactor: 1
@@ -2845,6 +3587,7 @@ Window {
                                 }
 
                                 popup: Popup {
+                                    id: comboPopup
                                     y: userLevelCombo.height - 1
                                     width: userLevelCombo.width
                                     height: Math.min(contentItem.implicitHeight, userLevelCombo.Window.height - topMargin - bottomMargin)
@@ -2862,45 +3605,46 @@ Window {
                                         radius: Parameters.defaultRadius
                                     }
                                 }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        if (comboText.color == Parameters.lowCashRed) {
+                                            comboText.color = userLevelCombo.displayText == "Cargo" ? "#bbbbbb" : userLevelCombo.popup.visible ? "#666666" : "#000000";
+                                        }
+                                        comboBg.border.width = userLevelCombo.visualFocus ? 1 : 0;
+                                        comboBg.border.color = Qt.darker(Parameters.mainHighlightBg, 2.5);
+                                        if (comboPopup.visible) {
+                                            comboPopup.close();
+                                        } else {
+                                            comboPopup.open();
+                                        }
+                                    }
+                                }
                             }
                         }
 
                         Rectangle {
                             Layout.fillWidth: true
+                            Layout.leftMargin: (root.width * 0.5 - passwordWarn.width) / 2.3
+                            Layout.rightMargin: (root.width * 0.5 - passwordWarn.width) / 2.3
                             Layout.preferredHeight: 40
-                            Layout.leftMargin: root.width * 0.012
-                            Layout.rightMargin: root.width * 0.012
-                            radius: Parameters.defaultRadius
                             color: Parameters.shadeBgColor
-                            border.width: 1
-                            border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+                            border.width: 2
+                            border.color: Parameters.lowCashRed
+                            radius: 15
 
-                            MouseArea {
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.IBeamCursor
-                                onClicked: addUPass.forceActiveFocus()
-
-                                TextField {
-                                    id: addUPass
-                                    background: Rectangle {
-                                        color: "transparent"
-                                    }
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 4
-                                    anchors.rightMargin: 4
-                                    anchors.topMargin: 2
-                                    anchors.bottomMargin: 2
-                                    color: "#000000"
-                                    font.family: Parameters.altFont
-                                    font.styleName: "Bold"
-                                    font.pixelSize: userLevelCombo.height * 0.47
-                                    placeholderText: "Senha"
-                                    validator: RegularExpressionValidator {
-                                        regularExpression: /(.|\s)*\S(.|\s)*/
-                                    }
-                                    focus: true
-                                }
+                            Text {
+                                id: passwordWarn
+                                anchors.centerIn: parent
+                                font.family: Parameters.defaultFont
+                                font.pixelSize: parent.height * 0.45
+                                fontSizeMode: Text.Fit
+                                minimumPixelSize: 10
+                                color: "#454545"
+                                text: "A senha será definida pelo usuário no primeiro login."
                             }
                         }
 
@@ -2932,14 +3676,29 @@ Window {
                                     implicitHeight: 34
  
                                     onClicked: {
-                                        if (addUName.acceptableInput && addUPass.acceptableInput && userLevelCombo.displayText != "Cargo") {
+                                        if (addUName.acceptableInput && userLevelCombo.displayText != "Cargo") {
                                             let level = userLevelCombo.displayText ==  "Supervisão" ? 0 : userLevelCombo.displayText ==  "Financeiro" ? 1 : 2
 
-                                            user_model.newUser(addUName.text, addUPass.text, Number(level))
+                                            user_model.newUser(addUName.text, Number(level))
 
-                                            newUserDialog.close()
+                                            newUserDialog.createdUser = addUName.text
+
+                                            newTempPasswdWarn.open();
+
+                                            //newUserDialog.close()
 
                                             root.userAction()
+                                        } else {
+                                            if (!addUName.acceptableInput) {
+                                                addUNameContainer.border.width = 3;
+                                                addUNameContainer.border.color = Parameters.lowCashRed;
+                                                addUName.placeholderTextColor = Parameters.lowCashRed;
+                                            }
+                                            if (userLevelCombo.displayText == "Cargo") {
+                                                comboText.color = Parameters.lowCashRed;
+                                                comboBg.border.color = Parameters.lowCashRed;
+                                                comboBg.border.width = 3;
+                                            }
                                         }
                                     }
  
@@ -3002,6 +3761,193 @@ Window {
                                     HoverHandler {
                                         enabled: parent.visible
                                         cursorShape: Qt.PointingHandCursor
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    id: newTempPasswdWarn
+                    anchors.fill: parent
+                    color: "transparent"
+                    visible: false
+                    opacity: 0
+                    scale: 0.85
+
+                    Behavior on scale {
+                        NumberAnimation {
+                            duration: 200
+                        }
+                    }
+
+                    Behavior on opacity {
+                        NumberAnimation {
+                            duration: 170
+                        }
+                    }
+
+                    function open() {
+                        newTempPasswdWarn.visible = true
+                        Qt.callLater(() => {
+                            newTempPasswdWarn.opacity = 1.0
+                            newTempPasswdWarn.scale = 1.0
+                        })
+                    }
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: root.width * 0.5 + 35
+                        height: tempMasterColumn.implicitHeight + 30
+                        radius: 30
+                        color: Parameters.pressedButtonBg
+
+                        ColumnLayout {
+                            id: tempMasterColumn
+                            anchors.centerIn: parent
+                            width: root.width * 0.5
+                            spacing: root.height * 0.006
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 55
+                                color: Parameters.mainHighlightBg
+                                topLeftRadius: 15
+                                topRightRadius: 15
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: "Senha temporária do novo usuário"
+                                    color: Parameters.mainBgColor
+                                    font.family: Parameters.defaultFont
+                                    font.pointSize: 18
+                                    fontSizeMode: Text.Fit
+                                    minimumPixelSize: 10
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.leftMargin: root.width * 0.1
+                                Layout.rightMargin: root.width * 0.1
+                                Layout.preferredHeight: warnColumn.implicitHeight + root.height * 0.04
+                                color: Parameters.shadeBgColor
+                                border.width: 2
+                                border.color: Parameters.lowCashRed
+                                radius: 15
+
+                                ColumnLayout {
+                                    id: warnColumn
+                                    anchors.centerIn: parent
+                                    implicitWidth: parent.width - root.width * 0.05
+
+                                    Text {
+                                        id: showTempPasswdWarning
+                                        Layout.alignment: Qt.AlignHCenter
+                                        font.family: Parameters.defaultFont
+                                        font.pixelSize: 18
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 10
+                                        color: "#000000"
+                                        text: "Essa é a senha temporária desse usuário: "
+                                        wrapMode: Text.Wrap
+                                        Layout.preferredWidth: parent.implicitWidth
+                                    }
+
+                                    Text {
+                                        id: showTempPasswd1
+                                        Layout.alignment: Qt.AlignHCenter
+                                        font.family: Parameters.defaultFont
+                                        font.pixelSize: 18
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 10
+                                        color: '#500d0d'
+                                        text: user_model.getTempPassForUser(newUserDialog.createdUser)
+                                        wrapMode: Text.Wrap
+                                        Layout.preferredWidth: parent.implicitWidth
+                                    }
+
+                                    Text {
+                                        id: showTempPasswd2
+                                        Layout.alignment: Qt.AlignHCenter
+                                        font.family: Parameters.defaultFont
+                                        font.pixelSize: 18
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 10
+                                        color: "#000000"
+                                        text: "Essa senha só será usada para o primeiro login, e será trocada após sua conclusão."
+                                        wrapMode: Text.Wrap
+                                        Layout.preferredWidth: parent.implicitWidth
+                                    }
+
+                                    Text {
+                                        id: showTempPasswd3
+                                        Layout.alignment: Qt.AlignHCenter
+                                        font.family: Parameters.defaultFont
+                                        font.pixelSize: 18
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 10
+                                        color: "#000000"
+                                        text: "Anote-a, pois não será possível fazer o login sem ela, e ela somente será mostrada aqui agora."
+                                        wrapMode: Text.Wrap
+                                        Layout.preferredWidth: parent.implicitWidth
+                                    }
+                                }
+                            }
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 40
+                                color: Parameters.highlightFg
+                                bottomRightRadius: 15
+                                bottomLeftRadius: 15
+
+                                RowLayout {
+                                    anchors {
+                                        top: parent.top
+                                        bottom: parent.bottom
+                                        right: parent.right
+                                        topMargin: 2
+                                        bottomMargin: 2
+                                        rightMargin: 6
+                                    }
+                                    layoutDirection: Qt.RightToLeft
+                                    spacing: 6
+                                    
+                                    Button {
+                                        id: confirmSeenPasswdWarn
+                                        Layout.alignment: Qt.AlignVCenter
+                                        Layout.fillWidth: false
+                                        text: "OK"
+                                        implicitWidth: 74
+                                        implicitHeight: 34
+    
+                                        onClicked: newUserDialog.close();
+    
+                                        contentItem: Text {
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                            font.family: Parameters.defaultFont
+                                            font.pointSize: 12
+                                            text: addUSubmit.text
+                                            color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                        }
+                                        
+                                        background: Rectangle {
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            implicitWidth: 74
+                                            implicitHeight: 34
+                                            radius: searchContainer.radius
+                                            color: confirmSeenPasswdWarn.down ? Parameters.pressedButtonBg : confirmSeenPasswdWarn.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
+                                            border.width: 2
+                                            border.color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                        }
+    
+                                        HoverHandler {
+                                            enabled: parent.visible
+                                            cursorShape: Qt.PointingHandCursor
+                                        }
                                     }
                                 }
                             }

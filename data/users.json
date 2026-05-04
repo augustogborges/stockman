@@ -1,14 +1,98 @@
 [
     {
         "username": "in",
-        "passSalt": "$2b$12$kY5vTA6rrb5r7nwXcU2j4u",
-        "hashPasswd": "$2b$12$kY5vTA6rrb5r7nwXcU2j4u50twwJ.yHe0iP1ZYUd7K7AbDQM1FcH6",
-        "level": 0
+        "passSalt": "$2b$12$jjqEx1sfysZyL99E2viyHu",
+        "hashPasswd": "$2b$12$jjqEx1sfysZyL99E2viyHuwO1Jrj7SeP0SGVLSTjckl5Ke/lJCpNq",
+        "level": 0,
+        "isTempPasswd": "false",
+        "tempPasswd": ""
     },
     {
-        "username": "alexandre",
-        "passSalt": "$2b$12$63bS8/XGRazn3MnyEJ9zpu",
-        "hashPasswd": "$2b$12$63bS8/XGRazn3MnyEJ9zpu/R4f.GkHPYZvYcIpzntHB1ZBKq2Bf4K",
-        "level": 0
+        "username": "in2",
+        "passSalt": "$2b$12$VxLjq5K4A5GN8AQZFno78.",
+        "hashPasswd": "$2b$12$VxLjq5K4A5GN8AQZFno78.k8XObFTdnQZOGQiozqCBWoZZrIMfY4S",
+        "level": 1,
+        "isTempPasswd": "false",
+        "tempPasswd": ""
+    },
+    {
+        "username": "in3",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDG==="
+    },
+    {
+        "username": "in4",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDI==="
+    },
+    {
+        "username": "in5",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDK==="
+    },
+    {
+        "username": "in6",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDM==="
+    },
+    {
+        "username": "in7",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDO==="
+    },
+    {
+        "username": "in8",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDQ==="
+    },
+    {
+        "username": "in9",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDS==="
+    },
+    {
+        "username": "in10",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDCMA="
+    },
+    {
+        "username": "in11",
+        "passSalt": "",
+        "hashPasswd": "",
+        "level": 2,
+        "isTempPasswd": "true",
+        "tempPasswd": "NFXDCMI="
+    },
+    {
+        "username": "in12",
+        "passSalt": "$2b$12$qLhGWUR1rMm6u8L.CgtrvO",
+        "hashPasswd": "$2b$12$qLhGWUR1rMm6u8L.CgtrvO2NV8OJVbIA8cFB8buc7952KLC9oqvQm",
+        "level": 2,
+        "isTempPasswd": "false",
+        "tempPasswd": ""
     }
 ]

@@ -44,13 +44,10 @@ class StockModel(QAbstractListModel):
         proddata = []
         database = os.path.join(".", "data", "db.json")
         dados = []
-        num = -1
         with open(database, "r", encoding="utf-8") as arquivo:
             dados = json.load(arquivo)
         for item in dados:
-            num += 1
             proddata.append(self.StockItem(item['name'], item['quantity'], item['buyPrice'], item['sellPrice']))
-            print(item['name'], item['quantity'], item['buyPrice'], item['sellPrice'])
         return proddata
 
     def rowCount(self, parent=QModelIndex()):
@@ -179,18 +176,18 @@ class StockModel(QAbstractListModel):
 
         return {"name": prodsSorted[row].name, "profit": ((float(prodsSorted[row].sellPrice) - float(prodsSorted[row].buyPrice)) * int(prodsSorted[row].quantity)), "percentage": round(((float(prodsSorted[row].sellPrice) - float(prodsSorted[row].buyPrice)) * int(prodsSorted[row].quantity) * 100 / totalStockProfit))}
 
-    @Slot(result='int')
-    def getLowQuantityTotal(self):
+    @Slot(int, result='int')
+    def getLowQuantityTotal(self, lowThreshold: int):
         allprods = self.m_products
         totalAmount = 0
         for item in allprods:
-            if (int(item.quantity) <= 10):
+            if (int(item.quantity) <= lowThreshold):
                 totalAmount += 1
         
         return totalAmount
 
-    @Slot(int, result='QVariantMap')
-    def getSortedByStockQuantity(self, row:int):
+    @Slot(int, int, result='QVariantMap')
+    def getSortedByStockQuantity(self, row:int, lowThreshold: int):
         allprods = self.m_products
         prodsSorted = sorted(allprods, key=lambda item: int(item.quantity), reverse=True)
         if (row > len(allprods) - 1):
@@ -200,7 +197,19 @@ class StockModel(QAbstractListModel):
         for item in prodsSorted:
             totalStockAmount += int(item.quantity)
 
-        return {"name": prodsSorted[row].name, "amount": int(prodsSorted[row].quantity), "percentage": round(int(prodsSorted[row].quantity) * 100 / totalStockAmount), "needsReposition": bool(int(prodsSorted[row].quantity <= 10))}
+        return {"name": prodsSorted[row].name, "amount": int(prodsSorted[row].quantity), "percentage": round(int(prodsSorted[row].quantity) * 100 / totalStockAmount), "needsReposition": bool(int(prodsSorted[row].quantity <= lowThreshold))}
+
+    @Slot(int, int, result='QVariantMap')
+    def getLowQuantityItems(self, row:int, lowThreshold: int):
+        allprods = self.m_products
+        
+        prodsSorted = sorted(allprods, key=lambda item: int(item.quantity))
+        if (row > len(allprods) - 1):
+            return {"name": "null", "amount": "null", "percentage": "null"}
+        
+        prodsFiltered = list(filter(lambda item: item.quantity <= lowThreshold, prodsSorted))
+
+        return {"name": prodsFiltered[row].name, "amount": int(prodsFiltered[row].quantity)}
 
     @Slot(str, int, float, float)
     def append(self, name: str, quantity: int, buyPrice: float, sellPrice: float):
