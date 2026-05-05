@@ -2,6 +2,10 @@ from dataclasses import dataclass
 from enum import IntEnum
 from collections import defaultdict
 
+import sys
+sys.path.append(r'C:\Users\alexandregalvao\AppData\Roaming\msys2\mingw64\include')
+sys.path.append(r'C:\Users\alexandregalvao\AppData\Roaming\msys2\mingw64\lib')
+
 import os
 import json
 import re
@@ -9,6 +13,7 @@ import bcrypt
 import secrets
 import base64
 import random
+import operator
 
 from PySide6.QtCore import (QAbstractListModel, QEnum, Qt, QModelIndex, Slot, QByteArray)
 from PySide6.QtQml import QmlElement
@@ -22,18 +27,19 @@ def checkHash(jsonPass: str, plainPass: str):
     passwd = jsonPass.replace('"', "'").encode('utf-8')
     return bcrypt.checkpw(plainPass.encode('utf-8'), passwd)
 
-accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a"})
+accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a", "ç": "c"})
 
 def usernameCreator(displayName: str):
     symbols = ["!", "@", "#", "&", "*", "-", "_"]
-    username = re.sub(r"\W", "_", displayName.lower().translate(accentTranslateTable)) + symbols[random.randint(0,6)] + str(random.randint(100,999))
+    username = re.sub(r'\W', "_", displayName.lower().translate(accentTranslateTable)) + symbols[random.randint(0,6)] + str(random.randint(100,999))
     return username
 
 QML_IMPORT_NAME = "Authenticator"
 QML_IMPORT_MAJOR_VERSION = 1
 
 class StockUser(object):
-    def __init__(self, username, level):
+    def __init__(self, displayName, username, level):
+        self.displayName = displayName
         self.username = username
         self.level = level
 
@@ -42,11 +48,13 @@ class UserModel(QAbstractListModel):
 
     @QEnum
     class UserRole(IntEnum):
-        UsernameRole = Qt.ItemDataRole.DisplayRole
-        LevelRole = Qt.ItemDataRole.UserRole
+        DisplayNameRole = Qt.ItemDataRole.DisplayRole
+        UsernameRole = Qt.ItemDataRole.UserRole
+        LevelRole = Qt.ItemDataRole.UserRole + 1
 
     @dataclass
     class StockUser:
+        displayName: str
         username: str
         level: int
 
@@ -63,7 +71,7 @@ class UserModel(QAbstractListModel):
             currData = json.load(userFile)
         for item in currData:
             num += 1
-            fullData.append(self.StockUser(item['username'], item['level']))
+            fullData.append(self.StockUser(item['displayName'], item['username'], item['level']))
         return fullData
 
     def rowCount(self, parent=QModelIndex()):
@@ -73,6 +81,8 @@ class UserModel(QAbstractListModel):
         row = index.row()
         if row < self.rowCount():
             indUser = self.m_users[row]
+            if role == UserModel.UserRole.DisplayNameRole:
+                return indUser.displayName
             if role == UserModel.UserRole.NameRole:
                 return indUser.username
             if role == UserModel.UserRole.LevelRole:
@@ -81,56 +91,92 @@ class UserModel(QAbstractListModel):
 
     def roleNames(self):
         roles = super().roleNames()
+        roles[UserModel.UserRole.DisplayNameRole] = QByteArray(b"displayName")
         roles[UserModel.UserRole.UsernameRole] = QByteArray(b"username")
         roles[UserModel.UserRole.LevelRole] = QByteArray(b"level")
         return roles
 
-    @Slot(str, result=int)
-    def getEffectiveCount(self, search: str):
+    @Slot(str, str, result=int)
+    def getEffectiveCount(self, search: str, level: str):
         users = self.m_users
         matches = 0
-        fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
+        fSearch = re.sub(r'\W', "_", search.lower().translate(accentTranslateTable))
+        levelnum = -1
 
-        if (search == ""):
+        if (level == "Estoque"):
+            levelnum = 2
+        elif (level == "Financeiro"):
+            levelnum = 1
+        elif (level == "Supervisão"):
+            levelnum = 0
+        else:
+            levelnum = -1
+
+        if (search == "" and (levelnum == -1 or level == "Cargo" or level == "")):
             return len(users)
         else:
             for item in users:
-                fUserName = re.sub(r"\W", "_", item.username.lower().translate(accentTranslateTable))
-                if fSearch in fUserName:
-                    matches += 1
+                if (level == "Cargo" or levelnum == -1 or level == ""):
+                    if (search == ""):
+                        return len(users)
+                    fUserName = re.sub(r'\W', "_", item.username.lower().translate(accentTranslateTable))
+                    if fSearch in fUserName:
+                        matches += 1
+                elif (search == "" and (levelnum != -1 or level != "Cargo")):
+                    if (int(item.level) == levelnum):
+                        matches += 1
+                else:
+                    fUserName = re.sub(r'\W', "_", item.username.lower().translate(accentTranslateTable))
+                    if (fSearch in fUserName and int(item.level) == levelnum):
+                        matches += 1
+
             return matches
        
     @Slot(str, int, result='QVariantMap')
     def findUsers(self, search: str, index: int):
-        users = self.m_users
+        users = sorted(self.m_users, key=lambda item: item.username)
         matches = 0
-        fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
+        fSearch = re.sub(r'\W', "_", search.lower().translate(accentTranslateTable))
 
         if (search == ""):
             return {"displayName": users[index].displayName, "username": users[index].username}
         else:
-            for item in users:
-                fDisplayName = re.sub(r"\W", "_", item.displayName.lower().translate(accentTranslateTable))
+            filteredUsers = list(filter(lambda item: fSearch in item, users))
+            for item in filteredUsers:
+                fDisplayName = re.sub(r'\W', "_", item.displayName.lower().translate(accentTranslateTable))
                 if (fSearch in fDisplayName):
-                    return {"displayName": users[index].displayName, "username": users[index].username}
-       
-
-    @Slot(int, str, result='QVariantMap')
-    def get(self, row: int, search: str):
+                    return {"displayName": filteredUsers[index].displayName, "username": filteredUsers[index].username}
+               
+    @Slot(int, str, str, result='QVariantMap')
+    def get(self, index: int, search: str, level:str):
         allusers = self.m_users
-        try:
-            indUser = self.m_users[row]
-        except:
-            return {"username": "fail"}
-        fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
+        users = sorted(allusers, key=lambda item: item.username)
+        matches = 0
+        fSearch = re.sub(r'\W', "_", search.lower().translate(accentTranslateTable))
+        levelnum = -1
 
-        if (search == ""):
-            return {"username": indUser.username, "level": indUser.level}
+        if (level == "Estoque"):
+            levelnum = 2
+        elif (level == "Financeiro"):
+            levelnum = 1
+        elif (level == "Supervisão"):
+            levelnum = 0
         else:
-            for item in allusers:
-                fUserName = re.sub(r"\W", "_", item.username.lower().translate(accentTranslateTable))
-                if (fSearch in fUserName):
-                    return {"username": indUser.username, "level": indUser.level}
+            levelnum = -1
+
+        if (levelnum != -1 and search == ""):
+            filteredUsers = list(filter(lambda item: item.level == levelnum, users))
+        elif (search != "" and levelnum == -1):
+            filteredUsers = list(filter(lambda item: fSearch in item.username, users))
+        else: 
+            tempArray = list(filter(lambda item: fSearch in item.username, users))
+            filteredUsers = list(filter(lambda item: item.level == levelnum, tempArray))
+
+        if (search == "" and (levelnum == -1 or level == "Cargo")):
+            return {"displayName": users[index].displayName, "username": users[index].username, "level": users[index].level}
+        else:
+            for item in filteredUsers:
+                return {"displayName": filteredUsers[index].displayName, "username": filteredUsers[index].username, "level": filteredUsers[index].level} 
 
     @Slot(str, result=int)
     def getUserLevel(self, username: str):
@@ -196,7 +242,7 @@ class UserModel(QAbstractListModel):
 
         username = usernameCreator(displayName)
 
-        passgen = username + " " + str(random.randint(1000000,9999999))
+        passgen = username + " " + str(random.randint(1000,9999))
         passgenstrfull = base64.b32encode(passgen.encode('utf-8')).decode('utf-8').replace("'", '"')
         randnum = random.randint(0, len(passgenstrfull) - 13)
         passgenstr = passgenstrfull[randnum:(randnum + 12)]
@@ -205,7 +251,7 @@ class UserModel(QAbstractListModel):
         return {"displayName": displayName, "username": username, "hashedPasswd": passgenhash, "plainPasswd": passgenstr}
    
         #remember to use javascript << delete $object$.plainPasswd >> in qml after using this
-        ''' assign this entire map to an object in qml (to only use the function once), then, grab the plainPasswd property to show the password in plain in the step after creating the user, then, call the appendNewUser python func with this $object$ displayname, username, hashedPasswd and the level inputfield text'''
+        ''' assing this entire map to an object in qml (to only use the function once), then, grab the plainPasswd property to show the password in plain in the step after creating the user, then, call the appendNewUser python func with this $object$ displayname, username, hashedPasswd and the level inputfield text'''
 
     @Slot(str, str, str, int)
     def appendNewUser(self, displayName: str, username: str, hashedPasswd: str, level: int):
@@ -271,7 +317,7 @@ class UserModel(QAbstractListModel):
             usersData = json.load(userFile)
 
         for item in usersData:
-            if (loginUsername in item["username"]):
+            if (loginUsername == item["username"]):
                 matchvar = True
 
                 if (item["isTempPasswd"] == "true"):

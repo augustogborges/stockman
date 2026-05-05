@@ -24,7 +24,9 @@ with open("dB.json", "w", encoding="utf-8") as itens:
 print("Dados salvos com sucesso!")
 '''
 
-username = "alex".encode('utf-8')
+'''username = "alex".encode('utf-8')
 enc = base64.b32encode(username).decode('utf-8').replace("'", '"')
 dec = base64.b32decode(enc.replace('"', "'").encode('utf-8')).decode('utf-8')
-print(dec)
+print(dec)'''
+
+print("abc" in "a")

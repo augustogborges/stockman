@@ -1,6 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Fusion
 import QtQuick.Effects
 import QtQuick.Layouts
 import QtQuick.Window
@@ -13,17 +13,20 @@ import Authenticator
 Window {
     id: root
     visible: true;
-    visibility: Window.Maximized
+    visibility: Window.Maximized;
     title: qsTr("Stockman");
-    color: Parameters.mainBgColor
-    property string search: ""
-    property string userSearch: ""
-    property int productsCount: stock_model.rowCount()
-    property int usersCount: user_model.rowCount()
-    property var sModel: stock_model
-    property bool noExistingUsers: user_model.get(0,"").username == "fail"
-    property bool noActiveUsers: true //disable login for ui testing
+    color: Parameters.mainBgColor;
+    property string search: "";
+    property string userSearch: "";
+    property string userFilter: userLevelSearcher.displayText;
+    property int productsCount: stock_model.rowCount();
+    property int usersCount: user_model.rowCount();
+    property var sModel: stock_model;
+    property var uModel: user_model;
+    property bool noExistingUsers: user_model.getEffectiveCount("", 0) == 0;
+    property bool noActiveUsers: true;
     property var loggedUser: [];
+    signal itemAction();
     signal userAction();
     signal userLogin();
     property int lowItemThreshold: 10;
@@ -59,12 +62,26 @@ Window {
         }
 
         function onUserSearchChanged() {
-            usersList.model = user_model.getEffectiveCount(root.userSearch)
+            usersList.model = 0
+            Qt.callLater(() => {
+                usersList.model = user_model.getEffectiveCount(root.userSearch, root.userFilter)
+            })
+        }
+
+        function onUserFilterChanged() {
+            usersList.model = 0
+            Qt.callLater(() => {
+                usersList.model = user_model.getEffectiveCount(root.userSearch, root.userFilter)
+            })
         }
 
         function onUserAction() {
             user_model.reloadDB()
             root.usersCount = user_model.rowCount()
+        }
+
+        function onItemAction() {
+            root.reloadUI()
         }
     }
 
@@ -88,27 +105,6 @@ Window {
         stockFillChart.regenGraph()
         smallestIndProfits.updateLowProfits()
         biggestIndProfits.updateHighProfits()
-    }
-
-    Connections {
-        target: newItemDialog
-        function onNewAdded() {
-            reloadUI()
-        }
-    }
-
-    Connections {
-        target: rmItemDialog
-        function onItemRemoved() {
-            reloadUI()
-        }
-    }
-
-    Connections {
-        target: editItemDialog
-        function onCompletedEdit() {
-            reloadUI()
-        }
     }
 
     StockModel {
@@ -165,8 +161,7 @@ Window {
                     Layout.preferredHeight: 96
                     Layout.minimumHeight: 96
                     Layout.maximumHeight: 96
-                    height: 96
-                    width: 160
+                    Layout.preferredWidth: root.width / 12
                     radius: 32
                     gradient: Gradient {
                         orientation: Gradient.Horizontal
@@ -265,7 +260,7 @@ Window {
                             Layout.alignment: Qt.AlignHCenter
                             Layout.fillWidth: false
                             Layout.fillHeight: false
-                            width: 300
+                            Layout.preferredWidth: root.width / 6.4
                             height: 60
                             color: "transparent"
 
@@ -285,6 +280,7 @@ Window {
                                 anchors.top: userLabel.bottom
                                 anchors.topMargin: 4
                                 anchors.left: parent.left
+                                anchors.right: parent.right
 
                                 background: Rectangle {
                                     width: userContainer.width
@@ -330,7 +326,7 @@ Window {
                             Layout.alignment: Qt.AlignHCenter
                             Layout.fillWidth: false
                             Layout.fillHeight: false
-                            width: 300
+                            Layout.preferredWidth: root.width / 6.4
                             height: 60
                             color: "transparent"
 
@@ -452,8 +448,8 @@ Window {
                             id: loginSubmit
                             Layout.alignment: Qt.AlignHCenter
                             Layout.fillHeight: false
-                            width: 200
-                            height: 40
+                            Layout.preferredWidth: root.width / 9.6
+                            Layout.preferredHeight: 40
                             radius: 15
 
                             property var bgGradient: Gradient {
@@ -501,23 +497,23 @@ Window {
                                 onClicked: {
                                     if (usernameInput.text != "" && passwdInput.text != "") {
                                         if (root.noExistingUsers) {
-                                            user_model.setFirstUser(usernameInput.text, passwdInput.text, 0);
+                                            root.uModel.setFirstUser(usernameInput.text, passwdInput.text, 0);
                                             root.loggedUser[0] = usernameInput.text;
                                             root.loggedUser[1] = 0;
                                             root.noExistingUsers = false;
                                             root.noActiveUsers = false
                                         } else {
-                                            if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha temp correta") {
+                                            if (root.uModel.checkLogin(usernameInput.text, passwdInput.text) == "senha temp correta") {
                                                 tempPassDialog.targetUsername = usernameInput.text;
-                                                tempPassDialog.targetLevel = user_model.getUserLevel(usernameInput.text);
+                                                tempPassDialog.targetLevel = root.uModel.getUserLevel(usernameInput.text);
                                                 tempPassDialog.open();
                                             }
-                                            else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha correta") {
+                                            else if (root.uModel.checkLogin(usernameInput.text, passwdInput.text) == "senha correta") {
                                                 root.loggedUser[0] = usernameInput.text;
-                                                root.loggedUser[1] = user_model.getUserLevel(usernameInput.text);
+                                                root.loggedUser[1] = root.uModel.getUserLevel(usernameInput.text);
                                                 root.userLogin();
                                                 root.noActiveUsers = false;
-                                            } else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha incorreta") {
+                                            } else if (root.uModel.checkLogin(usernameInput.text, passwdInput.text) == "senha incorreta") {
                                                 passwdLabel.color = '#e03b3b'
                                                 passwdInput.color = "#dc2332"
                                             } else {
@@ -759,7 +755,7 @@ Window {
                                 onClicked: {
                                     if (tempPassTF1.acceptableInput && tempPassTF2.acceptableInput && (tempPassTF1.text == tempPassTF2.text)) {
 
-                                        user_model.newUserPasswd(tempPassDialog.targetUsername, tempPassTF1.text)
+                                        root.uModel.newUserPasswd(tempPassDialog.targetUsername, tempPassTF1.text)
 
                                         tempPassDialog.close()
                                         root.loggedUser[0] = tempPassDialog.targetUsername;
@@ -825,7 +821,7 @@ Window {
                     id: sidebarRect
                     Layout.fillHeight: true;
                     Layout.fillWidth: false;
-                    width: 180;
+                    width: root.width / 10.6;
                     topLeftRadius: 0;
                     bottomLeftRadius: 0;
                     topRightRadius: 3;
@@ -2192,8 +2188,10 @@ Window {
                                         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                                         border.width: 2
                                         border.color: Parameters.highlightFg
-                                        width: 540
-                                        height: 52
+                                        Layout.fillWidth: false
+                                        //Layout.preferredWidth: 540
+                                        Layout.preferredWidth: secondTab.width * 0.3
+                                        Layout.preferredHeight: 52
                                         color: "#101a72"
 
                                         Rectangle {
@@ -2201,8 +2199,8 @@ Window {
                                             anchors.centerIn: parent
                                             color: Parameters.shadeBgColor
                                             radius: 30
-                                            height: 32
-                                            width: 520
+                                            implicitHeight: 32
+                                            implicitWidth: 0.965 * parent.width
 
                                             RowLayout {
                                                 anchors.fill: parent
@@ -2261,6 +2259,7 @@ Window {
                                                     enabled: true
                                                     onClicked: {
                                                         root.search = ""
+                                                        searchField.clear()
                                                     }
 
                                                     Text {
@@ -2751,7 +2750,7 @@ Window {
                                                 font.family: Parameters.thinFont
                                                 font.styleName: "Bold"
                                                 font.pixelSize: (userRect2.width * 0.14 + userRect2.height * 0.14) / 2
-                                                text: "1" //todo
+                                                text: root.uModel.getEffectiveCount("", "Supervisão")
                                                 color: "#000000"
                                             }
                                         }
@@ -2808,7 +2807,7 @@ Window {
                                                 font.family: Parameters.thinFont
                                                 font.styleName: "Bold"
                                                 font.pixelSize: (userRect3.width * 0.14 + userRect3.height * 0.14) / 2
-                                                text: "1" //todo
+                                                text: root.uModel.getEffectiveCount("", "Estoque")
                                                 color: "#000000"
                                             }
                                         }
@@ -2865,7 +2864,7 @@ Window {
                                                 font.family: Parameters.thinFont
                                                 font.styleName: "Bold"
                                                 font.pixelSize: (userRect4.width * 0.14 + userRect4.height * 0.14) / 2
-                                                text: "1" //todo
+                                                text: root.uModel.getEffectiveCount("", "Financeiro")
                                                 color: "#000000"
                                             }
                                         }
@@ -2900,15 +2899,16 @@ Window {
                                             anchors.fill: parent
                                             anchors.topMargin: topTableRect.height * 0.1
                                             anchors.bottomMargin: topTableRect.height * 0.1
-                                            anchors.leftMargin: topTableRect.width * 0.025
-                                            anchors.rightMargin: topTableRect.width * 0.025
-                                            spacing: 0
+                                            anchors.leftMargin: topTableRect.width * 0.012
+                                            anchors.rightMargin: topTableRect.width * 0.012
+                                            spacing: topTableRect.width * 0.006
 
                                             Rectangle {
                                                 id: userSearchContainer
                                                 Layout.fillHeight: true
-                                                Layout.fillWidth: false
-                                                implicitWidth: topTableRect.width * 0.3                                     
+                                                Layout.fillWidth: true
+                                                Layout.horizontalStretchFactor: 2   
+                                                Layout.preferredWidth: 2                                
                                                 color: "#ffffff"
                                                 radius: Parameters.defaultRadius
 
@@ -2958,65 +2958,174 @@ Window {
                                                 }
                                             }
 
-                                            Item {
-                                                Layout.fillWidth: false
-                                                Layout.maximumWidth: (topTableRect.width * 0.04)
-                                            }
-
                                             Rectangle {
                                                 id: userJobFilterContainer
                                                 Layout.fillHeight: true
-                                                Layout.fillWidth: false
-                                                implicitWidth: topTableRect.width * 0.2
+                                                Layout.fillWidth: true
+                                                Layout.horizontalStretchFactor: 1  
+                                                Layout.preferredWidth: 1
+                                                //implicitWidth: topTableRect.width * 0.2
                                                 color: "#ffffff"
                                                 radius: Parameters.defaultRadius
 
-                                                RowLayout {
+                                                ComboBox {
+                                                    id: userLevelSearcher
+                                                    model: ["Estoque", "Financeiro", "Supervisão"]
                                                     anchors.fill: parent
-                                                    anchors.topMargin: topTableRect.height * 0.1
-                                                    anchors.bottomMargin: topTableRect.height * 0.1
-                                                    anchors.leftMargin: topTableRect.width * 0.025
-                                                    anchors.rightMargin: topTableRect.width * 0.025
+                                                    anchors.margins: 1
+                                                    displayText: "Cargo"
+                                                    onActivated: {
+                                                        displayText = model[index]
+                                                    }
+                                                    property int indexNum: -1
 
-                                                    Text {
-                                                        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-                                                        font.family: Parameters.defaultFont
-                                                        font.pixelSize: userSearchContainer.height * 0.4
-                                                        text: "Cargo"
-                                                        color: "#000000"
+                                                    delegate: ItemDelegate {
+                                                        id: userSearcherDelegate
+
+                                                        required property var model
+                                                        required property int index
+
+                                                        onIndexChanged: userLevelSearcher.indexNum = index
+
+                                                        width: userLevelSearcher.width - 2
+
+                                                        background: Rectangle {
+                                                            anchors.top: userSearcherDelegate.index == 0 ? parent.top : undefined
+                                                            anchors.topMargin: userSearcherDelegate.index == 0 ? 1 : undefined
+                                                            anchors.left: parent.left
+                                                            anchors.right: parent.right
+                                                            anchors.leftMargin: 3
+                                                            anchors.rightMargin: 1
+                                                            width: userSearcherDelegate.width
+                                                            height: (userSearcherDelegate.index == 0 || userSearcherDelegate.index == 2) ? userSearcherDelegate.height : userSearcherDelegate.height - 2
+                                                            color: userSearcherDelegate.index === userLevelSearcher.currentIndex ? Parameters.hoveredButtonBg : userSearcherDelegHoverer.hovered ? Qt.lighter(Parameters.dimmedBgColor, 1.2) : Parameters.mainBgColor
+                                                            topLeftRadius: userSearcherDelegate.index == 0 ? Parameters.defaultRadius : 0
+                                                            topRightRadius: userSearcherDelegate.index == 0 ? Parameters.defaultRadius : 0
+                                                            bottomLeftRadius: userSearcherDelegate.index == 2 ? Parameters.defaultRadius : 0
+                                                            bottomRightRadius: userSearcherDelegate.index == 2 ? Parameters.defaultRadius : 0
+
+                                                            HoverHandler {
+                                                                id: userSearcherDelegHoverer
+                                                                enabled: parent.visible
+                                                            }
+                                                        }
+
+                                                        contentItem: Text {
+                                                            text: userSearcherDelegate.model[userLevelSearcher.textRole]
+                                                            color: userSearcherDelegate.index === userLevelSearcher.currentIndex ? "#fafafa" : "#000000"
+                                                            font.family: Parameters.defaultFont
+                                                            font.pixelSize: userLevelSearcher.height * 0.42
+                                                            elide: Text.ElideRight
+                                                            verticalAlignment: Text.AlignVCenter
+                                                        }
                                                     }
 
-                                                    Text {
-                                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                                        font.family: Parameters.iconFont
-                                                        font.pixelSize: userSearchContainer.height * 0.4
-                                                        text: ""
-                                                        color: "#000000"
+                                                    indicator: Canvas {
+                                                        id: userSearcherCanvas
+                                                        x: userLevelSearcher.width - width - userLevelSearcher.rightPadding
+                                                        y: userLevelSearcher.topPadding + (userLevelSearcher.availableHeight - height) / 2
+                                                        width: 12
+                                                        height: 8
+                                                        contextType: "2d"
+
+                                                        Connections {
+                                                            target: userLevelSearcher
+                                                            function onPressedChanged() { userSearcherCanvas.requestPaint(); }
+                                                        }
+
+                                                        onPaint: {
+                                                            context.reset();
+                                                            context.moveTo(0, 0);
+                                                            context.lineTo(width, 0);
+                                                            context.lineTo(width / 2, height);
+                                                            context.closePath();
+                                                            context.fillStyle = "#000000"
+                                                            context.fill();
+                                                        }
+                                                    }
+
+                                                    contentItem: Text {
+                                                        id: uSearcherText
+                                                        leftPadding: 4
+                                                        rightPadding: userLevelSearcher.indicator.width + userLevelSearcher.spacing
+
+                                                        text: userLevelSearcher.displayText
+                                                        font.family: Parameters.defaultFont
+                                                        font.pixelSize: userLevelSearcher.height * 0.47
+                                                        color: userLevelSearcher.displayText == "Cargo" ? "#bbbbbb" : userLevelSearcher.popup.visible ? "#666666" : "#000000"
+                                                        verticalAlignment: Text.AlignVCenter
+                                                        elide: Text.ElideRight
+                                                    }
+
+                                                    background: Rectangle {
+                                                        id: uSearcherBg
+                                                        anchors.fill: parent
+                                                        anchors.margins: 1
+                                                        radius: Parameters.defaultRadius
+                                                        color: Parameters.shadeBgColor
+                                                        border.width: userLevelSearcher.visualFocus ? 1 : 0
+                                                        border.color: Qt.darker(Parameters.mainHighlightBg, 2.5)
+                                                    }
+
+                                                    popup: Popup {
+                                                        id: uSearcherPopup
+                                                        y: userLevelSearcher.height - 1
+                                                        width: userLevelSearcher.width
+                                                        height: Math.min(contentItem.implicitHeight, userLevelSearcher.Window.height - topMargin - bottomMargin) + 2
+                                                        padding: 0
+
+                                                        contentItem: ListView {
+                                                            clip: true
+                                                            implicitHeight: contentHeight
+                                                            model: userLevelSearcher.popup.visible ? userLevelSearcher.delegateModel : null
+                                                            currentIndex: userLevelSearcher.highlightedIndex
+                                                        }
+
+                                                        background: Rectangle {
+                                                            color: Parameters.pressedButtonBg
+                                                            radius: Parameters.defaultRadius
+                                                        }
+                                                    }
+
+                                                    MouseArea {
+                                                        anchors.fill: parent
+                                                        hoverEnabled: true
+                                                        cursorShape: Qt.PointingHandCursor
+                                                        onClicked: {
+                                                            if (uSearcherText.color == Parameters.lowCashRed) {
+                                                                uSearcherText.color = userLevelSearcher.displayText == "Cargo" ? "#bbbbbb" : userLevelSearcher.popup.visible ? "#666666" : "#000000";
+                                                            }
+                                                            uSearcherBg.border.width = userLevelSearcher.visualFocus ? 1 : 0;
+                                                            uSearcherBg.border.color = Qt.darker(Parameters.mainHighlightBg, 2.5);
+                                                            if (uSearcherPopup.visible) {
+                                                                uSearcherPopup.close();
+                                                            } else {
+                                                                uSearcherPopup.open();
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
 
-                                            Item {
+                                            /*Item {
                                                 Layout.fillWidth: false
                                                 Layout.preferredWidth: (topTableRect.width * 0.26)
-                                            }
+                                            }*/
 
                                             Rectangle {
                                                 Layout.fillHeight: true
-                                                Layout.fillWidth: false
-                                                implicitWidth: topTableRect.width * 0.15
+                                                Layout.fillWidth: true
+                                                Layout.horizontalStretchFactor: 1  
+                                                Layout.preferredWidth: 1
+                                                //implicitWidth: topTableRect.width * 0.15
                                                 color: "#ffffff"
                                                 radius: Parameters.defaultRadius
 
                                                 RowLayout {
-                                                    anchors.fill: parent
-                                                    anchors.topMargin: topTableRect.height * 0.1
-                                                    anchors.bottomMargin: topTableRect.height * 0.1
-                                                    anchors.leftMargin: topTableRect.width * 0.025
-                                                    anchors.rightMargin: topTableRect.width * 0.025
+                                                    anchors.centerIn: parent
 
                                                     Text {
-                                                        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                                                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                                                         font.family: Parameters.iconFont
                                                         font.pixelSize: userSearchContainer.height * 0.4
                                                         text: ""
@@ -3024,11 +3133,24 @@ Window {
                                                     }
 
                                                     Text {
-                                                        Layout.alignment: Qt.AlignVCenter
+                                                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                                                         font.family: Parameters.defaultFont
                                                         font.pixelSize: userSearchContainer.height * 0.4
                                                         text: "Limpar filtros"
                                                         color: "#000000"
+                                                    }
+                                                }
+
+                                                MouseArea {
+                                                    enabled: parent.visible
+                                                    anchors.fill: parent
+                                                    hoverEnabled: true
+                                                    cursorShape: Qt.PointingHandCursor
+                                                    onClicked: {
+                                                        root.userSearch = ""
+                                                        userLevelSearcher.displayText = "Cargo"
+                                                        root.userFilter = "Cargo"
+                                                        userSearchField.clear()
                                                     }
                                                 }
                                             }
@@ -3048,68 +3170,74 @@ Window {
 
                                         RowLayout {
                                             anchors.fill: parent
-                                            anchors.topMargin: topTableRect.height * 0.1
-                                            anchors.bottomMargin: topTableRect.height * 0.1
-                                            anchors.leftMargin: topTableRect.width * 0.025
-                                            anchors.rightMargin: topTableRect.width * 0.025
-                                            spacing: 0
+                                            uniformCellSizes: false
 
                                             Rectangle {
-                                                id: userNameDisplay
+                                                id: displayNameDisplay
                                                 Layout.fillHeight: true
-                                                Layout.fillWidth: false
-                                                implicitWidth: topTableRect.width * 0.3                                     
+                                                Layout.fillWidth: true                        
                                                 color: "transparent"
                                                 radius: Parameters.defaultRadius
 
                                                 Text {
                                                     anchors.centerIn: parent
-                                                    anchors.horizontalCenterOffset: -topTableRect.width * 0.02
                                                     font.family: Parameters.defaultFont
-                                                    font.pixelSize: userNameDisplay.height * 0.5
+                                                    font.pixelSize: userNameDisplay.height * 0.42
+                                                    fontSizeMode: Text.Fit
+                                                    minimumPixelSize: 9
+                                                    text: "Nome Completo"
+                                                    color: "#000000"
+                                                }
+                                            }
+
+                                            Rectangle {
+                                                id: userNameDisplay
+                                                Layout.fillHeight: true
+                                                Layout.fillWidth: true                              
+                                                color: "transparent"
+                                                radius: Parameters.defaultRadius
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    font.family: Parameters.defaultFont
+                                                    font.pixelSize: userNameDisplay.height * 0.42
+                                                    fontSizeMode: Text.Fit
+                                                    minimumPixelSize: 9
                                                     text: "Nome do Usuário"
                                                     color: "#000000"
                                                 }
                                             }
 
-                                            Item {
-                                                Layout.fillWidth: false
-                                                Layout.maximumWidth: (topTableRect.width * 0.04)
-                                            }
-
                                             Rectangle {
                                                 id: userJobDisplay
                                                 Layout.fillHeight: true
-                                                Layout.fillWidth: false
-                                                implicitWidth: topTableRect.width * 0.2
+                                                Layout.fillWidth: true
                                                 color: "transparent"
                                                 radius: Parameters.defaultRadius
 
                                                 Text {
                                                     anchors.centerIn: parent
                                                     font.family: Parameters.defaultFont
-                                                    font.pixelSize: userNameDisplay.height * 0.5
+                                                    font.pixelSize: userNameDisplay.height * 0.42
+                                                    fontSizeMode: Text.Fit
+                                                    minimumPixelSize: 9
                                                     text: "Cargo"
                                                     color: "#000000"
                                                 }
                                             }
 
-                                            Item {
-                                                Layout.fillWidth: false
-                                                Layout.preferredWidth: (topTableRect.width * 0.26)
-                                            }
-
                                             Rectangle {
                                                 Layout.fillHeight: true
-                                                Layout.fillWidth: false
-                                                implicitWidth: topTableRect.width * 0.15
+                                                Layout.fillWidth: true
                                                 color: "transparent"
                                                 radius: Parameters.defaultRadius
 
                                                 Text {
                                                     anchors.centerIn: parent
                                                     font.family: Parameters.defaultFont
-                                                    font.pixelSize: userNameDisplay.height * 0.5
+                                                    font.pixelSize: userNameDisplay.height * 0.42
+                                                    fontSizeMode: Text.Fit
+                                                    minimumPixelSize: 9
                                                     text: "Ações"
                                                     color: "#000000"
                                                 }
@@ -3146,7 +3274,7 @@ Window {
                                                 orientation: ListView.Vertical
                                                 boundsBehavior: ListView.StopAtBounds
 
-                                                model: root.usersCount
+                                                model: user_model.getEffectiveCount(root.userSearch, root.userFilter)
 
                                                 delegate: ItemDelegate {
                                                     id: userDelegate
@@ -3170,38 +3298,49 @@ Window {
                                                             anchors.fill: parent
 
                                                             RowLayout {
-                                                                spacing: 0
                                                                 uniformCellSizes: false
 
                                                                 Rectangle {
-                                                                    id: userNameDelegate
+                                                                    id: userDisplayNameDelegate
                                                                     Layout.fillHeight: true
-                                                                    Layout.fillWidth: false
-                                                                    implicitWidth: topTableRect.width * 0.3                                     
-                                                                    //color: "#ffffff"
+                                                                    Layout.fillWidth: true
                                                                     color: "transparent"
                                                                     radius: Parameters.defaultRadius
 
                                                                     Text {
                                                                         anchors.centerIn: parent
                                                                         font.family: Parameters.defaultFont
-                                                                        font.pixelSize: parent.height * 0.75
-                                                                        text: user_model.get(index, root.userSearch).username
+                                                                        font.pixelSize: parent.height * 0.6
+                                                                        fontSizeMode: Text.Fit
+                                                                        minimumPixelSize: 7
+                                                                        text: root.uModel.get(index, root.userSearch, root.userFilter).displayName
                                                                         color: "#000000"
                                                                     }
                                                                 }
 
-                                                                Item {
-                                                                    Layout.fillWidth: false
-                                                                    Layout.preferredWidth: (topTableRect.width * 0.04)
+                                                                Rectangle {
+                                                                    id: userNameDelegate
+                                                                    Layout.fillHeight: true
+                                                                    Layout.fillWidth: true
+                                                                    color: "transparent"
+                                                                    radius: Parameters.defaultRadius
+
+                                                                    Text {
+                                                                        anchors.centerIn: parent
+                                                                        font.family: Parameters.altFont
+                                                                        font.styleName: "Bold"
+                                                                        font.pixelSize: parent.height * 0.67
+                                                                        fontSizeMode: Text.Fit
+                                                                        minimumPixelSize: 7
+                                                                        text: root.uModel.get(index, root.userSearch, root.userFilter).username
+                                                                        color: "#000000"
+                                                                    }
                                                                 }
 
                                                                 Rectangle {
                                                                     id: userJobDelegate
                                                                     Layout.fillHeight: true
-                                                                    Layout.fillWidth: false
-                                                                    implicitWidth: topTableRect.width * 0.2
-                                                                    //color: "#ffffff"
+                                                                    Layout.fillWidth: true
                                                                     color: "transparent"
                                                                     radius: Parameters.defaultRadius
 
@@ -3216,9 +3355,9 @@ Window {
                                                                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                                                                             verticalAlignment: Text.AlignVCenter
                                                                             font.family: Parameters.iconFontBold
-                                                                            font.pixelSize: userJobDelegate.height * 0.65
+                                                                            font.pixelSize: userJobDelegate.height * 0.6
                                                                             text: {
-                                                                                const perms = user_model.get(index, root.userSearch).level
+                                                                                const perms = root.uModel.get(index, root.userSearch, root.userFilter).level
                                                                                 if (perms == 0) {
                                                                                     return ""
                                                                                 } else if (perms == 1) {
@@ -3235,9 +3374,11 @@ Window {
                                                                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                                                                             verticalAlignment: Text.AlignVCenter
                                                                             font.family: Parameters.defaultFont
-                                                                            font.pixelSize: userJobDelegate.height * 0.66
+                                                                            font.pixelSize: userJobDelegate.height * 0.6
+                                                                            fontSizeMode: Text.Fit
+                                                                            minimumPixelSize: 7
                                                                             text: {
-                                                                                const perms = user_model.get(index, root.userSearch).level
+                                                                                const perms = root.uModel.get(index, root.userSearch, root.userFilter).level
                                                                                 if (perms == 0) {
                                                                                     return "Supervisão"
                                                                                 } else if (perms == 1) {
@@ -3253,15 +3394,15 @@ Window {
                                                                     }
                                                                 }
 
-                                                                Item {
+                                                                /*Item {
                                                                     Layout.fillWidth: false
-                                                                    Layout.preferredWidth: (topTableRect.width * 0.275)
-                                                                }
+                                                                    Layout.preferredWidth: (topTableRect.width * 0.12)
+                                                                }*/
 
                                                                 Rectangle {
                                                                     Layout.fillHeight: true
-                                                                    Layout.fillWidth: false
-                                                                    implicitWidth: topTableRect.width * 0.15
+                                                                    Layout.fillWidth: true
+                                                                    //implicitWidth: topTableRect.width * 0.15
                                                                     color: "transparent"
                                                                     radius: 0
 
@@ -3480,7 +3621,7 @@ Window {
                                         font.family: Parameters.altFont
                                         font.styleName: "Bold"
                                         font.pixelSize: userLevelCombo.height * 0.47
-                                        placeholderText: "Nome do Usuário"
+                                        placeholderText: "Nome Completo do Usuário"
                                         placeholderTextColor: "#bbbbbb"
                                         validator: RegularExpressionValidator {
                                             regularExpression: /(.|\s)*\S(.|\s)*/
@@ -3644,8 +3785,9 @@ Window {
                                 font.pixelSize: parent.height * 0.45
                                 fontSizeMode: Text.Fit
                                 minimumPixelSize: 10
+                                wrapMode: Text.Wrap
                                 color: "#454545"
-                                text: "A senha será definida pelo usuário no primeiro login."
+                                text: "A senha inicial será definida a seguir. O nome de usuário será criado a partir do nome completo."
                             }
                         }
 
@@ -3680,13 +3822,16 @@ Window {
                                         if (addUName.acceptableInput && userLevelCombo.displayText != "Cargo") {
                                             let level = userLevelCombo.displayText ==  "Supervisão" ? 0 : userLevelCombo.displayText ==  "Financeiro" ? 1 : 2
 
-                                            newUserDialog.userData = user_model.genNewUser(addUName.text)
-                                            console.log(JSON.stringify(newUserDialog.userData))
-                                            //user_model.appendNewUser(addUName.text, Number(level))
+                                            newUserDialog.userData = root.uModel.genNewUser(addUName.text);
+                                            Qt.callLater(() => {
+                                                console.log(newUserDialog.userData.hashedPasswd);
+                                                root.uModel.appendNewUser(newUserDialog.userData.displayName, newUserDialog.userData.username, newUserDialog.userData.hashedPasswd, level);
+                                            })
+                                            
 
-                                            newUserDialog.createdUser = addUName.text
+                                            newUserDialog.createdUser = addUName.text;
 
-                                            //newTempPasswdWarn.open();
+                                            newTempPasswdWarn.open();
 
                                             //newUserDialog.close()
 
@@ -3846,6 +3991,32 @@ Window {
                                     implicitWidth: parent.width - root.width * 0.05
 
                                     Text {
+                                        id: showUsernameDisplay
+                                        Layout.alignment: Qt.AlignHCenter
+                                        font.family: Parameters.defaultFont
+                                        font.pixelSize: 18
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 10
+                                        color: "#000000"
+                                        text: "Essa é o username desse usuário, que deverá ser utilizado no login: "
+                                        wrapMode: Text.Wrap
+                                        Layout.preferredWidth: parent.implicitWidth
+                                    }
+
+                                    Text {
+                                        id: showUsername1
+                                        Layout.alignment: Qt.AlignHCenter
+                                        font.family: Parameters.defaultFont
+                                        font.pixelSize: 18
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 10
+                                        color: '#0a0b46'
+                                        text: newUserDialog.userData.username
+                                        wrapMode: Text.Wrap
+                                        Layout.preferredWidth: parent.implicitWidth
+                                    } 
+
+                                    Text {
                                         id: showTempPasswdWarning
                                         Layout.alignment: Qt.AlignHCenter
                                         font.family: Parameters.defaultFont
@@ -3866,7 +4037,7 @@ Window {
                                         fontSizeMode: Text.Fit
                                         minimumPixelSize: 10
                                         color: '#500d0d'
-                                        text: user_model.getTempPassForUser(newUserDialog.createdUser)
+                                        text: newUserDialog.userData.plainPasswd
                                         wrapMode: Text.Wrap
                                         Layout.preferredWidth: parent.implicitWidth
                                     }
@@ -3926,7 +4097,14 @@ Window {
                                         implicitWidth: 74
                                         implicitHeight: 34
     
-                                        onClicked: newUserDialog.close();
+                                        onClicked: {
+                                            newTempPasswdWarn.visible = false;
+                                            newUserDialog.close();
+                                            Qt.callLater(() => {
+                                                addUName.clear()
+                                                delete newUserDialog.userData.plainPasswd
+                                            })
+                                        }
     
                                         contentItem: Text {
                                             horizontalAlignment: Text.AlignHCenter
@@ -3964,8 +4142,6 @@ Window {
                 anchors.fill: parent
                 visible: false
                 opacity: 0
-
-                signal newAdded()
 
                 Shortcut {
                     enabled: newItemDialog.visible
@@ -4161,6 +4337,7 @@ Window {
                         }
 
                         Rectangle {
+                            id: fSellRect
                             Layout.horizontalStretchFactor: 2
                             Layout.preferredWidth: 1
                             Layout.fillWidth: true
@@ -4175,24 +4352,40 @@ Window {
                                 cursorShape: Qt.IBeamCursor
                                 onClicked: addFSell.forceActiveFocus()
 
-                                TextField {
-                                    id: addFSell
-                                    background: Rectangle {
-                                        color: "transparent"
-                                    }
+                                RowLayout {
                                     anchors.fill: parent
-                                    anchors.leftMargin: 4
-                                    anchors.rightMargin: 4
-                                    anchors.topMargin: 2
-                                    anchors.bottomMargin: 2
-                                    color: "#000000"
-                                    font.family: Parameters.defaultFont
-                                    font.pointSize: 15
-                                    placeholderText: "Valor (Venda)"
-                                    validator: RegularExpressionValidator {
-                                        regularExpression: /(.|\s)*\S(.|\s)*/
+                                    spacing: 4
+
+                                    Text {
+                                        Layout.alignment: Qt.AlignVCenter
+                                        Layout.leftMargin: 3
+                                        text: "R$"
+                                        font.family: Parameters.defaultFont
+                                        font.pixelSize: fSellRect.height * 0.6
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 8
+                                        color: "#000000"
                                     }
-                                    focus: true
+
+                                    TextField {
+                                        id: addFSell
+                                        Layout.alignment: Qt.AlignVCenter
+                                        background: Rectangle {
+                                            color: "transparent"
+                                        }
+                                        Layout.fillWidth: true
+                                        Layout.rightMargin: 4
+                                        Layout.topMargin: 2
+                                        Layout.bottomMargin: 2
+                                        color: "#000000"
+                                        font.family: Parameters.defaultFont
+                                        font.pointSize: fSellRect.height * 0.3
+                                        placeholderText: "Valor (Venda)"
+                                        validator: RegularExpressionValidator {
+                                            regularExpression: /([\d])+([,.])*([\d]*)+/
+                                        }
+                                        focus: true
+                                    }
                                 }
                             }
                         }
@@ -4228,11 +4421,11 @@ Window {
                                     onClicked: {
                                         if (addFName.acceptableInput && addFQuant.acceptableInput && addFCost.acceptableInput && addFSell.acceptableInput) {
 
-                                            stock_model.append(addFName.text, Number(addFQuant.text), Number(addFCost.text), Number(addFSell.text))
+                                            stock_model.append(addFName.text, Number(addFQuant.text), parseFloat(addFCost.text), parseFloat(addFSell.text.replace(",", ".")))
 
                                             newItemDialog.close()
 
-                                            newItemDialog.newAdded()
+                                            root.itemAction()
                                         }
                                     }
  
@@ -4309,8 +4502,6 @@ Window {
                 visible: false
                 opacity: 0
                 property int callRow
-
-                signal completedEdit()
 
                 Shortcut {
                     enabled: editItemDialog.visible
@@ -4614,8 +4805,6 @@ Window {
                                             stock_model.edit(editItemDialog.callRow, Number(editFQuant.displayText), Number(editFCost.displayText), Number(editFSell.displayText))
 
                                             editItemDialog.close()
-
-                                            editItemDialog.completedEdit()
                                         }
                                     }
  
@@ -4692,8 +4881,6 @@ Window {
                 visible: false
                 opacity: 0
                 property int callRm
-        
-                signal itemRemoved()
         
                 Shortcut {
                     enabled: rmItemDialog.visible
@@ -4888,7 +5075,7 @@ Window {
 
                                         rmItemDialog.close()
 
-                                        rmItemDialog.itemRemoved()
+                                        root.itemAction()
                                     }
         
                                     contentItem: Text {

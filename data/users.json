@@ -1,98 +1,51 @@
 [
     {
-        "username": "in",
-        "passSalt": "$2b$12$jjqEx1sfysZyL99E2viyHu",
-        "hashPasswd": "$2b$12$jjqEx1sfysZyL99E2viyHuwO1Jrj7SeP0SGVLSTjckl5Ke/lJCpNq",
+        "displayName": "in1",
+        "username": "in1@149",
+        "hashPasswd": "$2b$12$zgE4C9F3SdRJ2jLJehH7juJZEgcJl3.KAmNI1hVNeX5J9KZ7ZfHQq",
         "level": 0,
-        "isTempPasswd": "false",
-        "tempPasswd": ""
+        "isTempPasswd": "false"
     },
     {
-        "username": "in2",
-        "passSalt": "$2b$12$VxLjq5K4A5GN8AQZFno78.",
-        "hashPasswd": "$2b$12$VxLjq5K4A5GN8AQZFno78.k8XObFTdnQZOGQiozqCBWoZZrIMfY4S",
+        "displayName": "in11",
+        "username": "in1@150",
+        "hashPasswd": "$2b$12$zgE4C9F3SdRJ2jLJehH7juJZEgcJl3.KAmNI1hVNeX5J9KZ7ZfHQq",
         "level": 1,
-        "isTempPasswd": "false",
-        "tempPasswd": ""
+        "isTempPasswd": "false"
     },
     {
-        "username": "in3",
-        "passSalt": "",
-        "hashPasswd": "",
+        "displayName": "1245",
+        "username": "1245&718",
+        "hashPasswd": "$2b$12$rKaBmBi6OBEaiqrOm6QJZ.o/qkIlADJ/5gGM0KQ3rcDeuSG/apgkC",
         "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDG==="
+        "isTempPasswd": "true"
     },
     {
-        "username": "in4",
-        "passSalt": "",
-        "hashPasswd": "",
+        "displayName": "1245",
+        "username": "1245@786",
+        "hashPasswd": "$2b$12$IZBUtXIedrWKHJ/rZDBulu8sBV7S9wCxqrM0MRX9zLMCSzGZrsvWK",
         "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDI==="
+        "isTempPasswd": "true"
     },
     {
-        "username": "in5",
-        "passSalt": "",
-        "hashPasswd": "",
+        "displayName": "42",
+        "username": "42-962",
+        "hashPasswd": "$2b$12$XH6ta/3HLjZzLcc412yOJ.i/.tw0ydtQwjP7DZh5yXMrTf8Kyi0NW",
         "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDK==="
+        "isTempPasswd": "true"
     },
     {
-        "username": "in6",
-        "passSalt": "",
-        "hashPasswd": "",
+        "displayName": "512",
+        "username": "512-714",
+        "hashPasswd": "$2b$12$WgOibCGIJrWmy0Mb7.5bzumUzBInb2LXtC0HMa0ZymfB7C/yKGbZm",
         "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDM==="
+        "isTempPasswd": "true"
     },
     {
-        "username": "in7",
-        "passSalt": "",
-        "hashPasswd": "",
+        "displayName": "451",
+        "username": "451#234",
+        "hashPasswd": "$2b$12$ZxpyI/xXYw8eWTwDn7sy7eQVIns4nnVkO5qb4Up84IHR61hvNntby",
         "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDO==="
-    },
-    {
-        "username": "in8",
-        "passSalt": "",
-        "hashPasswd": "",
-        "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDQ==="
-    },
-    {
-        "username": "in9",
-        "passSalt": "",
-        "hashPasswd": "",
-        "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDS==="
-    },
-    {
-        "username": "in10",
-        "passSalt": "",
-        "hashPasswd": "",
-        "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDCMA="
-    },
-    {
-        "username": "in11",
-        "passSalt": "",
-        "hashPasswd": "",
-        "level": 2,
-        "isTempPasswd": "true",
-        "tempPasswd": "NFXDCMI="
-    },
-    {
-        "username": "in12",
-        "passSalt": "$2b$12$qLhGWUR1rMm6u8L.CgtrvO",
-        "hashPasswd": "$2b$12$qLhGWUR1rMm6u8L.CgtrvO2NV8OJVbIA8cFB8buc7952KLC9oqvQm",
-        "level": 2,
-        "isTempPasswd": "false",
-        "tempPasswd": ""
+        "isTempPasswd": "true"
     }
 ]

@@ -98,15 +98,19 @@ class StockModel(QAbstractListModel):
         accentTranslateTable = str.maketrans({"á": "a", "é": "e", "í": "i", "ó": "o", "ú": "u", "â": "a", "ê": "e", "ô": "o", "ã": "a", "õ": "o", "à": "a"})
         fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
 
+        prodsFiltered = list(filter(lambda item: fSearch in re.sub(r"\W", "_", item.name.lower().translate(accentTranslateTable)), allprods))
+
         if (search == ""):
             return {"name": product.name, "quantity": product.quantity,
                     "buyPrice": product.buyPrice, "sellPrice": product.sellPrice}
         else:
-            for item in allprods: 
+            for item in prodsFiltered:
+                return {"name": prodsFiltered[row].name, "quantity": prodsFiltered[row].quantity, "buyPrice": prodsFiltered[row].buyPrice, "sellPrice": prodsFiltered[row].sellPrice}
+            '''for item in allprods: 
                 fProdName = re.sub(r"\W", "_", item.name.lower().translate(accentTranslateTable))
                 if (fSearch in fProdName):
                     return {"name": item.name, "quantity": item.quantity,
-                        "buyPrice": item.buyPrice, "sellPrice": item.sellPrice}
+                        "buyPrice": item.buyPrice, "sellPrice": item.sellPrice}'''
 
     @Slot(result='int')
     def getTotalQuant(self):
