@@ -157,6 +157,7 @@ ItemDelegate {
                                 Layout.fillWidth: true
                                 text: "Editar Item"
                                 font.family: Parameters.defaultFont
+font.styleName: "Condensed Medium"
                                 font.pointSize: 12
                                 color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
 
@@ -216,6 +217,7 @@ ItemDelegate {
                                 Layout.fillWidth: true
                                 text: "Remover Item"
                                 font.family: Parameters.defaultFont
+font.styleName: "Condensed Medium"
                                 font.pointSize: 12
                                 color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
 

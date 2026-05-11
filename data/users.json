@@ -7,6 +7,13 @@
         "isTempPasswd": "false"
     },
     {
+        "displayName": "in2",
+        "username": "in2@149",
+        "hashPasswd": "$2b$12$zgE4C9F3SdRJ2jLJehH7juJZEgcJl3.KAmNI1hVNeX5J9KZ7ZfHQq",
+        "level": 2,
+        "isTempPasswd": "true"
+    },
+    {
         "displayName": "in11",
         "username": "in1@150",
         "hashPasswd": "$2b$12$zgE4C9F3SdRJ2jLJehH7juJZEgcJl3.KAmNI1hVNeX5J9KZ7ZfHQq",
@@ -45,6 +52,13 @@
         "displayName": "451",
         "username": "451#234",
         "hashPasswd": "$2b$12$ZxpyI/xXYw8eWTwDn7sy7eQVIns4nnVkO5qb4Up84IHR61hvNntby",
+        "level": 2,
+        "isTempPasswd": "true"
+    },
+    {
+        "displayName": "123",
+        "username": "123!167",
+        "hashPasswd": "$2b$12$MQLtw2PV04IZicAO4CLsq.Wb99t2tPAEnYvqGRCLKEjDSuGpoJYJ6",
         "level": 2,
         "isTempPasswd": "true"
     }

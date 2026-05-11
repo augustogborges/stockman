@@ -2,7 +2,54 @@ pragma Singleton
 
 import QtQuick
 
-QtObject {
+Item {
+    id: properties
+
+    FontLoader {
+        id: defaultFontLoader
+        source: "../assets/fonts/roboto/Roboto_Condensed-Medium.ttf"
+    }
+
+    FontLoader {
+        id: defaultThinFontLoader
+        source: "../assets/fonts/roboto/Roboto_Condensed-Regular.ttf"
+    }
+
+    FontLoader {
+        id: boldFontLoader
+        source: "../assets/fonts/roboto/Roboto-Bold.ttf"
+    }
+
+    FontLoader {
+        id: defaultWideFontLoader
+        source: "../assets/fonts/roboto/Roboto-Regular.ttf"
+    }
+
+    FontLoader {
+        id: altFontObliqueLoader
+        source: "../assets/fonts/iosevka/IosevkaNerdFont-MediumOblique.ttf"
+    }
+
+    FontLoader {
+        id: altFontBoldLoader
+        source: "../assets/fonts/iosevka/IosevkaNerdFont-Bold.ttf"
+    }
+
+    FontLoader {
+        id: iconFontLoader
+        source: "../assets/fonts/phosphor/regular/Phosphor.ttf"
+    }
+
+    FontLoader {
+        id: iconBoldFontLoader
+        source: "../assets/fonts/phosphor/bold/Phosphor-Bold.ttf"
+    }
+
+    FontLoader {
+        id: iconFillFontLoader
+        source: "../assets/fonts/phosphor/fill/Phosphor-Fill.ttf"
+    }
+
     readonly property color mainBgColor: "#fafafa" //"#121212"
     readonly property color shadeBgColor: Qt.tint(mainBgColor, Qt.lighter(Qt.rgba(mainHighlightBg.r, mainHighlightBg.g, mainHighlightBg.b, 0.05), 3.2)) //'#eaeff3' //"#202020"
     readonly property color dimmedBgColor: "#c0c0c0"
@@ -37,7 +84,7 @@ QtObject {
     readonly property var whiteBgGradient: Gradient {
         GradientStop {color: "#efefef"; position: 0.0}
         GradientStop {color: "#f0f0f0"; position: 0.5}
-        GradientStop {color: mainBgColor; position: 0.65}
+        GradientStop {color: properties.mainBgColor; position: 0.65}
     }
 
     readonly property var subTableGradient: Gradient {

@@ -19,7 +19,7 @@ MouseArea {
     onClicked: {
         switch(buttonIndex) {
             case 0:
-                container.viewIndex = 0;
+                containerRect.viewIndex = 0;
                 usersButton.scale = 0.9;
                 itensButton.scale = 0.9;
                 dashButton.scale = 1;
@@ -28,7 +28,7 @@ MouseArea {
                 dashButton.opacity = 1;
                 break;
             case 1:
-                container.viewIndex = 1;
+                containerRect.viewIndex = 1;
                 usersButton.scale = 0.9;
                 itensButton.scale = 1;
                 dashButton.scale = 0.9;
@@ -37,7 +37,7 @@ MouseArea {
                 dashButton.opacity = 0.95;
                 break;
             case 2:
-                container.viewIndex = 2;
+                containerRect.viewIndex = 2;
                 usersButton.scale = 1.0;
                 itensButton.scale = 0.9;
                 dashButton.scale = 0.9;
@@ -63,7 +63,7 @@ MouseArea {
             radius: 30
             scale: 0.9
             opacity: 0.95
-            color: container.viewIndex == root.buttonIndex ? root.foreColor : "transparent"
+            color: containerRect.viewIndex == root.buttonIndex ? root.foreColor : "transparent"
 
             Behavior on opacity {
                 NumberAnimation {
@@ -98,7 +98,7 @@ MouseArea {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.buttonNames[root.buttonIndex]
                     font.family: "Roboto Condensed Medium"
-                    style: container.viewIndex == root.buttonIndex ? Text.Outline : Text.Normal
+                    style: containerRect.viewIndex == root.buttonIndex ? Text.Outline : Text.Normal
                     styleColor: '#404040'
                     font.pointSize: 16
                     color: "#ffffff"

@@ -4,7 +4,7 @@ import os
 import json
 from pathlib import Path
 
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine, QmlElement
 from PySide6.QtWidgets import QApplication, QPushButton
 from PySide6.QtCore import QObject, Property, Slot, Signal
@@ -15,6 +15,7 @@ from usermodel import UserModel
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     QApplication.setApplicationName("Stockman")
+    QApplication.setWindowIcon(QIcon("./assets/icons/stockman.ico"));
     engine = QQmlApplicationEngine()
 
     engine.addImportPath(Path(__file__).parent)
