@@ -1673,6 +1673,8 @@ Rectangle {
                             //anchors.horizontalCenter: parent.horizontalCenter
                             Layout.alignment: Qt.AlignVCenter
 
+                            Item { Layout.fillWidth: true }
+
                             Rectangle {
                                 radius: 30
                                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
@@ -1800,7 +1802,9 @@ Rectangle {
                                     enabled: parent.visible
                                     cursorShape: Qt.PointingHandCursor
                                 }
-                            }
+                              }
+
+                            Item { Layout.fillWidth: true }
                         }
 
                         Item {
@@ -2050,7 +2054,7 @@ Rectangle {
                             Layout.alignment: Qt.AlignTop
                             Layout.fillWidth: true
                             Layout.fillHeight: false
-                            columns: 2
+                            columns: 3
                             rows: 2
 
                             Text {
@@ -2060,7 +2064,9 @@ Rectangle {
                                 text: "Usuários"
                                 font.pixelSize: 22
                                 color: "#000000"
-                            }
+                              }
+
+                            Item { Layout.fillWidth: true }
 
                             Rectangle {
                                 id: newUserButton
@@ -2136,7 +2142,7 @@ Rectangle {
                             }
 
                             Text {
-                                Layout.columnSpan: 2
+                                Layout.columnSpan: 3
                                 Layout.alignment: Qt.AlignLeft
                                 font.family: Parameters.defaultFont
                                 font.styleName: "Condensed Medium"
