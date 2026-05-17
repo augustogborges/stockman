@@ -157,7 +157,7 @@ ItemDelegate {
                                 Layout.fillWidth: true
                                 text: "Editar Item"
                                 font.family: Parameters.defaultFont
-font.styleName: "Condensed Medium"
+font.styleName: "Medium"
                                 font.pointSize: 12
                                 color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
 
@@ -217,7 +217,7 @@ font.styleName: "Condensed Medium"
                                 Layout.fillWidth: true
                                 text: "Remover Item"
                                 font.family: Parameters.defaultFont
-font.styleName: "Condensed Medium"
+font.styleName: "Medium"
                                 font.pointSize: 12
                                 color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
 
@@ -250,7 +250,7 @@ font.styleName: "Condensed Medium"
             Text {
                 anchors.centerIn: parent
                 color: "#000000"
-                font.family: Parameters.thinFont
+                font.family: Parameters.defaultFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
                 text: sModel.get(index, searchTerm).quantity
@@ -270,7 +270,7 @@ font.styleName: "Condensed Medium"
             Text {
                 anchors.centerIn: parent
                 color: "#000000"
-                font.family: Parameters.thinFont
+                font.family: Parameters.defaultFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
                 text: "R$" + sModel.get(index, searchTerm).buyPrice.toFixed(2).toString().replace(".", ",")
@@ -290,7 +290,7 @@ font.styleName: "Condensed Medium"
             Text {
                 anchors.centerIn: parent
                 color: "#000000"
-                font.family: Parameters.thinFont
+                font.family: Parameters.defaultFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
                 text: "R$" + sModel.get(index, searchTerm).sellPrice.toFixed(2).toString().replace(".", ",")
@@ -310,7 +310,7 @@ font.styleName: "Condensed Medium"
             Text {
                 anchors.centerIn: parent
                 color: "#000000"
-                font.family: Parameters.thinFont
+                font.family: Parameters.defaultFont
                 font.pointSize: 14
                 visible: (text != undefined && text != null && text != "")
                 text: "R$" + (Number(sModel.get(index, searchTerm).sellPrice) - Number(sModel.get(index, searchTerm).buyPrice)).toFixed(2).toString().replace(".", ",")

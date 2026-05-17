@@ -6,3 +6,6 @@ enum
 json
 re
 base64
+secrets
+cryptography
+platform

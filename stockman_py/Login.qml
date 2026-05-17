@@ -90,7 +90,7 @@ Item {
                 loginContent.visible = false;
                 loginContainer.userLogin(username, userlevel);
             }
-        }
+        }      
 
         Rectangle {
             id: tempPassDialog
@@ -105,6 +105,14 @@ Item {
                 NumberAnimation {
                     duration: 170
                 }
+            }
+
+            MultiEffect {
+                enabled: tempPassDialog.visible
+                anchors.fill: tempPassDialog
+                source: tempPassDialog
+                blurEnabled: true
+                blur: 0.7
             }
 
             function open() {
@@ -152,12 +160,6 @@ Item {
                 }
             }
 
-            MultiEffect {
-                source: tempPassDialog
-                blurEnabled: true
-                blur: 0.7
-            }
-
             Rectangle {
                 id: passContainer
                 anchors.centerIn: parent
@@ -184,7 +186,7 @@ Item {
                             text: "Defina uma nova senha:"
                             color: Parameters.mainBgColor
                             font.family: Parameters.defaultFont
-                            font.styleName: "Condensed Medium"
+                            font.styleName: "Medium"
                             font.pointSize: 18
                         }
                     }
@@ -330,7 +332,7 @@ Item {
                                 implicitHeight: 28
 
                                 onClicked: {
-                                    passContainer.hideChars = !passContainer.hideChars
+                                    passContainer.hideChars = !passContainer.hideChars;
                                 }
 
                                 contentItem: Text {
@@ -360,13 +362,15 @@ Item {
                                 }
                             }
 
-                            Item { Layout.fillWidth: true }
+                            Item {
+                                Layout.fillWidth: true
+                            }
 
                             Text {
                                 id: smallPassWarn
                                 visible: false
                                 font.family: Parameters.defaultFont
-                                font.styleName: "Condensed Medium"
+                                font.styleName: "Medium"
                                 font.pixelSize: 18
                                 style: Text.Outline
                                 fontSizeMode: Text.Fit
@@ -375,7 +379,9 @@ Item {
                                 color: Parameters.mainBgColor
                             }
 
-                            Item { Layout.fillWidth: true }
+                            Item {
+                                Layout.fillWidth: true
+                            }
 
                             Button {
                                 id: tempPassSubmit
@@ -397,14 +403,14 @@ Item {
                                             tempPassC1.border.width = 2;
                                             tempPassC1.border.color = "#f9af26";
                                             tempPassC2.border.width = 2;
-                                            tempPassC2.border.color = '#f98c26'
+                                            tempPassC2.border.color = '#f98c26';
                                         }
-                                        
+
                                         if (!tempPassTF1.acceptableInput || tempPassTF1.text.length < 10) {
                                             tempPassC1.border.width = 2;
                                             tempPassC1.border.color = Parameters.lowCashRed;
                                         }
-                                        
+
                                         if (!tempPassTF2.acceptableInput || tempPassTF2.text.length < 10) {
                                             tempPassC2.border.width = 2;
                                             tempPassC2.border.color = Parameters.lowCashRed;
@@ -420,7 +426,7 @@ Item {
                                     horizontalAlignment: Text.AlignHCenter
                                     verticalAlignment: Text.AlignVCenter
                                     font.family: Parameters.defaultFont
-                                    font.styleName: "Condensed Medium"
+                                    font.styleName: "Medium"
                                     font.pointSize: 12
                                     text: tempPassSubmit.text
                                     color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
@@ -432,6 +438,231 @@ Item {
                                     implicitHeight: 34
                                     radius: Parameters.defaultRadius * 2
                                     color: tempPassSubmit.down ? Parameters.pressedButtonBg : tempPassSubmit.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
+                                    border.width: 2
+                                    border.color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                }
+
+                                HoverHandler {
+                                    enabled: parent.visible
+                                    cursorShape: Qt.PointingHandCursor
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            id: usernameWarnDialog
+            anchors.fill: parent
+            visible: false
+            opacity: 0
+            z: 2
+            property var createdUser: []
+
+            MultiEffect {
+                enabled: usernameWarnDialog.visible
+                anchors.fill: usernameWarnDialog
+                source: usernameWarnDialog
+                blurEnabled: true
+                blur: 0.7
+            }
+
+            Behavior on opacity {
+                NumberAnimation {
+                    duration: 170
+                }
+            }
+
+            function open() {
+                usernameWarnDialog.visible = true;
+                Qt.callLater(() => {
+                    usernameWarnDialog.opacity = 1.0;
+                });
+            }
+
+            function close() {
+                usernameWarnDialog.opacity = 0;
+                closeNewUserDialog.restart();
+            }
+
+            Timer {
+                id: closeNewUserDialog
+                running: false
+                repeat: false
+                interval: 200
+                onTriggered: {
+                    usernameWarnDialog.visible = false;
+                }
+            }
+
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0
+                    color: "#ee000000"
+                }
+                GradientStop {
+                    position: 0.4
+                    color: '#ee151517'
+                }
+                GradientStop {
+                    position: 0.6
+                    color: '#ee262527'
+                }
+                GradientStop {
+                    position: 0.7
+                    color: '#ee201f21'
+                }
+                GradientStop {
+                    position: 1.0
+                    color: "#ee000000"
+                }
+            }
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: loginContent.width * 0.5 + 35
+                height: unameWarnColumn.implicitHeight + 30
+                radius: 30
+                color: Parameters.pressedButtonBg
+
+                ColumnLayout {
+                    id: unameWarnColumn
+                    anchors.centerIn: parent
+                    width: loginContent.width * 0.5
+                    spacing: loginContent.height * 0.006
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 55
+                        color: Parameters.mainHighlightBg
+                        topLeftRadius: 15
+                        topRightRadius: 15
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Nome de usuário criado"
+                            color: Parameters.mainBgColor
+                            font.family: Parameters.defaultFont
+                            font.styleName: "Medium"
+                            font.pointSize: 18
+                            fontSizeMode: Text.Fit
+                            minimumPixelSize: 10
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: loginContent.width * 0.1
+                        Layout.rightMargin: loginContent.width * 0.1
+                        Layout.preferredHeight: childUsernameColumn.implicitHeight + loginContent.height * 0.04
+                        color: Parameters.shadeBgColor
+                        border.width: 2
+                        border.color: Parameters.lowCashRed
+                        radius: 15
+
+                        ColumnLayout {
+                            id: childUsernameColumn
+                            anchors.centerIn: parent
+                            implicitWidth: parent.width - loginContent.width * 0.05
+
+                            Text {
+                                id: usernameW1
+                                Layout.alignment: Qt.AlignHCenter
+                                font.family: Parameters.defaultFont
+                                font.styleName: "Medium"
+                                font.pixelSize: 18
+                                fontSizeMode: Text.Fit
+                                minimumPixelSize: 10
+                                color: "#000000"
+                                text: "Essa é o username (nome de usuário) desse usuário, que deverá ser utilizado no login: "
+                                wrapMode: Text.Wrap
+                                Layout.preferredWidth: parent.implicitWidth
+                            }
+
+                            TextInput {
+                                id: usernameW2
+                                Layout.alignment: Qt.AlignHCenter
+                                font.family: Parameters.defaultFont
+                                font.styleName: "Medium"
+                                font.pixelSize: usernameW1.font.pixelSize
+                                color: '#dc2332'
+                                text: user_model.findUserByName(usernameWarnDialog.createdUser[0], 0).username
+                                wrapMode: Text.Wrap
+                                Layout.preferredWidth: parent.implicitWidth
+                                readOnly: true
+                                
+                                HoverHandler {
+                                    enabled: parent.visible
+                                    cursorShape: Qt.IBeamCursor
+                                }
+                            }
+
+                            Text {
+                                id: usernameW3
+                                Layout.alignment: Qt.AlignHCenter
+                                font.family: Parameters.defaultFont
+                                font.styleName: "Medium"
+                                font.pixelSize: 18
+                                fontSizeMode: Text.Fit
+                                minimumPixelSize: 10
+                                color: "#000000"
+                                text: "Lembre-se dele, pois será necessário para fazer o login. O campo 'usuário' da tela de login aceitará apenas esse username, e não seu nome completo."
+                                wrapMode: Text.Wrap
+                                Layout.preferredWidth: parent.implicitWidth
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 40
+                        color: Parameters.highlightFg
+                        bottomRightRadius: 15
+                        bottomLeftRadius: 15
+
+                        RowLayout {
+                            anchors {
+                                top: parent.top
+                                bottom: parent.bottom
+                                right: parent.right
+                                topMargin: 2
+                                bottomMargin: 2
+                                rightMargin: 6
+                            }
+                            layoutDirection: Qt.RightToLeft
+                            spacing: 6
+
+                            Button {
+                                id: confirmUName
+                                Layout.alignment: Qt.AlignVCenter
+                                Layout.fillWidth: false
+                                text: "OK"
+                                implicitWidth: 74
+                                implicitHeight: 34
+
+                                onClicked: {
+                                    usernameWarnDialog.close();
+                                    loginContent.login(usernameInput.text, 0);
+                                }
+
+                                contentItem: Text {
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                    font.family: Parameters.defaultFont
+                                    font.styleName: "Medium"
+                                    font.pointSize: 12
+                                    text: confirmUName.text
+                                    color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
+                                }
+
+                                background: Rectangle {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    implicitWidth: 74
+                                    implicitHeight: 34
+                                    radius: Parameters.defaultRadius * 2
+                                    color: confirmUName.down ? Parameters.pressedButtonBg : confirmUName.hovered ? Parameters.hoveredButtonBg : Parameters.stdButtonBg
                                     border.width: 2
                                     border.color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
                                 }
@@ -533,7 +764,7 @@ Item {
                             Layout.alignment: Qt.AlignVCenter
                             text: "Stockman"
                             font.family: Parameters.defaultFont
-                            font.styleName: "Condensed Medium"
+                            font.styleName: "Medium"
                             font.underline: false
                             font.pointSize: 18
                             color: Qt.lighter(Parameters.mainHighlightBg, 4.2)
@@ -559,7 +790,7 @@ Item {
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
                         Layout.fillHeight: false
                         font.family: Parameters.defaultFont
-                        font.styleName: "Condensed Medium"
+                        font.styleName: "Medium"
                         font.pointSize: 26
                         text: {
                             if (!loginContainer.noExistingUsers) {
@@ -574,7 +805,7 @@ Item {
                     Text {
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-                        font.family: Parameters.thinFont
+                        font.family: Parameters.defaultFont
                         font.pointSize: 17
                         text: {
                             if (!loginContainer.noExistingUsers) {
@@ -601,9 +832,9 @@ Item {
                             anchors.left: parent.left
                             anchors.leftMargin: 4
                             font.family: Parameters.defaultFont
-                            font.styleName: "Condensed Medium"
+                            font.styleName: "Medium"
                             font.pointSize: 12
-                            text: "Usuário"
+                            text: !loginContainer.noExistingUsers ? "Usuário" : "Nome"
                             color: Parameters.shadeBgColor
                         }
 
@@ -649,13 +880,13 @@ Item {
                                 }
                             }
 
-                            font.family: Parameters.defaultFont
-                            font.styleName: "Condensed Medium"
-                            font.pointSize: 12
+                            font.family: Parameters.altFont
+                            font.styleName: "Medium"
+                            font.pixelSize: parent.height * 0.28
                             color: Parameters.shadeHighlightBg
                             selectionColor: Parameters.highlightFg
 
-                            placeholderText: "   Usuário"
+                            placeholderText: !loginContainer.noExistingUsers ? "  Usuário" : "  Nome Completo"
                             placeholderTextColor: Parameters.dimmedHighlightBg
                             topPadding: 8
                             leftPadding: 8
@@ -686,7 +917,7 @@ Item {
                                 Layout.alignment: Qt.AlignVCenter
                                 Layout.fillWidth: false
                                 font.family: Parameters.defaultFont
-                                font.styleName: "Condensed Medium"
+                                font.styleName: "Medium"
                                 font.pointSize: 12
                                 text: "Senha"
                                 color: Parameters.shadeBgColor
@@ -782,15 +1013,15 @@ Item {
                                 }
                             }
 
-                            font.family: Parameters.defaultFont
-                            font.styleName: "Condensed Medium"
-                            font.pointSize: 12
+                            font.family: Parameters.altFont
+                            font.styleName: "Medium"
+                            font.pixelSize: parent.height * 0.28
                             color: Parameters.shadeHighlightBg
                             selectionColor: Parameters.highlightFg
                             echoMode: shouldHideChars ? TextInput.Password : TextInput.Normal
                             passwordMaskDelay: 340
 
-                            placeholderText: "   Senha"
+                            placeholderText: "  Senha"
                             placeholderTextColor: Parameters.dimmedHighlightBg
                             leftPadding: 8
                             rightPadding: 8
@@ -832,7 +1063,7 @@ Item {
                         Text {
                             anchors.centerIn: parent
                             font.family: Parameters.defaultFont
-                            font.styleName: "Condensed Medium"
+                            font.styleName: "Medium"
                             font.pointSize: 11
                             text: {
                                 if (!loginContainer.noExistingUsers) {
@@ -864,8 +1095,9 @@ Item {
                             onClicked: {
                                 if (usernameInput.text != "" && passwdInput.text != "") {
                                     if (loginContainer.noExistingUsers) {
-                                        user_model.setFirstUser(usernameInput.text, passwdInput.text, 0);
-                                        loginContent.login(usernameInput.text, 0);
+                                        user_model.setFirstUser(usernameInput.text, passwdInput.text);
+                                        usernameWarnDialog.createdUser = [usernameInput.text, 0];
+                                        usernameWarnDialog.open();
                                     } else {
                                         if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha temp correta") {
                                             tempPassDialog.targetUsername = usernameInput.text;
@@ -898,6 +1130,7 @@ Item {
                     }
                 }
             }
+
             Item {
                 Layout.fillHeight: true
                 Layout.verticalStretchFactor: 8

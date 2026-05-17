@@ -1,14 +1,75 @@
 import json
 import os
+import platform
 import re
+import shutil
 from dataclasses import dataclass
 from enum import IntEnum
+from pathlib import Path
 
 from PySide6.QtCore import QAbstractListModel, QByteArray, QEnum, QModelIndex, Qt, Slot
 from PySide6.QtQml import QmlElement
 
 QML_IMPORT_NAME = "Stocker"
 QML_IMPORT_MAJOR_VERSION = 1
+
+
+def getDBPath():
+    match platform.system():
+        case "Windows":
+            return Path(os.getenv("APPDATA")) / "stockman" / "db.json"
+
+        case "Darwin":
+            return (
+                Path.home() / "Library" / "Application Support" / "stockman" / "db.json"
+            )
+
+        case _:
+            return Path.home() / ".local" / "share" / "stockman" / "db.json"
+
+
+def getConfigPath():
+    match platform.system():
+        case "Windows":
+            return Path(os.getenv("APPDATA")) / "stockman" / "config.json"
+
+        case "Darwin":
+            return (
+                Path.home()
+                / "Library"
+                / "Application Support"
+                / "stockman"
+                / "config.json"
+            )
+
+        case _:
+            return Path.home() / ".local" / "share" / "stockman" / "config.json"
+
+
+dbPath = getDBPath()
+configPath = getConfigPath()
+
+
+def getDB():
+    currentData = []
+
+    with open(dbPath, "r", encoding="utf-8") as stockFileR:
+        try:
+            currentData = json.load(stockFileR)
+        except:
+            currentData = []
+
+    return currentData
+
+
+def saveDB(productData: list):
+    with open(dbPath, "w", encoding="utf-8") as stockFileW:
+        try:
+            json.dump(productData, stockFileW, indent=4, ensure_ascii=False)
+        except:
+            dbBackupPath = dbPath + ".bak"
+            shutil.copy(dbPath, dbBackupPath)
+            json.dump([], dbBackupPath, indent=4, ensure_ascii=False)
 
 
 class StockItem(object):
@@ -41,7 +102,7 @@ class StockModel(QAbstractListModel):
 
     def load_products(self):
         proddata = []
-        database = os.path.join(".", "data", "db.json")
+        database = dbPath
         dados = []
         with open(database, "r", encoding="utf-8") as arquivo:
             dados = json.load(arquivo)
@@ -54,9 +115,11 @@ class StockModel(QAbstractListModel):
         return proddata
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self.m_products)
+        products = getDB()
+        return len(products)
 
     def data(self, index: QModelIndex, role: int):
+        self.m_products = self.load_products()
         row = index.row()
         if row < self.rowCount():
             product = self.m_products[row]
@@ -80,7 +143,7 @@ class StockModel(QAbstractListModel):
 
     @Slot(str, result="int")
     def getEffectiveCount(self, search: str):
-        products = self.m_products
+        products = getDB()
         matches = 0
         accentTranslateTable = str.maketrans(
             {
@@ -104,7 +167,7 @@ class StockModel(QAbstractListModel):
         else:
             for item in products:
                 fProdName = re.sub(
-                    r"\W", "_", item.name.lower().translate(accentTranslateTable)
+                    r"\W", "_", item["name"].lower().translate(accentTranslateTable)
                 )
                 if fSearch in fProdName:
                     matches += 1
@@ -112,8 +175,8 @@ class StockModel(QAbstractListModel):
 
     @Slot(int, str, result="QVariantMap")
     def get(self, row: int, search: str):
-        allprods = self.m_products
-        product = self.m_products[row]
+        allprods = getDB()
+        product = allprods[row]
         accentTranslateTable = str.maketrans(
             {
                 "á": "a",
@@ -131,12 +194,12 @@ class StockModel(QAbstractListModel):
         )
         fSearch = re.sub(r"\W", "_", search.lower().translate(accentTranslateTable))
 
-        prodsFiltered = list(
+        prodsFiltered = tuple(
             filter(
                 lambda item: (
                     fSearch
                     in re.sub(
-                        r"\W", "_", item.name.lower().translate(accentTranslateTable)
+                        r"\W", "_", item["name"].lower().translate(accentTranslateTable)
                     )
                 ),
                 allprods,
@@ -145,49 +208,50 @@ class StockModel(QAbstractListModel):
 
         if search == "":
             return {
-                "name": product.name,
-                "quantity": product.quantity,
-                "buyPrice": product.buyPrice,
-                "sellPrice": product.sellPrice,
+                "name": product["name"],
+                "quantity": product["quantity"],
+                "buyPrice": product["buyPrice"],
+                "sellPrice": product["sellPrice"],
             }
         else:
             for item in prodsFiltered:
                 return {
-                    "name": prodsFiltered[row].name,
-                    "quantity": prodsFiltered[row].quantity,
-                    "buyPrice": prodsFiltered[row].buyPrice,
-                    "sellPrice": prodsFiltered[row].sellPrice,
+                    "name": prodsFiltered[row]["name"],
+                    "quantity": prodsFiltered[row]["quantity"],
+                    "buyPrice": prodsFiltered[row]["buyPrice"],
+                    "sellPrice": prodsFiltered[row]["sellPrice"],
                 }
 
     @Slot(result="int")
     def getTotalQuant(self):
-        allprods = self.m_products
+        allprods = getDB()
         stockTotalQuant = 0
         for item in allprods:
-            stockTotalQuant += int(item.quantity)
+            stockTotalQuant += int(item["quantity"])
         return stockTotalQuant
 
     @Slot(result="QVariantMap")
     def getMostIndividualProfit(self):
-        allprods = self.m_products
+        allprods = getDB()
         prodsSorted = sorted(
             allprods,
             key=lambda item: (
-                (float(item.sellPrice) - float(item.buyPrice)) * int(item.quantity)
+                (float(item["sellPrice"]) - float(item["buyPrice"]))
+                * int(item["quantity"])
             ),
             reverse=True,
         )
 
         if len(allprods) > 2:
-            profName1 = prodsSorted[0].name
+            profName1 = prodsSorted[0]["name"]
             bigProf1 = (
-                float(prodsSorted[0].sellPrice) - float(prodsSorted[0].buyPrice)
-            ) * int(prodsSorted[0].quantity)
+                float(prodsSorted[0]["sellPrice"]) - float(prodsSorted[0]["buyPrice"])
+            ) * int(prodsSorted[0]["quantity"])
 
-            profName2 = prodsSorted[1].name
+            profName2 = prodsSorted[1]["name"]
             bigProf2 = (
-                float(prodsSorted[1].sellPrice) - float(prodsSorted[1].buyPrice)
-            ) * int(prodsSorted[1].quantity)
+                float(prodsSorted[1]["sellPrice"]) - float(prodsSorted[1]["buyPrice"])
+            ) * int(prodsSorted[1]["quantity"])
 
             return {
                 "topOneName": profName1,
@@ -198,24 +262,25 @@ class StockModel(QAbstractListModel):
 
     @Slot(result="QVariantMap")
     def getLeastIndividualProfit(self):
-        allprods = self.m_products
+        allprods = getDB()
         prodsSorted = sorted(
             allprods,
             key=lambda item: (
-                (float(item.sellPrice) - float(item.buyPrice)) * int(item.quantity)
+                (float(item["sellPrice"]) - float(item["buyPrice"]))
+                * int(item["quantity"])
             ),
         )
 
         if len(allprods) > 2:
-            profName1 = prodsSorted[0].name
+            profName1 = prodsSorted[0]["name"]
             lowProf1 = (
-                float(prodsSorted[0].sellPrice) - float(prodsSorted[0].buyPrice)
-            ) * int(prodsSorted[0].quantity)
+                float(prodsSorted[0]["sellPrice"]) - float(prodsSorted[0]["buyPrice"])
+            ) * int(prodsSorted[0]["quantity"])
 
-            profName2 = prodsSorted[1].name
+            profName2 = prodsSorted[1]["name"]
             lowProf2 = (
-                float(prodsSorted[1].sellPrice) - float(prodsSorted[1].buyPrice)
-            ) * int(prodsSorted[1].quantity)
+                float(prodsSorted[1]["sellPrice"]) - float(prodsSorted[1]["buyPrice"])
+            ) * int(prodsSorted[1]["quantity"])
 
             return {
                 "topOneName": profName1,
@@ -226,31 +291,30 @@ class StockModel(QAbstractListModel):
 
     @Slot(result="float")
     def getTotalStockSell(self):
-        allprods = self.m_products
+        allprods = getDB()
         totalStockSell = 0
         for item in allprods:
-            totalStockSell += (float(item.sellPrice) - float(item.buyPrice)) * int(
-                item.quantity
-            )
+            totalStockSell += (float(item["sellPrice"])) * int(item["quantity"])
 
         return totalStockSell
 
     @Slot(result="float")
     def getTotalStockCost(self):
-        allprods = self.m_products
+        allprods = getDB()
         totalStockCost = 0
         for item in allprods:
-            totalStockCost += float(item.buyPrice) * int(item.quantity)
+            totalStockCost += float(item["buyPrice"]) * int(item["quantity"])
 
         return totalStockCost
 
     @Slot(int, result="QVariantMap")
     def getSortedByTotalProfit(self, row: int):
-        allprods = self.m_products
+        allprods = getDB()
         prodsSorted = sorted(
             allprods,
             key=lambda item: (
-                (float(item.sellPrice) - float(item.buyPrice)) * int(item.quantity)
+                (float(item["sellPrice"]) - float(item["buyPrice"]))
+                * int(item["quantity"])
             ),
             reverse=True,
         )
@@ -259,23 +323,26 @@ class StockModel(QAbstractListModel):
 
         totalStockProfit = 0
         for item in prodsSorted:
-            totalStockProfit += (float(item.sellPrice) - float(item.buyPrice)) * int(
-                item.quantity
-            )
+            totalStockProfit += (
+                float(item["sellPrice"]) - float(item["buyPrice"])
+            ) * int(item["quantity"])
 
         return {
-            "name": prodsSorted[row].name,
+            "name": prodsSorted[row]["name"],
             "profit": (
-                (float(prodsSorted[row].sellPrice) - float(prodsSorted[row].buyPrice))
-                * int(prodsSorted[row].quantity)
+                (
+                    float(prodsSorted[row]["sellPrice"])
+                    - float(prodsSorted[row]["buyPrice"])
+                )
+                * int(prodsSorted[row]["quantity"])
             ),
             "percentage": round(
                 (
                     (
-                        float(prodsSorted[row].sellPrice)
-                        - float(prodsSorted[row].buyPrice)
+                        float(prodsSorted[row]["sellPrice"])
+                        - float(prodsSorted[row]["buyPrice"])
                     )
-                    * int(prodsSorted[row].quantity)
+                    * int(prodsSorted[row]["quantity"])
                     * 100
                     / totalStockProfit
                 )
@@ -284,61 +351,56 @@ class StockModel(QAbstractListModel):
 
     @Slot(int, result="int")
     def getLowQuantityTotal(self, lowThreshold: int):
-        allprods = self.m_products
+        allprods = getDB()
         totalAmount = 0
         for item in allprods:
-            if int(item.quantity) <= lowThreshold:
+            if int(item["quantity"]) <= lowThreshold:
                 totalAmount += 1
 
         return totalAmount
 
     @Slot(int, int, result="QVariantMap")
     def getSortedByStockQuantity(self, row: int, lowThreshold: int):
-        allprods = self.m_products
+        allprods = getDB()
         prodsSorted = sorted(
-            allprods, key=lambda item: int(item.quantity), reverse=True
+            allprods, key=lambda item: int(item["quantity"]), reverse=True
         )
         if row > len(allprods) - 1:
             return {"name": "null", "amount": "null", "percentage": "null"}
 
         totalStockAmount = 0
         for item in prodsSorted:
-            totalStockAmount += int(item.quantity)
+            totalStockAmount += int(item["quantity"])
 
         return {
-            "name": prodsSorted[row].name,
-            "amount": int(prodsSorted[row].quantity),
+            "name": prodsSorted[row]["name"],
+            "amount": int(prodsSorted[row]["quantity"]),
             "percentage": round(
-                int(prodsSorted[row].quantity) * 100 / totalStockAmount
+                int(prodsSorted[row]["quantity"]) * 100 / totalStockAmount
             ),
-            "needsReposition": bool(int(prodsSorted[row].quantity <= lowThreshold)),
+            "needsReposition": bool(int(prodsSorted[row]["quantity"] <= lowThreshold)),
         }
 
     @Slot(int, int, result="QVariantMap")
     def getLowQuantityItems(self, row: int, lowThreshold: int):
-        allprods = self.m_products
+        allprods = getDB()
 
-        prodsSorted = sorted(allprods, key=lambda item: int(item.quantity))
+        prodsSorted = sorted(allprods, key=lambda item: int(item["quantity"]))
         if row > len(allprods) - 1:
             return {"name": "null", "amount": "null", "percentage": "null"}
 
         prodsFiltered = list(
-            filter(lambda item: item.quantity <= lowThreshold, prodsSorted)
+            filter(lambda item: item["quantity"] <= lowThreshold, prodsSorted)
         )
 
         return {
-            "name": prodsFiltered[row].name,
-            "amount": int(prodsFiltered[row].quantity),
+            "name": prodsFiltered[row]["name"],
+            "amount": int(prodsFiltered[row]["quantity"]),
         }
 
     @Slot(str, int, float, float)
     def append(self, name: str, quantity: int, buyPrice: float, sellPrice: float):
-        database = os.path.join(".", "data", "db.json")
-
-        existdata = []
-
-        with open(database, "r", encoding="utf-8") as arquivo:
-            existdata = json.load(arquivo)
+        database = getDB()
 
         newAdd = {
             "name": name,
@@ -347,40 +409,43 @@ class StockModel(QAbstractListModel):
             "sellPrice": sellPrice,
         }
 
-        existdata.append(newAdd)
+        database.append(newAdd)
 
-        with open(database, "w", encoding="utf-8") as arquivo:
-            json.dump(existdata, arquivo, indent=4, ensure_ascii=False)
+        saveDB(database)
 
     @Slot(int, int, float, float)
     def edit(self, index, newQuant, newBuy, newSell):
-        database = os.path.join(".", "data", "db.json")
+        database = getDB()
 
-        existdata = []
+        database[index]["quantity"] = newQuant
+        database[index]["buyPrice"] = newBuy
+        database[index]["sellPrice"] = newSell
 
-        with open(database, "r", encoding="utf-8") as arquivo:
-            existdata = json.load(arquivo)
-
-        existdata[index]["quantity"] = newQuant
-        existdata[index]["buyPrice"] = newBuy
-        existdata[index]["sellPrice"] = newSell
-
-        with open(database, "w", encoding="utf-8") as arquivo:
-            json.dump(existdata, arquivo, indent=4, ensure_ascii=False)
+        saveDB(database)
 
     @Slot(int)
     def eliminate(self, rmIndex):
-        database = os.path.join(".", "data", "db.json")
+        database = getDB()
 
-        currentData = []
+        del database[rmIndex]
 
-        with open(database, "r", encoding="utf-8") as arquivo:
-            currentData = json.load(arquivo)
+        saveDB(database)
 
-        del currentData[rmIndex]
+    @Slot(result=str)
+    def getImgPath(self):
+        database = configPath
+        with open(database, "r", encoding="utf-8") as configFR:
+            data = json.load(configFR)
 
-        with open(database, "w", encoding="utf-8") as arquivo:
-            json.dump(currentData, arquivo, indent=4, ensure_ascii=False)
+        return data[0]["imagePath"]
+
+    @Slot(str)
+    def saveImgPath(self, path: str):
+        database = configPath
+        data = []
+        data.append({"imagePath": path})
+        with open(database, "w", encoding="utf-8") as configFW:
+            json.dump(data, configFW, indent=4, ensure_ascii=False)
 
     @Slot()
     def reloadDB(self):

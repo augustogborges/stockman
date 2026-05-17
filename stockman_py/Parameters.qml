@@ -11,8 +11,13 @@ Item {
     }
 
     FontLoader {
-        id: defaultThinFontLoader
+        id: defaultdefaultFontLoader
         source: "../assets/fonts/roboto/Roboto_Condensed-Regular.ttf"
+    }
+
+    FontLoader {
+        id: defaultBoldFontLoader
+        source: "../assets/fonts/roboto/Roboto_Condensed-Bold.ttf"
     }
 
     FontLoader {
@@ -23,6 +28,11 @@ Item {
     FontLoader {
         id: defaultWideFontLoader
         source: "../assets/fonts/roboto/Roboto-Regular.ttf"
+    }
+
+    FontLoader {
+        id: altFontLoader
+        source: "../assets/fonts/iosevka/IosevkaNerdFont-Medium.ttf"
     }
 
     FontLoader {
@@ -67,13 +77,12 @@ Item {
     readonly property color lowCashRed: '#be3e3e'
     readonly property color lowCashPink: '#c23e6c'
     readonly property int defaultRadius: 15
-    readonly property string defaultFont: "Roboto Condensed Medium"
-    readonly property string thinFont: "Roboto Condensed"
-    readonly property string wideFont: "Roboto Regular"
-    readonly property string altFont: "Iosevka Nerd Font"
-    readonly property string iconFont: "Phosphor"
-    readonly property string iconFontBold: "Phosphor-Bold"
-    readonly property string iconFontFilled: "Phosphor-Fill"
+    readonly property string defaultFont: defaultFontLoader.name
+    readonly property string wideFont: defaultWideFontLoader.name
+    readonly property string altFont: altFontLoader.name
+    readonly property string iconFont: iconFontLoader.name
+    readonly property string iconFontBold: iconBoldFontLoader.name
+    readonly property string iconFontFilled: iconFillFontLoader.name
 
     readonly property var whiteButtonGradient: Gradient {
         orientation: Gradient.Horizontal
