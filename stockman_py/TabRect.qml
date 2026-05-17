@@ -4,6 +4,7 @@ import QtQuick.Layouts
 MouseArea {
     id: root
     required property int buttonIndex
+    property real targetWidth
 
     property list<string> buttonNames: ["Dashboard", "Inventário", "Usuários"]
     property list<string> buttonSymbols: ["", "", ""]
@@ -80,33 +81,40 @@ MouseArea {
             }
 
             RowLayout {
-                anchors.centerIn: parent
-                width: childrenRect.width
+                anchors.fill: parent
                 spacing: 4
+
+                Item {
+                    Layout.fillWidth: true
+                }
 
                 Text {
                     id: buttonIcon
-                    anchors.verticalCenter: parent.verticalCenter
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                     text: root.buttonSymbols[root.buttonIndex]
                     font.family: Parameters.iconFontBold
-                    font.pixelSize: 22
+                    font.pixelSize: containerRect.globalScaleWidth / 41
                     fontSizeMode: Text.Fit
-                    minimumPixelSize: 10
+                    minimumPixelSize: 14
                     color: "#ffffff"
                 }
 
                 Text {
                     id: buttonText
-                    anchors.verticalCenter: parent.verticalCenter
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
                     text: root.buttonNames[root.buttonIndex]
                     font.family: Parameters.defaultFont
                     font.styleName: "Medium"
                     //style: containerRect.viewIndex == root.buttonIndex ? Text.Outline : Text.Normal
                     //styleColor: '#404040'
-                    font.pixelSize: 24
+                    font.pixelSize: containerRect.globalScaleWidth / 43
                     fontSizeMode: Text.Fit
-                    minimumPixelSize: 10
+                    minimumPixelSize: 12
                     color: "#ffffff"
+                }
+
+                Item {
+                    Layout.fillWidth: true
                 }
             }
         }

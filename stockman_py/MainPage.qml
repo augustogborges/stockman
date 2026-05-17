@@ -16,6 +16,9 @@ Rectangle {
     anchors.fill: parent
     color: Parameters.mainBgColor
 
+    property real globalScaleWidth: ((containerRect.height + containerRect.width) / 2.42) - sidebarRect.width
+    property real globalScaleHeight: (containerRect.height + containerRect.width) / 4.55
+
     property string search: ""
     property string userSearch: ""
     property string userFilter: userLevelSearcher.displayText
@@ -28,6 +31,7 @@ Rectangle {
     signal userAction
     signal userLogin
     property int lowItemThreshold: 10
+    property int lowItems: stock_model.getLowQuantityTotal(containerRect.lowItemThreshold)
     property int viewIndex: 0
 
     onLoggedUserChanged: {
@@ -108,6 +112,7 @@ Rectangle {
         smallestIndProfits.updateLowProfits();
         biggestIndProfits.updateHighProfits();
         financeSummary.regenSummary();
+        containerRect.lowItems = stock_model.getLowQuantityTotal(containerRect.lowItemThreshold);
     }
 
     StockModel {
@@ -134,7 +139,8 @@ Rectangle {
             id: sidebarRect
             Layout.fillHeight: true
             Layout.fillWidth: false
-            Layout.preferredWidth: containerRect.width / 10.6
+            Layout.preferredWidth: 170
+            Layout.maximumWidth: containerRect.width / 8
             topLeftRadius: 0
             bottomLeftRadius: 0
             topRightRadius: 3
@@ -179,7 +185,8 @@ Rectangle {
 
                 Item {
                     Layout.alignment: Qt.AlignHCenter
-                    Layout.preferredHeight: containerRect.height / 10.8
+                    Layout.preferredHeight: 110
+                    Layout.maximumHeight: containerRect.globalScaleHeight / 6
                     Layout.fillWidth: true
                     Layout.margins: 8
 
@@ -274,7 +281,9 @@ Rectangle {
                                 Layout.alignment: Qt.AlignVCenter
                                 text: ""
                                 font.family: Parameters.iconFontBold
-                                font.pointSize: 22
+                                font.pixelSize: containerRect.globalScaleHeight / 23
+                                fontSizeMode: Text.Fit
+                                minimumPixelSize: 12
                                 color: Qt.lighter(Parameters.mainHighlightBg, 4.1)
                             }
 
@@ -285,7 +294,9 @@ Rectangle {
                                 font.family: Parameters.defaultFont
                                 font.styleName: "Medium"
                                 font.underline: false
-                                font.pointSize: 18
+                                font.pixelSize: containerRect.globalScaleHeight / 24
+                                fontSizeMode: Text.Fit
+                                minimumPixelSize: 10
                                 color: Qt.lighter(Parameters.mainHighlightBg, 4.2)
                             }
                         }
@@ -363,8 +374,8 @@ Rectangle {
                     Rectangle {
                         id: userInfoContainer
                         anchors.centerIn: parent
-                        height: 100
-                        width: parent.width
+                        implicitHeight: 100
+                        implicitWidth: parent.width
                         radius: 30
                         gradient: Gradient {
                             orientation: Gradient.Horizontal
@@ -688,13 +699,14 @@ Rectangle {
                             }
 
                             Item {
-                                height: 10
+                                Layout.preferredHeight: 10
                             }
 
                             Rectangle {
                                 id: stockOnlyDash
                                 visible: false
-                                anchors.fill: parent
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
                                 color: "transparent"
 
                                 Item {
@@ -768,7 +780,7 @@ Rectangle {
                                                         Text {
                                                             Layout.alignment: Qt.AlignVCenter
                                                             Layout.fillWidth: false
-                                                            font.pixelSize: lowQuantityDisplayContainerSOD.height * 0.5
+                                                            font.pixelSize: lowQuantityDisplayContainerSOD.height * 0.42
                                                             minimumPixelSize: 8
                                                             fontSizeMode: Text.Fit
                                                             text: ""
@@ -779,7 +791,7 @@ Rectangle {
                                                         Text {
                                                             Layout.alignment: Qt.AlignVCenter
                                                             Layout.fillWidth: false
-                                                            font.pixelSize: lowQuantityDisplayContainerSOD.height * 0.35
+                                                            font.pixelSize: lowQuantityDisplayContainerSOD.height * 0.3
                                                             minimumPixelSize: 8
                                                             fontSizeMode: Text.Fit
                                                             text: stock_model.getLowQuantityTotal(containerRect.lowItemThreshold) + " itens precisam de reposição"
@@ -890,7 +902,9 @@ Rectangle {
                                                                 labelTextColor: "#000000"
                                                                 backgroundColor: "transparent"
                                                                 labelBackgroundVisible: true
-                                                                labelFont: Parameters.defaultFont
+                                                                labelFont.family: Parameters.defaultFont
+                                                                labelFont.styleName: "Medium"
+                                                                labelFont.pointSize: stockFillChartSOD.width * 0.22
                                                                 labelBorderVisible: true
                                                                 labelsVisible: true
                                                             }
@@ -1111,8 +1125,11 @@ Rectangle {
                                 columnSpacing: 10
                                 rowSpacing: 12
                                 visible: true
+                                Layout.fillHeight: true
+                                Layout.fillWidth: true
 
                                 Item {
+                                    id: profitDistItem
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
                                     Layout.rowSpan: 4
@@ -1122,25 +1139,26 @@ Rectangle {
                                         id: profitDistContainer
                                         anchors.fill: parent
                                         radius: Parameters.defaultRadius
-
                                         color: Parameters.shadeBgColor
 
                                         RowLayout {
                                             anchors.fill: parent
-                                            anchors.topMargin: parent.height * 0.05
-                                            anchors.bottomMargin: parent.height * 0.05
-                                            anchors.leftMargin: parent.width * 0.1
-                                            anchors.rightMargin: parent.width * 0.1
+
+                                            Item {
+                                                Layout.preferredWidth: parent.width * 0.1
+                                            }
 
                                             ColumnLayout {
+                                                Layout.topMargin: parent.height * 0.05
+                                                Layout.bottomMargin: parent.height * 0.05
                                                 Layout.fillHeight: true
-                                                Layout.fillWidth: false
-                                                Layout.preferredWidth: profitDistContainer.width * 0.4
+                                                Layout.fillWidth: true
+                                                Layout.preferredWidth: containerRect.globalScaleWidth * 0.165
 
                                                 Text {
                                                     Layout.fillWidth: true
                                                     Layout.fillHeight: false
-                                                    font.pixelSize: parent.height * 0.05
+                                                    font.pixelSize: (profitDistItem.width + 0.5 * profitDistItem.height) * 0.02
                                                     Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                                                     text: "Distribuição de Lucro Potencial no Inventário"
                                                     font.family: Parameters.defaultFont
@@ -1155,6 +1173,8 @@ Rectangle {
                                                     Layout.fillHeight: true
                                                     Layout.topMargin: parent.height * 0.04
                                                     Layout.bottomMargin: parent.height * 0.04
+                                                    Layout.maximumHeight: profitDistItem.height * 0.7
+                                                    Layout.maximumWidth: profitDistItem.width * 0.4
                                                     radius: Parameters.defaultRadius
                                                     color: "white"
                                                     border.width: 1
@@ -1182,38 +1202,42 @@ Rectangle {
 
                                                             RowLayout {
                                                                 anchors.fill: parent
+                                                                height: parent.height
 
                                                                 Rectangle {
                                                                     id: profitColorBallDelegate
-                                                                    Layout.fillHeight: false
                                                                     Layout.fillWidth: false
-                                                                    Layout.alignment: Qt.AlignVCenter
-                                                                    Layout.preferredHeight: profitDistInfoContainer.height * 0.065
-                                                                    Layout.preferredWidth: height
-                                                                    radius: height / 2
+                                                                    Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                                                    Layout.preferredWidth: containerRect.globalScaleWidth / 78
+                                                                    Layout.preferredHeight: width
+                                                                    radius: width / 2
                                                                     color: firstTab.graphColors[index]
                                                                 }
 
                                                                 Text {
+                                                                    Layout.maximumHeight: profitInfoDistContainer.height * 0.15
                                                                     Layout.fillWidth: true
                                                                     Layout.rightMargin: 12
-                                                                    Layout.fillHeight: false
-                                                                    Layout.alignment: Qt.AlignVCenter
+                                                                    Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                                                                     font.family: Parameters.defaultFont
                                                                     font.styleName: "Medium"
-                                                                    font.pixelSize: profitDistInfoContainer.height * 0.08
+                                                                    font.pixelSize: containerRect.globalScaleWidth / 50
+                                                                    fontSizeMode: Text.Fit
+                                                                    minimumPixelSize: 6
                                                                     elide: Text.ElideRight
                                                                     color: "#000000"
                                                                     text: stock_model.getSortedByTotalProfit(index).name
                                                                 }
 
                                                                 Text {
+                                                                    Layout.maximumHeight: profitInfoDistContainer.height * 0.15
                                                                     Layout.fillWidth: false
-                                                                    Layout.fillHeight: false
-                                                                    Layout.alignment: Qt.AlignVCenter
+                                                                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
                                                                     font.family: Parameters.defaultFont
                                                                     font.styleName: "Medium"
-                                                                    font.pixelSize: profitDistInfoContainer.height * 0.073
+                                                                    font.pixelSize: containerRect.globalScaleWidth / 50
+                                                                    fontSizeMode: Text.Fit
+                                                                    minimumPixelSize: 5
                                                                     color: "#000000"
                                                                     text: "R$" + stock_model.getSortedByTotalProfit(index).profit.toFixed(2).toString().replace(".", ",")
                                                                 }
@@ -1224,9 +1248,16 @@ Rectangle {
                                             }
 
                                             Rectangle {
-                                                Layout.fillHeight: true
-                                                Layout.fillWidth: false
-                                                Layout.preferredWidth: height
+                                                Layout.topMargin: parent.height * 0.05
+                                                Layout.bottomMargin: parent.height * 0.05
+                                                //Layout.fillHeight: true
+                                                //Layout.maximumHeight: parent.height * 0.8
+                                                Layout.fillWidth: true
+                                                //Layout.preferredWidth: height
+                                                Layout.preferredWidth: containerRect.globalScaleWidth * 0.23
+                                                Layout.preferredHeight: width
+                                                Layout.maximumHeight: profitDistItem.height * 0.85
+                                                Layout.maximumWidth: profitDistItem.height * 0.85
                                                 radius: Parameters.defaultRadius
                                                 color: "white"
                                                 border.width: 1
@@ -1243,7 +1274,9 @@ Rectangle {
                                                         labelTextColor: "#000000"
                                                         backgroundColor: "transparent"
                                                         labelBackgroundVisible: true
-                                                        labelFont: Parameters.defaultFont
+                                                        labelFont.family: Parameters.defaultFont
+                                                        labelFont.styleName: "Medium"
+                                                        labelFont.pointSize: stockProfitChart.width * 0.22
                                                         labelBorderVisible: true
                                                         labelsVisible: true
                                                     }
@@ -1276,6 +1309,10 @@ Rectangle {
                                                     Component.onCompleted: regenGraph()
                                                 }
                                             }
+
+                                            Item {
+                                                Layout.preferredWidth: parent.width * 0.1
+                                            }
                                         }
                                     }
 
@@ -1302,43 +1339,84 @@ Rectangle {
                                         id: stockFillContainer
                                         anchors.fill: parent
                                         radius: Parameters.defaultRadius
-
                                         color: Parameters.shadeBgColor
+                                        clip: true
 
                                         ColumnLayout {
                                             anchors.fill: parent
-                                            anchors.topMargin: parent.height * 0.05
+                                            /*anchors.topMargin: parent.height * 0.05
                                             anchors.bottomMargin: parent.height * 0.05
                                             anchors.leftMargin: parent.width * 0.08
-                                            anchors.rightMargin: parent.width * 0.08
+                                            anchors.rightMargin: parent.width * 0.08*/
                                             spacing: parent.height * 0.015
 
                                             RowLayout {
                                                 Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+                                                Layout.topMargin: stockFillContainer.height * 0.05
+                                                //Layout.leftMargin: stockFillContainer.width * 0.08
+                                                //Layout.rightMargin: stockFillContainer.width * 0.08
                                                 Layout.fillHeight: false
                                                 Layout.fillWidth: true
                                                 Layout.preferredHeight: stockFillContainer.height * 0.08
 
+                                                Item {
+                                                    Layout.horizontalStretchFactor: 1
+                                                    Layout.fillWidth: true
+                                                    Layout.maximumWidth: stockFillContainer.width * 0.08
+                                                    Layout.minimumWidth: 3
+                                                    Layout.preferredWidth: 4
+                                                }
+
                                                 Text {
+                                                    Layout.horizontalStretchFactor: 3
                                                     Layout.fillWidth: true
                                                     Layout.fillHeight: false
-                                                    font.pixelSize: stockFillContainer.height * 0.05
-                                                    Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                                    Layout.preferredWidth: implicitWidth
+                                                    Layout.maximumWidth: stockFillContainer.width * 0.45
+                                                    font.pixelSize: (stockFillContainer.width + 0.5 * stockFillContainer.height) * 0.027
+                                                    //Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
+                                                    Layout.alignment: Qt.AlignVCenter
                                                     text: "Composição do Estoque"
                                                     font.family: Parameters.defaultFont
                                                     font.styleName: "Medium"
+                                                    fontSizeMode: Text.Fit
+                                                    minimumPixelSize: 7
+                                                    elide: Text.ElideRight
                                                     color: "#000000"
                                                 }
 
                                                 Rectangle {
                                                     id: lowQuantityDisplayContainer
-                                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                                    Layout.horizontalStretchFactor: 3
+                                                    //Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                                    Layout.fillWidth: true
+                                                    Layout.alignment: Qt.AlignVCenter
+                                                    Layout.maximumWidth: stockFillContainer.width * 0.45
+                                                    //Layout.preferredWidth: stockWarn1.implicitWidth + 12 + stockWarn2.implicitWidth
                                                     Layout.preferredWidth: stockFillContainer.width * 0.4
-                                                    Layout.fillWidth: false
-                                                    Layout.fillHeight: true
-                                                    radius: width * 0.05
-                                                    //color: '#75da2121'
-                                                    gradient: Gradient {
+                                                    //Layout.minimumWidth: stockWarnLayout.width
+                                                    //Layout.fillHeight: true
+                                                    Layout.preferredHeight: stockWarn1.height * 1.55
+                                                    radius: height * 0.22
+                                                    color: '#75da2121'
+
+                                                    property var goodGradient: Gradient {
+                                                        orientation: Gradient.Horizontal
+                                                        GradientStop {
+                                                            position: 0.0
+                                                            color: Qt.lighter(Parameters.cashGreen, 1.35)
+                                                        }
+                                                        GradientStop {
+                                                            position: 0.4
+                                                            color: Qt.lighter(Parameters.cashGreen, 1.55)
+                                                        }
+                                                        GradientStop {
+                                                            position: 0.85
+                                                            color: Qt.lighter(Parameters.cashGreen, 1.45)
+                                                        }
+                                                    }
+
+                                                    property var badGradient: Gradient {
                                                         orientation: Gradient.Horizontal
                                                         GradientStop {
                                                             position: 0.0
@@ -1354,7 +1432,65 @@ Rectangle {
                                                         }
                                                     }
 
+                                                    gradient: containerRect.lowItems == 0 ? goodGradient : badGradient
+
                                                     RowLayout {
+                                                        id: stockWarnLayout
+                                                        anchors.fill: parent
+                                                        anchors.leftMargin: 4
+                                                        anchors.rightMargin: 4
+                                                        implicitWidth: parent.width - 8
+                                                        implicitHeight: parent.height
+
+                                                        /*Item {
+                                                            Layout.fillWidth: true
+                                                        }*/
+
+                                                        Text {
+                                                            id: stockWarn1
+                                                            //Layout.alignment: Qt.AlignVCenter
+                                                            Layout.fillWidth: true
+                                                            //font.pixelSize: stockFillContainer.width * 0.032
+                                                            font.pixelSize: 17
+                                                            fontSizeMode: Text.Fit
+                                                            Layout.maximumWidth: stockFillContainer.width * 0.3
+                                                            Layout.maximumHeight: stockFillContainer.height * 0.85
+                                                            minimumPixelSize: 5
+                                                            text: ""
+                                                            font.family: Parameters.iconFont
+                                                            color: "#000000"
+                                                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                                            verticalAlignment: Text.AlignVCenter
+                                                            horizontalAlignment: Text.AlignHCenter
+                                                        }
+
+                                                        Text {
+                                                            id: stockWarn2
+                                                            //Layout.alignment: Qt.AlignVCenter
+                                                            Layout.fillWidth: true
+                                                            //font.pixelSize: stockFillContainer.width * 0.027
+                                                            font.pixelSize: 16
+                                                            fontSizeMode: Text.Fit
+                                                            Layout.maximumWidth: stockFillContainer.width * 0.8
+                                                            Layout.minimumWidth: stockFillContainer.width * 0.2
+                                                            Layout.maximumHeight: stockFillContainer.height * 0.85
+                                                            minimumPixelSize: 8
+                                                            text: containerRect.lowItems + " itens precisam de reposição"
+                                                            font.family: Parameters.defaultFont
+                                                            //Layout.maximumWidth: lowQuantityDisplayContainer.width
+                                                            elide: Text.ElideRight
+                                                            color: "#000000"
+                                                            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                                                            verticalAlignment: Text.AlignVCenter
+                                                            horizontalAlignment: Text.AlignHCenter
+                                                        }
+
+                                                        /*Item {
+                                                            Layout.fillWidth: true
+                                                        }*/
+                                                    }
+
+                                                    /*RowLayout {
                                                         anchors.fill: parent
                                                         anchors.topMargin: -parent.height * 0.03
 
@@ -1365,7 +1501,9 @@ Rectangle {
                                                         Text {
                                                             Layout.alignment: Qt.AlignVCenter
                                                             Layout.fillWidth: false
-                                                            font.pixelSize: lowQuantityDisplayContainer.height * 0.6
+                                                            font.pixelSize: lowQuantityDisplayContainer.width * 0.08
+                                                            fontSizeMode: Text.Fit
+                                                            minimumPixelSize: 7
                                                             text: ""
                                                             font.family: Parameters.iconFont
                                                             color: "#000000"
@@ -1374,139 +1512,159 @@ Rectangle {
                                                         Text {
                                                             Layout.alignment: Qt.AlignVCenter
                                                             Layout.fillWidth: false
-                                                            font.pixelSize: lowQuantityDisplayContainer.height * 0.45
+                                                            font.pixelSize: lowQuantityDisplayContainer.width * 0.07
+                                                            fontSizeMode: Text.Fit
+                                                            minimumPixelSize: 6
                                                             text: stock_model.getLowQuantityTotal(containerRect.lowItemThreshold) + " itens precisam de reposição"
                                                             font.family: Parameters.defaultFont
+                                                            Layout.maximumWidth: lowQuantityDisplayContainer.width * 0.65
+                                                            elide: Text.ElideRight
                                                             color: "#000000"
                                                         }
 
                                                         Item {
                                                             Layout.fillWidth: true
                                                         }
-                                                    }
+                                                    }*/
+                                                }
+
+                                                Item {
+                                                    Layout.horizontalStretchFactor: 1
+                                                    Layout.fillWidth: true
+                                                    Layout.maximumWidth: stockFillContainer.width * 0.08
+                                                    Layout.minimumWidth: 3
+                                                    Layout.preferredWidth: 4
                                                 }
                                             }
 
                                             RowLayout {
                                                 Layout.fillWidth: true
                                                 Layout.fillHeight: true
+                                                Layout.leftMargin: stockFillContainer.width * 0.08
+                                                Layout.rightMargin: stockFillContainer.width * 0.08
                                                 spacing: stockFillContainer.width * 0.027
 
-                                                Item {
+                                                Rectangle {
+                                                    id: stockFillGraphList
                                                     Layout.fillHeight: true
                                                     Layout.fillWidth: false
                                                     Layout.preferredWidth: stockFillContainer.width / 3.5
+                                                    radius: Parameters.defaultRadius
+                                                    color: "white"
+                                                    border.width: 1
+                                                    border.color: Parameters.lightBorder
+                                                    clip: true
 
-                                                    Rectangle {
-                                                        id: stockFillGraphList
+                                                    ListView {
+                                                        id: stockFillList
+                                                        /*anchors {
+                                                            left: parent.left
+                                                            leftMargin: Math.max(2, parent.width * 0.03)
+                                                            right: parent.right
+                                                            rightMargin: Math.max(2, parent.width * 0.03)
+                                                            verticalCenter: parent.verticalCenter
+                                                        }
+                                                        height: Math.min((parent.height - Math.max(2, parent.height * 0.04)), count * stockFillGraphList.height * 0.13)
+                                                        width: parent.width*/
                                                         anchors.fill: parent
-                                                        radius: Parameters.defaultRadius
-                                                        color: "white"
-                                                        border.width: 1
-                                                        border.color: Parameters.lightBorder
-                                                        clip: true
+                                                        anchors.leftMargin: Math.max(2, parent.width * 0.03)
+                                                        anchors.rightMargin: Math.max(2, parent.width * 0.03)
+                                                        anchors.topMargin: Math.max(4, parent.height * 0.022)
+                                                        anchors.bottomMargin: Math.max(4, parent.height * 0.022)
+                                                        orientation: ListView.Vertical
+                                                        boundsBehavior: ListView.StopAtBounds
 
-                                                        ListView {
-                                                            id: stockFillList
-                                                            anchors.fill: parent
-                                                            anchors.leftMargin: parent.width * 0.03
-                                                            anchors.rightMargin: parent.width * 0.03
-                                                            anchors.topMargin: parent.height * 0.02
-                                                            anchors.bottomMargin: parent.height * 0.02
-                                                            orientation: ListView.Vertical
-                                                            boundsBehavior: ListView.StopAtBounds
+                                                        model: Math.min(containerRect.productsCount, 10)
 
-                                                            model: Math.min(containerRect.productsCount, 10)
+                                                        delegate: Rectangle {
+                                                            required property int index
+                                                            anchors.left: parent.left
+                                                            anchors.right: parent.right
+                                                            height: stockFillGraphList.height * 0.15
+                                                            color: "transparent"
 
-                                                            delegate: Rectangle {
-                                                                required property int index
-                                                                anchors.left: parent.left
-                                                                anchors.right: parent.right
-                                                                height: stockFillGraphList.height * 0.13
-                                                                color: "transparent"
+                                                            RowLayout {
+                                                                anchors.fill: parent
+                                                                anchors.leftMargin: 1
+                                                                anchors.rightMargin: 1
 
-                                                                RowLayout {
-                                                                    anchors.fill: parent
+                                                                Rectangle {
+                                                                    id: fillColorBallDelegate
+                                                                    Layout.fillHeight: false
+                                                                    Layout.fillWidth: false
+                                                                    Layout.alignment: Qt.AlignVCenter
+                                                                    Layout.preferredHeight: (stockFillGraphList.width + 0.3 * stockFillGraphList.height) * 0.055
+                                                                    Layout.preferredWidth: height
+                                                                    radius: height / 2
+                                                                    color: firstTab.graphColors[index]
+                                                                }
 
-                                                                    Rectangle {
-                                                                        id: fillColorBallDelegate
-                                                                        Layout.fillHeight: false
-                                                                        Layout.fillWidth: false
-                                                                        Layout.alignment: Qt.AlignVCenter
-                                                                        Layout.preferredHeight: stockFillGraphList.height * 0.057
-                                                                        Layout.preferredWidth: height
-                                                                        radius: height / 2
-                                                                        color: firstTab.graphColors[index]
-                                                                    }
-
-                                                                    Text {
-                                                                        Layout.fillWidth: true
-                                                                        Layout.fillHeight: false
-                                                                        Layout.alignment: Qt.AlignVCenter
-                                                                        font.family: Parameters.defaultFont
-                                                                        font.styleName: "Medium"
-                                                                        font.pixelSize: stockFillGraphList.height * 0.067
-                                                                        color: "#000000"
-                                                                        renderType: Text.CurveRendering
-                                                                        elide: Text.ElideRight
-                                                                        text: stock_model.getSortedByStockQuantity(index, containerRect.lowItemThreshold).name
-                                                                    }
+                                                                Text {
+                                                                    Layout.fillWidth: true
+                                                                    Layout.fillHeight: false
+                                                                    Layout.alignment: Qt.AlignVCenter
+                                                                    font.family: Parameters.defaultFont
+                                                                    font.styleName: "Medium"
+                                                                    font.pixelSize: (stockFillGraphList.width + 0.3 * stockFillGraphList.height) * 0.08
+                                                                    color: "#000000"
+                                                                    //renderType: Text.CurveRendering
+                                                                    elide: Text.ElideRight
+                                                                    text: stock_model.getSortedByStockQuantity(index, containerRect.lowItemThreshold).name
                                                                 }
                                                             }
                                                         }
                                                     }
                                                 }
 
-                                                Item {
-                                                    Layout.fillHeight: true
+                                                Rectangle {
+                                                    id: stockFillGraph
                                                     Layout.fillWidth: true
+                                                    Layout.fillHeight: true
+                                                    Layout.maximumHeight: width
+                                                    radius: Parameters.defaultRadius
+                                                    border.width: 1
+                                                    border.color: Parameters.lightBorder
 
-                                                    Rectangle {
-                                                        id: stockFillGraph
-                                                        anchors.fill: parent
-                                                        radius: Parameters.defaultRadius
-                                                        border.width: 1
-                                                        border.color: Parameters.lightBorder
-
-                                                        GraphsView {
-                                                            id: stockFillChart
-                                                            anchors.centerIn: parent
-                                                            antialiasing: true
-                                                            width: parent.width * 1.22
-                                                            height: width
-                                                            shadowVisible: true
-                                                            theme: GraphsTheme {
-                                                                labelTextColor: "#000000"
-                                                                backgroundColor: "transparent"
-                                                                labelBackgroundVisible: true
-                                                                labelFont: Parameters.defaultFont
-                                                                labelBorderVisible: true
-                                                                labelsVisible: true
-                                                            }
-
-                                                            PieSeries {
-                                                                id: stockPieSeries
-                                                            }
-
-                                                            function regenGraph() {
-                                                                stockPieSeries.clear();
-                                                                for (var i = 0; i < containerRect.productsCount; i++) {
-                                                                    var number = stock_model.getSortedByStockQuantity(i, containerRect.lowItemThreshold).percentage;
-                                                                    var slice = stockPieSeries.append(stock_model.getSortedByStockQuantity(i, containerRect.lowItemThreshold).percentage + "%", stock_model.getSortedByStockQuantity(i, containerRect.lowItemThreshold).percentage);
-                                                                    slice.borderWidth = 0;
-                                                                    slice.color = firstTab.graphColors[i];
-                                                                    slice.label = stock_model.getSortedByStockQuantity(i, containerRect.lowItemThreshold).percentage + "%";
-                                                                    if (number >= 10) {
-                                                                        slice.labelVisible = true;
-                                                                        slice.labelPosition = PieSlice.LabelPosition.InsideHorizontal;
-                                                                    }// else {
-                                                                    // slice.labelPosition = PieSlice.LabelPosition.Outside;
-                                                                    //slice.labelArmLengthFactor = 0.07;
-                                                                    //}
-                                                                }
-                                                            }
-                                                            Component.onCompleted: regenGraph()
+                                                    GraphsView {
+                                                        id: stockFillChart
+                                                        anchors.centerIn: parent
+                                                        antialiasing: true
+                                                        width: parent.width * 1.22
+                                                        height: width
+                                                        shadowVisible: true
+                                                        theme: GraphsTheme {
+                                                            labelTextColor: "#000000"
+                                                            backgroundColor: "transparent"
+                                                            labelBackgroundVisible: true
+                                                            labelFont.family: Parameters.defaultFont
+                                                            labelFont.styleName: "Medium"
+                                                            labelFont.pointSize: stockFillChart.width * 0.22
+                                                            labelBorderVisible: true
+                                                            labelsVisible: true
                                                         }
+
+                                                        PieSeries {
+                                                            id: stockPieSeries
+                                                        }
+
+                                                        function regenGraph() {
+                                                            stockPieSeries.clear();
+                                                            for (var i = 0; i < containerRect.productsCount; i++) {
+                                                                var number = stock_model.getSortedByStockQuantity(i, containerRect.lowItemThreshold).percentage;
+                                                                var slice = stockPieSeries.append(stock_model.getSortedByStockQuantity(i, containerRect.lowItemThreshold).percentage + "%", stock_model.getSortedByStockQuantity(i, containerRect.lowItemThreshold).percentage);
+                                                                slice.borderWidth = 0;
+                                                                slice.color = firstTab.graphColors[i];
+                                                                slice.label = stock_model.getSortedByStockQuantity(i, containerRect.lowItemThreshold).percentage + "%";
+                                                                if (number >= 10) {
+                                                                    slice.labelVisible = true;
+                                                                    slice.labelPosition = PieSlice.LabelPosition.InsideHorizontal;
+                                                                }// else {
+                                                                // slice.labelPosition = PieSlice.LabelPosition.Outside;
+                                                                //slice.labelArmLengthFactor = 0.07;
+                                                                //}
+                                                            }
+                                                        }
+                                                        Component.onCompleted: regenGraph()
                                                     }
                                                 }
                                             }
@@ -1515,6 +1673,9 @@ Rectangle {
                                                 Layout.fillWidth: true
                                                 Layout.fillHeight: false
                                                 Layout.preferredHeight: stockFillContainer.height * 0.15
+                                                Layout.bottomMargin: stockFillContainer.height * 0.05
+                                                Layout.leftMargin: stockFillContainer.width * 0.08
+                                                Layout.rightMargin: stockFillContainer.width * 0.08
 
                                                 Rectangle {
                                                     Layout.alignment: Qt.AlignVCenter
@@ -1541,7 +1702,7 @@ Rectangle {
                                                     Text {
                                                         Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                                                         font.family: Parameters.defaultFont
-                                                        font.pixelSize: stockFillContainer.height * 0.036
+                                                        font.pixelSize: stockFillContainer.width * 0.036
                                                         text: "Total de produtos:"
                                                         color: "#000000"
                                                     }
@@ -1550,7 +1711,7 @@ Rectangle {
                                                         Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                                                         font.family: Parameters.defaultFont
                                                         font.styleName: "Medium"
-                                                        font.pixelSize: stockFillContainer.height * 0.05
+                                                        font.pixelSize: stockFillContainer.width * 0.05
                                                         text: stock_model.getTotalQuant()
                                                         color: "#000000"
                                                     }
@@ -1580,7 +1741,7 @@ Rectangle {
                                                     Text {
                                                         Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                                                         font.family: Parameters.defaultFont
-                                                        font.pixelSize: stockFillContainer.height * 0.036
+                                                        font.pixelSize: stockFillContainer.width * 0.036
                                                         text: "Tipos de produtos:"
                                                         color: "#000000"
                                                     }
@@ -1589,7 +1750,7 @@ Rectangle {
                                                         Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
                                                         font.family: Parameters.defaultFont
                                                         font.styleName: "Medium"
-                                                        font.pixelSize: stockFillContainer.height * 0.05
+                                                        font.pixelSize: stockFillContainer.width * 0.05
                                                         text: containerRect.productsCount
                                                         color: "#000000"
                                                     }
@@ -2464,9 +2625,10 @@ Rectangle {
                             Rectangle {
                                 id: newUserButton
                                 Layout.alignment: Qt.AlignTop | Qt.AlignRight
-                                Layout.preferredWidth: thirdTab.width / 12
-                                Layout.preferredHeight: thirdTab.height / 30
-                                radius: Parameters.defaultRadius
+                                //Layout.preferredWidth: newUserBIcon.contentWidth + newUserBText.contentWidth + 18
+                                Layout.preferredWidth: newUserBLayout.implicitWidth + 12
+                                Layout.preferredHeight: containerRect.globalScaleHeight / 13
+                                radius: width / 1.7
 
                                 property var bgGradient: Gradient {
                                     orientation: Gradient.Horizontal
@@ -2489,25 +2651,47 @@ Rectangle {
                                 color: Parameters.highlightFg
 
                                 RowLayout {
-                                    anchors.centerIn: parent
-                                    spacing: 4
+                                    id: newUserBLayout
+                                    anchors.fill: parent
+                                    spacing: 0
 
-                                    Text {
-                                        font.family: Parameters.defaultFont
-                                        font.styleName: "Medium"
-                                        font.pointSize: 16
-                                        text: "+"
-                                        color: "#ffffff"
-                                        //style: Text.Outline
+                                    Item {
+                                        Layout.preferredWidth: 8
                                     }
 
                                     Text {
+                                        id: newUserBIcon
+                                        font.family: Parameters.iconFontBold
+                                        font.styleName: "Bold"
+                                        font.pixelSize: 22
+                                        text: ""
+                                        color: "#ffffff"
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 12
+                                        horizontalAlignment: Text.AlignLeft
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+                                        width: newUserButton.height - 4
+                                    }
+
+                                    Text {
+                                        id: newUserBText
                                         font.family: Parameters.defaultFont
                                         font.styleName: "Medium"
-                                        font.pointSize: 11
+                                        font.pixelSize: 20
                                         text: "Novo Usuário"
                                         color: "#ffffff"
-                                        //style: Text.Outline
+                                        fontSizeMode: Text.Fit
+                                        minimumPixelSize: 12
+                                        horizontalAlignment: Text.AlignRight
+                                        verticalAlignment: Text.AlignVCenter
+                                        Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                                        width: containerRect.globalScaleWidth / 34
+                                        Component.onCompleted: console.log(width, containerRect.globalScaleWidth / 28, containerRect.globalScaleWidth)
+                                    }
+
+                                    Item {
+                                        Layout.preferredWidth: 8
                                     }
                                 }
 
@@ -3537,15 +3721,16 @@ Rectangle {
 
         Rectangle {
             anchors.centerIn: parent
-            width: childrenRect.width + 35
-            height: childrenRect.height + 30
+            anchors.horizontalCenterOffset: sidebarRect.width / 2
+            width: containerRect.globalScaleWidth + containerRect.globalScaleWidth / 25
+            height: 190 + containerRect.globalScaleWidth / 27
             radius: 30
             color: Parameters.pressedButtonBg
 
             ColumnLayout {
                 anchors.centerIn: parent
-                width: containerRect.width * 0.5
-                spacing: containerRect.height * 0.006
+                width: containerRect.globalScaleWidth
+                spacing: containerRect.globalScaleHeight * 0.006
 
                 Rectangle {
                     Layout.fillWidth: true
@@ -3560,20 +3745,26 @@ Rectangle {
                         color: Parameters.mainBgColor
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 18
+                        font.pixelSize: 26
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 10
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
                 RowLayout {
                     Layout.fillWidth: true
-                    Layout.leftMargin: containerRect.width * 0.012
-                    Layout.rightMargin: containerRect.width * 0.012
-                    spacing: containerRect.width * 0.001
+                    Layout.leftMargin: containerRect.globalScaleWidth * 0.012
+                    Layout.rightMargin: containerRect.globalScaleWidth * 0.012
+                    spacing: containerRect.globalScaleWidth * 0.001
 
                     Rectangle {
                         id: addUNameContainer
                         Layout.fillWidth: true
-                        Layout.preferredWidth: containerRect.width * 0.3
+                        Layout.preferredWidth: containerRect.globalScaleWidth * 0.3
                         Layout.horizontalStretchFactor: 3
                         radius: Parameters.defaultRadius
                         Layout.preferredHeight: 40
@@ -3625,7 +3816,7 @@ Rectangle {
                         id: userLevelCombo
                         model: ["Estoque", "Financeiro", "Supervisão"]
                         Layout.fillWidth: true
-                        Layout.preferredWidth: containerRect.width * 0.12
+                        Layout.preferredWidth: containerRect.globalScaleWidth * 0.12
                         Layout.horizontalStretchFactor: 1
                         Layout.preferredHeight: 40
                         displayText: "Cargo"
@@ -3708,7 +3899,7 @@ Rectangle {
                         background: Rectangle {
                             id: comboBg
                             Layout.fillWidth: true
-                            Layout.preferredWidth: containerRect.width * 0.12
+                            Layout.preferredWidth: containerRect.globalScaleWidth * 0.12
                             Layout.horizontalStretchFactor: 1
                             radius: Parameters.defaultRadius
                             Layout.preferredHeight: 40
@@ -3758,10 +3949,10 @@ Rectangle {
                 }
 
                 Rectangle {
-                    Layout.fillWidth: true
-                    Layout.leftMargin: (containerRect.width * 0.5 - passwordWarn.width) / 2.3
-                    Layout.rightMargin: (containerRect.width * 0.5 - passwordWarn.width) / 2.3
+                    Layout.preferredWidth: passwordWarn.contentWidth + 16
+                    Layout.maximumWidth: containerRect.globalScaleWidth
                     Layout.preferredHeight: 40
+                    Layout.alignment: Qt.AlignHCenter
                     color: Parameters.shadeBgColor
                     border.width: 2
                     border.color: Parameters.lowCashRed
@@ -3772,12 +3963,16 @@ Rectangle {
                         anchors.centerIn: parent
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pixelSize: parent.height * 0.45
+                        font.pixelSize: 16
                         fontSizeMode: Text.Fit
                         minimumPixelSize: 10
                         wrapMode: Text.Wrap
                         color: "#454545"
                         text: "A senha inicial será definida a seguir. O nome de usuário será criado a partir do nome completo."
+                        width: containerRect.globalScaleWidth * 0.8
+                        height: parent.height - 8
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -3936,20 +4131,21 @@ Rectangle {
 
             Rectangle {
                 anchors.centerIn: parent
-                width: containerRect.width * 0.5 + 35
-                height: tempMasterColumn.implicitHeight + 30
+                anchors.horizontalCenterOffset: sidebarRect.width / 2
+                width: containerRect.globalScaleWidth + containerRect.globalScaleWidth / 25
+                height: 180 + containerRect.globalScaleWidth / 27
                 radius: 30
                 color: Parameters.pressedButtonBg
 
                 ColumnLayout {
                     id: tempMasterColumn
                     anchors.centerIn: parent
-                    width: containerRect.width * 0.5
-                    spacing: containerRect.height * 0.006
+                    width: containerRect.globalScaleWidth * 0.5
+                    spacing: containerRect.globalScaleHeight * 0.006
 
                     Rectangle {
                         Layout.fillWidth: true
-                        height: 55
+                        Layout.preferredHeight: 55
                         color: Parameters.mainHighlightBg
                         topLeftRadius: 15
                         topRightRadius: 15
@@ -3960,17 +4156,21 @@ Rectangle {
                             color: Parameters.mainBgColor
                             font.family: Parameters.defaultFont
                             font.styleName: "Medium"
-                            font.pointSize: 18
+                            font.pixelSize: 26
                             fontSizeMode: Text.Fit
                             minimumPixelSize: 10
+                            width: parent.width - 4
+                            height: parent.height - 4
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
                         }
                     }
 
                     Rectangle {
                         Layout.fillWidth: true
-                        Layout.leftMargin: containerRect.width * 0.1
-                        Layout.rightMargin: containerRect.width * 0.1
-                        Layout.preferredHeight: warnColumn.implicitHeight + containerRect.height * 0.04
+                        Layout.leftMargin: containerRect.globalScaleWidth * 0.1
+                        Layout.rightMargin: containerRect.globalScaleWidth * 0.1
+                        Layout.preferredHeight: warnColumn.implicitHeight + containerRect.globalScaleHeight * 0.04
                         color: Parameters.shadeBgColor
                         border.width: 2
                         border.color: Parameters.lowCashRed
@@ -3979,7 +4179,7 @@ Rectangle {
                         ColumnLayout {
                             id: warnColumn
                             anchors.centerIn: parent
-                            implicitWidth: parent.width - containerRect.width * 0.05
+                            implicitWidth: parent.width - containerRect.globalScaleWidth * 0.05
 
                             Text {
                                 id: showUsernameDisplay
@@ -4210,8 +4410,9 @@ Rectangle {
 
         Rectangle {
             anchors.centerIn: parent
-            width: childrenRect.width + 35
-            height: childrenRect.height + 30
+            anchors.horizontalCenterOffset: sidebarRect.width / 2
+            width: containerRect.globalScaleWidth + containerRect.globalScaleWidth / 25
+            height: 180 + containerRect.globalScaleWidth / 27
             radius: 30
             color: Parameters.pressedButtonBg
 
@@ -4219,7 +4420,7 @@ Rectangle {
                 columns: 4
                 rows: 4
                 anchors.centerIn: parent
-                width: containerRect.width * 0.67
+                width: containerRect.globalScaleWidth
                 columnSpacing: 1
                 rowSpacing: 2
 
@@ -4237,7 +4438,13 @@ Rectangle {
                         color: Parameters.mainBgColor
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 18
+                        font.pixelSize: 26
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 10
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -4255,10 +4462,14 @@ Rectangle {
                         color: '#000000'
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Nome Completo"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -4276,10 +4487,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Username"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -4297,12 +4512,17 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Cargo"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
+
                 Rectangle {
                     Layout.horizontalStretchFactor: 2
                     Layout.preferredWidth: 1
@@ -4317,10 +4537,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Senha"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -4392,12 +4616,12 @@ Rectangle {
                         displayText: {
                             let userLevel = parseInt(user_model.getUserLevel(editUUsername.text));
                             switch (userLevel) {
-                                case 0:
-                                    return "Supervisão";
-                                case 1:
-                                    return "Financeiro";
-                                default:
-                                    return "Estoque";
+                            case 0:
+                                return "Supervisão";
+                            case 1:
+                                return "Financeiro";
+                            default:
+                                return "Estoque";
                             }
                         }
                         onActivated: displayText = model[index]
@@ -4479,7 +4703,7 @@ Rectangle {
                         background: Rectangle {
                             id: editLevelBg
                             Layout.fillWidth: true
-                            Layout.preferredWidth: containerRect.width * 0.12
+                            Layout.preferredWidth: containerRect.globalScaleWidth * 0.12
                             Layout.horizontalStretchFactor: 1
                             radius: Parameters.defaultRadius
                             Layout.preferredHeight: 40
@@ -4529,6 +4753,7 @@ Rectangle {
                 }
 
                 Rectangle {
+                    id: userPassResetRect
                     Layout.horizontalStretchFactor: 2
                     Layout.preferredWidth: 1
                     Layout.fillWidth: true
@@ -4542,21 +4767,23 @@ Rectangle {
                         text: qsTr("Trocar Senha?")
                         checked: false
                         anchors.centerIn: parent
+                        implicitWidth: targetWidth + passCheckText.width + 7
+                        property real targetWidth: containerRect.globalScaleWidth / 55
 
                         indicator: Rectangle {
-                            implicitHeight: 28
-                            implicitWidth: 28
+                            implicitHeight: resetPassCheck.targetWidth
+                            implicitWidth: resetPassCheck.targetWidth
                             color: Parameters.mainBgColor
                             border.color: resetPassCheck.down ? Parameters.pressedButtonBg : resetPassCheck.checked ? Qt.darker(Parameters.mainHighlightBg, 2.5) : Parameters.hoveredButtonBg
-                            x: resetPassCheck.leftPadding
+                            x: resetPassCheck.leftPadding * 1.3
                             y: parent.height / 2 - height / 2
                             radius: 4
 
                             Rectangle {
-                                width: 16
-                                height: 16
-                                x: 6
-                                y: 6
+                                width: resetPassCheck.targetWidth * 0.64
+                                height: resetPassCheck.targetWidth * 0.64
+                                x: (resetPassCheck.targetWidth - resetPassCheck.targetWidth * 0.64) / 2
+                                y: (resetPassCheck.targetWidth - resetPassCheck.targetWidth * 0.64) / 2
                                 radius: 3
                                 color: (resetPassCheck.down || resetPassCheck.checked) ? Parameters.mainHighlightBg : Parameters.shadeBgColor
                                 visible: resetPassCheck.checked
@@ -4564,6 +4791,7 @@ Rectangle {
                         }
 
                         contentItem: Text {
+                            id: passCheckText
                             text: resetPassCheck.text
                             font.family: Parameters.defaultFont
                             font.styleName: "Medium"
@@ -4572,8 +4800,11 @@ Rectangle {
                             minimumPixelSize: 6
                             color: "#000000"
                             verticalAlignment: Text.AlignVCenter
+                            //horizontalAlignment: Text.AlignHCenter
                             //Layout.alignment: Qt.AlignVCenter
-                            leftPadding: 31
+                            leftPadding: resetPassCheck.targetWidth + 4 + resetPassCheck.leftPadding * 0.3
+                            height: resetPassCheck.targetWidth
+                            width: userPassResetRect.width - (resetPassCheck.targetWidth + 8)
                         }
                     }
                 }
@@ -4754,7 +4985,7 @@ Rectangle {
 
             Rectangle {
                 anchors.centerIn: parent
-                width: containerRect.width * 0.5 + 35
+                width: containerRect.globalScaleWidth + containerRect.globalScaleWidth / 25
                 height: editTDColumn.implicitHeight + 30
                 radius: 30
                 color: Parameters.pressedButtonBg
@@ -4762,12 +4993,12 @@ Rectangle {
                 ColumnLayout {
                     id: editTDColumn
                     anchors.centerIn: parent
-                    width: containerRect.width * 0.5
-                    spacing: containerRect.height * 0.006
+                    width: containerRect.globalScaleWidth
+                    spacing: containerRect.globalScaleHeight * 0.006
 
                     Rectangle {
                         Layout.fillWidth: true
-                        height: 55
+                        Layout.preferredHeight: 55
                         color: Parameters.mainHighlightBg
                         topLeftRadius: 15
                         topRightRadius: 15
@@ -4778,17 +5009,21 @@ Rectangle {
                             color: Parameters.mainBgColor
                             font.family: Parameters.defaultFont
                             font.styleName: "Medium"
-                            font.pointSize: 18
+                            font.pixelSize: 26
                             fontSizeMode: Text.Fit
                             minimumPixelSize: 10
+                            width: parent.width - 4
+                            height: parent.height - 4
+                            verticalAlignment: Text.AlignVCenter
+                            horizontalAlignment: Text.AlignHCenter
                         }
                     }
 
                     Rectangle {
                         Layout.fillWidth: true
-                        Layout.leftMargin: containerRect.width * 0.1
-                        Layout.rightMargin: containerRect.width * 0.1
-                        Layout.preferredHeight: tWarnColumn.implicitHeight + containerRect.height * 0.04
+                        Layout.leftMargin: containerRect.globalScaleWidth * 0.1
+                        Layout.rightMargin: containerRect.globalScaleWidth * 0.1
+                        Layout.preferredHeight: tWarnColumn.implicitHeight + containerRect.globalScaleHeight * 0.04
                         color: Parameters.shadeBgColor
                         border.width: 2
                         border.color: Parameters.lowCashRed
@@ -4797,7 +5032,7 @@ Rectangle {
                         ColumnLayout {
                             id: tWarnColumn
                             anchors.centerIn: parent
-                            implicitWidth: parent.width - containerRect.width * 0.05
+                            implicitWidth: parent.width - containerRect.globalScaleWidth * 0.05
 
                             Text {
                                 id: editedUnameDisplay
@@ -5025,8 +5260,9 @@ Rectangle {
 
         Rectangle {
             anchors.centerIn: parent
-            width: childrenRect.width + 35
-            height: childrenRect.height + 30
+            anchors.horizontalCenterOffset: sidebarRect.width / 2
+            width: containerRect.globalScaleWidth + containerRect.globalScaleWidth / 25
+            height: 180 + containerRect.globalScaleWidth / 27
             radius: 30
             color: Parameters.pressedButtonBg
 
@@ -5034,7 +5270,7 @@ Rectangle {
                 columns: 3
                 rows: 4
                 anchors.centerIn: parent
-                width: containerRect.width * 0.67
+                width: containerRect.globalScaleWidth
                 columnSpacing: 1
                 rowSpacing: 2
 
@@ -5052,7 +5288,13 @@ Rectangle {
                         color: Parameters.mainBgColor
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 18
+                        font.pixelSize: 26
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 10
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5070,10 +5312,14 @@ Rectangle {
                         color: '#000000'
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Nome Completo"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5091,10 +5337,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Username"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5112,10 +5362,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Cargo"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5391,8 +5645,9 @@ Rectangle {
 
         Rectangle {
             anchors.centerIn: parent
-            width: childrenRect.width + 35
-            height: childrenRect.height + 30
+            anchors.horizontalCenterOffset: sidebarRect.width / 2
+            width: containerRect.globalScaleWidth + containerRect.globalScaleWidth / 25
+            height: 140 + containerRect.globalScaleWidth / 27
             radius: 30
             color: Parameters.pressedButtonBg
 
@@ -5400,14 +5655,14 @@ Rectangle {
                 columns: 4
                 rows: 3
                 anchors.centerIn: parent
-                width: containerRect.width * 0.67
+                width: containerRect.globalScaleWidth
                 columnSpacing: 1
                 rowSpacing: 2
 
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.columnSpan: 4
-                    height: 55
+                    Layout.preferredHeight: 55
                     color: Parameters.mainHighlightBg
                     topLeftRadius: 15
                     topRightRadius: 15
@@ -5418,7 +5673,13 @@ Rectangle {
                         color: Parameters.mainBgColor
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 18
+                        font.pixelSize: 26
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 10
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5797,8 +6058,9 @@ Rectangle {
 
         Rectangle {
             anchors.centerIn: parent
-            width: childrenRect.width + 35
-            height: childrenRect.height + 30
+            anchors.horizontalCenterOffset: sidebarRect.width / 2
+            width: containerRect.globalScaleWidth + containerRect.globalScaleWidth / 25
+            height: 180 + containerRect.globalScaleWidth / 27
             radius: 30
             color: Parameters.pressedButtonBg
 
@@ -5806,7 +6068,7 @@ Rectangle {
                 columns: 4
                 rows: 4
                 anchors.centerIn: parent
-                width: containerRect.width * 0.67
+                width: containerRect.globalScaleWidth
                 columnSpacing: 1
                 rowSpacing: 2
 
@@ -5824,7 +6086,13 @@ Rectangle {
                         color: Parameters.mainBgColor
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 18
+                        font.pixelSize: 26
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 10
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5843,8 +6111,14 @@ Rectangle {
                         color: '#000000'
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 15
+                        font.pixelSize: 18
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 7
                         text: "Nome do Produto"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5863,8 +6137,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 15
+                        font.pixelSize: 18
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 7
                         text: "Quantidade"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5883,8 +6163,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 15
+                        font.pixelSize: 18
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 7
                         text: "Preço de Custo"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -5903,8 +6189,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 15
+                        font.pixelSize: 18
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 7
                         text: "Preço de Venda"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -6240,8 +6532,9 @@ Rectangle {
 
         Rectangle {
             anchors.centerIn: parent
-            width: childrenRect.width + 35
-            height: childrenRect.height + 30
+            anchors.horizontalCenterOffset: sidebarRect.width / 2
+            width: containerRect.globalScaleWidth + containerRect.globalScaleWidth / 25
+            height: 180 + containerRect.globalScaleWidth / 27
             radius: 30
             color: Parameters.pressedButtonBg
 
@@ -6249,7 +6542,7 @@ Rectangle {
                 columns: 4
                 rows: 4
                 anchors.centerIn: parent
-                width: containerRect.width * 0.67
+                width: containerRect.globalScaleWidth
                 columnSpacing: 1
                 rowSpacing: 2
 
@@ -6267,7 +6560,13 @@ Rectangle {
                         color: Parameters.mainBgColor
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: 18
+                        font.pixelSize: 26
+                        fontSizeMode: Text.Fit
+                        minimumPixelSize: 10
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -6285,10 +6584,14 @@ Rectangle {
                         color: '#000000'
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Nome do Produto"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -6306,10 +6609,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Quantidade"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -6327,10 +6634,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Custo"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -6348,10 +6659,14 @@ Rectangle {
                         color: "#000000"
                         font.family: Parameters.defaultFont
                         font.styleName: "Medium"
-                        font.pointSize: parent.height * 0.44
+                        font.pixelSize: 18
                         fontSizeMode: Text.Fit
-                        minimumPixelSize: 8
+                        minimumPixelSize: 7
                         text: "Venda"
+                        width: parent.width - 4
+                        height: parent.height - 4
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 

@@ -58,6 +58,9 @@ Item {
             }
         }
 
+        property real loginScaleWidth: ((loginContainer.height + loginContainer.width) / 2.42)
+        property real loginScaleHeight: (loginContainer.height + loginContainer.width) / 4.55
+
         UserModel {
             id: user_model
         }
@@ -90,7 +93,7 @@ Item {
                 loginContent.visible = false;
                 loginContainer.userLogin(username, userlevel);
             }
-        }      
+        }
 
         Rectangle {
             id: tempPassDialog
@@ -592,7 +595,7 @@ Item {
                                 wrapMode: Text.Wrap
                                 Layout.preferredWidth: parent.implicitWidth
                                 readOnly: true
-                                
+
                                 HoverHandler {
                                     enabled: parent.visible
                                     cursorShape: Qt.IBeamCursor
@@ -692,9 +695,10 @@ Item {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.fillHeight: true
                 Layout.preferredHeight: 96
-                Layout.minimumHeight: 96
-                Layout.maximumHeight: 96
-                Layout.preferredWidth: loginContent.width / 12
+                Layout.minimumHeight: 80
+                Layout.maximumHeight: 110
+                Layout.preferredWidth: 160
+                Layout.maximumWidth: loginContent.width / 5
                 radius: 32
                 gradient: Gradient {
                     orientation: Gradient.Horizontal
@@ -783,7 +787,7 @@ Item {
 
                 ColumnLayout {
                     id: loginMainColumn
-                    anchors.fill: parent
+                    anchors.centerIn: parent
                     spacing: 18
 
                     Text {
@@ -820,9 +824,8 @@ Item {
                     Rectangle {
                         id: userContainer
                         Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: false
                         Layout.fillHeight: false
-                        Layout.preferredWidth: loginContent.width / 6.4
+                        Layout.preferredWidth: loginContent.loginScaleWidth / 2.6
                         Layout.preferredHeight: 60
                         color: "transparent"
 
@@ -844,6 +847,7 @@ Item {
                             anchors.topMargin: 4
                             anchors.left: parent.left
                             anchors.right: parent.right
+                            width: userContainer.width
 
                             background: Rectangle {
                                 width: userContainer.width
@@ -897,9 +901,8 @@ Item {
                     Rectangle {
                         id: passwdContainer
                         Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: false
                         Layout.fillHeight: false
-                        Layout.preferredWidth: loginContent.width / 6.4
+                        Layout.preferredWidth: loginContent.loginScaleWidth / 2.6
                         Layout.preferredHeight: 60
                         color: "transparent"
 
@@ -979,7 +982,7 @@ Item {
                             property bool shouldHideChars: true
 
                             background: Rectangle {
-                                width: parent.width
+                                width: passwdContainer.width
                                 height: parent.height
                                 radius: 12
 
@@ -1036,9 +1039,44 @@ Item {
                         id: loginSubmit
                         Layout.alignment: Qt.AlignHCenter
                         Layout.fillHeight: false
-                        Layout.preferredWidth: loginContent.width / 9.6
+                        Layout.preferredWidth: loginContent.loginScaleWidth / 5
                         Layout.preferredHeight: 40
                         radius: 15
+
+                        function checkLogin() {
+                            if (usernameInput.text != "" && passwdInput.text != "") {
+                                if (loginContainer.noExistingUsers) {
+                                    user_model.setFirstUser(usernameInput.text, passwdInput.text);
+                                    usernameWarnDialog.createdUser = [usernameInput.text, 0];
+                                    usernameWarnDialog.open();
+                                } else {
+                                    if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha temp correta") {
+                                        tempPassDialog.targetUsername = usernameInput.text;
+                                        tempPassDialog.targetLevel = user_model.getUserLevel(usernameInput.text);
+                                        tempPassDialog.open();
+                                    } else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha correta") {
+                                        loginContent.login(usernameInput.text, user_model.getUserLevel(usernameInput.text));
+                                    } else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha incorreta") {
+                                        passwdLabel.color = '#e03b3b';
+                                        passwdInput.color = "#dc2332";
+                                    } else {
+                                        userLabel.color = "#e03b3b";
+                                        usernameInput.color = "#dc2332";
+                                    }
+                                }
+                            } else if (usernameInput.text != "" && passwdInput.text == "") {
+                                passwdLabel.color = '#e03b3b';
+                                passwdInput.placeholderTextColor = "#dc2332";
+                            } else if (usernameInput.text == "" && passwdInput.text != "") {
+                                userLabel.color = "#e03b3b";
+                                usernameInput.placeholderTextColor = "#dc2332";
+                            } else {
+                                passwdLabel.color = '#e03b3b';
+                                passwdInput.placeholderTextColor = "#dc2332";
+                                userLabel.color = "#e03b3b";
+                                usernameInput.placeholderTextColor = "#dc2332";
+                            }
+                        }
 
                         property var bgGradient: Gradient {
                             orientation: Gradient.Horizontal
@@ -1076,6 +1114,12 @@ Item {
                             //style: Text.Outline
                         }
 
+                        Shortcut {
+                            enabled: usernameInput.text && passwdInput.text
+                            sequences: ["EnterKey", "Enter", "Return", "ReturnKey"]
+                            onActivated: loginSubmit.checkLogin()
+                        }
+
                         MouseArea {
                             id: loginSubmitPointHandler
                             anchors.fill: loginSubmit
@@ -1093,38 +1137,7 @@ Item {
                             }
 
                             onClicked: {
-                                if (usernameInput.text != "" && passwdInput.text != "") {
-                                    if (loginContainer.noExistingUsers) {
-                                        user_model.setFirstUser(usernameInput.text, passwdInput.text);
-                                        usernameWarnDialog.createdUser = [usernameInput.text, 0];
-                                        usernameWarnDialog.open();
-                                    } else {
-                                        if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha temp correta") {
-                                            tempPassDialog.targetUsername = usernameInput.text;
-                                            tempPassDialog.targetLevel = user_model.getUserLevel(usernameInput.text);
-                                            tempPassDialog.open();
-                                        } else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha correta") {
-                                            loginContent.login(usernameInput.text, user_model.getUserLevel(usernameInput.text));
-                                        } else if (user_model.checkLogin(usernameInput.text, passwdInput.text) == "senha incorreta") {
-                                            passwdLabel.color = '#e03b3b';
-                                            passwdInput.color = "#dc2332";
-                                        } else {
-                                            userLabel.color = "#e03b3b";
-                                            usernameInput.color = "#dc2332";
-                                        }
-                                    }
-                                } else if (usernameInput.text != "" && passwdInput.text == "") {
-                                    passwdLabel.color = '#e03b3b';
-                                    passwdInput.placeholderTextColor = "#dc2332";
-                                } else if (usernameInput.text == "" && passwdInput.text != "") {
-                                    userLabel.color = "#e03b3b";
-                                    usernameInput.placeholderTextColor = "#dc2332";
-                                } else {
-                                    passwdLabel.color = '#e03b3b';
-                                    passwdInput.placeholderTextColor = "#dc2332";
-                                    userLabel.color = "#e03b3b";
-                                    usernameInput.placeholderTextColor = "#dc2332";
-                                }
+                                loginSubmit.checkLogin();
                             }
                         }
                     }
