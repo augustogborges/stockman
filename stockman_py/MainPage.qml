@@ -544,7 +544,6 @@ Rectangle {
                                         minimumPixelSize: 6
                                         Layout.maximumWidth: userInfoRect.width * 0.6
                                         elide: Text.ElideRight
-                                        wrapMode: Text.Wrap
                                     }
 
                                     Text {
